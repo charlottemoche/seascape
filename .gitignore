@@ -5,6 +5,7 @@ node_modules/
 
 # Expo
 .expo/
+.expo-shared/
 dist/
 web-build/
 expo-env.d.ts
@@ -32,6 +33,35 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
+
+# iOS
+ios/build/
+ios/Pods/
+ios/*.xcworkspace
+ios/Podfile.lock
+ios/DerivedData/
+ios/current.xcworkspace/
+ios/current.xcodeproj/project.xcworkspace/
+ios/current.xcodeproj/xcuserdata/
+ios/current.xcodeproj/project.pbxproj
+ios/current/Images.xcassets/
+
+# Android
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+
+# Common
+*.log
+*.lock
+*.xcuserstate
+*.iml
+
+# EAS/Expo
+eas.json

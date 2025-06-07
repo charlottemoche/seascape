@@ -1,31 +1,73 @@
-import { StyleSheet } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import waveBackground from '@/assets/images/wave.png';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function HomeScreen() {
+  const router = useRouter();
 
-export default function TabOneScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <ImageBackground
+      source={waveBackground}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <Text style={styles.title}>Welcome to Current</Text>
+        <Text style={styles.subtitle}>A calming journey beneath the surface</Text>
+
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.button} onPress={() => router.push('/swim')}>
+            <Text style={styles.buttonText}>Swim</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={() => router.push('/breathe')}>
+            <Text style={styles.buttonText}>Breathe</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    alignItems: 'center',
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  overlay: {
+    backgroundColor: 'rgba(0, 30, 50, 0.4)',
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  title: {
+    fontSize: 32,
+    color: 'white',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#cfe9f1',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  buttonContainer: {
+    gap: 16,
+    width: '100%',
+  },
+  button: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 20,
   },
 });

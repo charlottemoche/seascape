@@ -5,6 +5,8 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import * as Linking from 'expo-linking';
+import { supabase } from '@/utils/supabase';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -46,12 +48,31 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const url = Linking.useURL();
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    if (!url) return;
+
+    const { queryParams } = Linking.parse(url);
+    const access_token = Array.isArray(queryParams?.access_token)
+      ? queryParams?.access_token[0]
+      : queryParams?.access_token;
+
+    const refresh_token = Array.isArray(queryParams?.refresh_token)
+      ? queryParams?.refresh_token[0]
+      : queryParams?.refresh_token;
+
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token });
+    }
+  }, [url]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
