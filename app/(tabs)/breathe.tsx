@@ -29,7 +29,7 @@ export default function BreatheScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.top}>
+      <View style={[styles.top, !isRunning && styles.centerInstruction]}>
         {isRunning ? (
           <BreatheCircle />
         ) : (
@@ -55,20 +55,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#001f33',
     justifyContent: 'space-between',
   },
-  top: {
-    paddingTop: 80,
-    alignItems: 'center',
-  },
   bottom: {
     paddingBottom: 48,
     alignItems: 'center',
+  },
+  top: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerInstruction: {
+    justifyContent: 'center',
+    paddingTop: 0,
   },
   instruction: {
     color: '#cfe9f1',
     fontSize: 20,
     textAlign: 'center',
     lineHeight: 28,
-    paddingTop: 80,
     paddingHorizontal: 40,
   },
 });

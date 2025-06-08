@@ -88,7 +88,7 @@ export default function JournalScreen() {
         numberOfLines={5}
         style={styles.textArea}
         placeholder="Write your thoughts here..."
-        placeholderTextColor="#999"
+        placeholderTextColor="rgba(0, 31, 51, 0.7)"
       />
 
       <Pressable
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   feelingButton: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(207, 233, 241, 0.2)',
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
@@ -141,15 +141,15 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   selectedFeelingButton: {
-    backgroundColor: '#e6f0ff',
-    borderColor: '#0070f3',
+    backgroundColor: 'rgba(207, 233, 241, 0.8)',
+    borderColor: '#fff',
   },
   feelingText: {
-    color: '#333',
+    color: '#fff',
     fontWeight: '500',
   },
   selectedFeelingText: {
-    color: '#0070f3',
+    color: '#001f33',
     fontWeight: '600',
   },
   prompt: {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   textArea: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(207, 233, 241, 0.7)',
     borderRadius: 8,
     padding: 10,
     height: 120,

@@ -86,9 +86,11 @@ export default function BreatheTimer({
       )}
 
       <Pressable onPress={() => setShowTime(!showTime)}>
-        <Text style={showTime ? styles.timer : styles.noTimer}>
-          {showTime ? formatTime(timeLeft) : 'Tap to reveal time remaining'}
-        </Text>
+        <View style={styles.timerWrapper}>
+          <Text style={showTime ? styles.timer : styles.noTimer}>
+            {showTime ? formatTime(timeLeft) : 'Tap to reveal time remaining'}
+          </Text>
+        </View>
       </Pressable>
 
       {!isRunning ? (
@@ -118,6 +120,10 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     textAlign: 'center',
   },
+  timerWrapper: {
+    height: 120,
+    justifyContent: 'center',
+  },
   startBtn: {
     backgroundColor: '#cfe9f1',
     paddingVertical: 12,
@@ -134,7 +140,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    marginBottom: 20,
   },
   durationBtn: {
     borderColor: '#cfe9f1',

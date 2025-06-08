@@ -1,8 +1,7 @@
-import { View, Text, ImageBackground, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, Pressable, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import waveBackground from '@/assets/images/wave.png';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 
 export default function HomeScreen() {
@@ -44,19 +43,19 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ImageBackground source={waveBackground} style={styles.background} resizeMode="cover">
+    <ScrollView contentContainerStyle={styles.background}>
       <View style={styles.overlay}>
         <Text style={styles.title}>Welcome to Current</Text>
         <Text style={styles.subtitle}>Your personal mindfulness companion</Text>
 
         <View style={[styles.card, styles.darkCard]}>
-          <Text style={styles.cardTitle}>Mindfulness Streaks</Text>
+          <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
                 <TabBarIcon name="pencil" color="#cfe9f1" type="SimpleLineIcons" size={20} />
               </View>
-              <Text style={styles.cardSubtitle}>Journaling</Text>
+              <Text style={styles.streakSubtitle}>Journaling</Text>
               <Text style={styles.cardDataStreaks}>
                 {journalStreak !== null && journalStreak > 0 ? `${journalStreak} days` : 'No data'}
               </Text>
@@ -65,7 +64,7 @@ export default function HomeScreen() {
               <View style={styles.iconWrapper}>
                 <TabBarIcon name="leaf-outline" color="#cfe9f1" type="Ionicons" size={20} />
               </View>
-              <Text style={styles.cardSubtitle}>Breathing</Text>
+              <Text style={styles.streakSubtitle}>Breathing</Text>
               <Text style={styles.cardDataStreaks}>
                 {breathStreak !== null && breathStreak > 0 ? `${breathStreak} days` : 'No data'}
               </Text>
@@ -74,15 +73,13 @@ export default function HomeScreen() {
         </View>
 
         <View style={[styles.card, styles.darkCard]}>
-          <View style={styles.actionHeader}>
-            <Text style={styles.cardTitle}>Total Time Meditated</Text>
-          </View>
-           <View style={styles.streakRow}>
+          <Text style={styles.streakTitle}>Total Time Meditated</Text>
+          <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
                 <TabBarIcon name="clock" color="#cfe9f1" type="SimpleLineIcons" size={20} />
               </View>
-              <Text style={styles.cardSubtitle}>Minutes</Text>
+              <Text style={styles.streakSubtitle}>Minutes</Text>
               <Text style={styles.cardDataStreaks}>
                 {totalMinutes !== null ? `${totalMinutes} minutes` : 'No minutes logged yet'}
               </Text>
@@ -110,7 +107,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </View>
-    </ImageBackground>
+    </ScrollView>
   );
 }
 
@@ -122,7 +119,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   overlay: {
-    backgroundColor: 'rgba(0, 30, 50, 0.6)',
+    backgroundColor: '#001f33',
     padding: 24,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -149,7 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   darkCard: {
-    backgroundColor: 'rgba(0, 31, 51, 0.9)',
+    backgroundColor: 'rgba(207, 233, 241, 0.1)'
   },
   cardTitle: {
     fontSize: 18,
@@ -157,18 +154,31 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cardSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#cfe9f1',
   },
   cardData: {
     fontSize: 16,
     color: '#cfe9f1',
   },
+  streakTitle: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  streakSubtitle: {
+    fontSize: 14,
+    color: '#cfe9f1',
+    marginTop: 2,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#cfe9f1',
+    paddingBottom: 2,
+  },
   cardDataStreaks: {
     fontSize: 16,
     color: '#cfe9f1',
-    borderTopWidth: 1,
-    borderTopColor: '#cfe9f1',
     paddingTop: 4,
     marginTop: 8,
   },
@@ -191,9 +201,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   actionCard: {
-    borderLeftWidth: 3,
-    borderLeftColor: '#cfe9f1',
-    backgroundColor: 'rgba(0, 31, 51, 0.3)',
+    borderLeftWidth: 5,
+    borderTopWidth: 0.5,
+    borderBottomWidth: 0.5,
+    borderRightWidth: 0.5,
+    borderColor: 'rgba(207, 233, 241, 0.4)',
   },
   actionHeader: {
     flexDirection: 'row',
