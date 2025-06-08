@@ -48,25 +48,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const url = Linking.useURL();
   const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    if (!url) return;
-
-    const { queryParams } = Linking.parse(url);
-    const access_token = Array.isArray(queryParams?.access_token)
-      ? queryParams?.access_token[0]
-      : queryParams?.access_token;
-
-    const refresh_token = Array.isArray(queryParams?.refresh_token)
-      ? queryParams?.refresh_token[0]
-      : queryParams?.refresh_token;
-
-    if (access_token && refresh_token) {
-      supabase.auth.setSession({ access_token, refresh_token });
-    }
-  }, [url]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
