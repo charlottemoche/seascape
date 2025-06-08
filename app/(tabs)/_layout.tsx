@@ -25,7 +25,7 @@ export default function ProtectedTabLayout() {
 
   if (loading) return null;
 
-  if (!session) return <Redirect href="/login" />;
+  // if (!session) return <Redirect href="/login" />;
 
   return <TabLayout />;
 }

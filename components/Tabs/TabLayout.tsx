@@ -40,6 +40,14 @@ export function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="journal"
+        options={{
+          title: 'Journal',
+          tabBarIcon: ({ color }) =>
+            TabBarIcon({ name: 'pencil', color, type: 'SimpleLineIcons' }),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',

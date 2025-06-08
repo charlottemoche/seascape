@@ -6,26 +6,38 @@ export default function BreatheCircle() {
   const scale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const loopBreathing = () => {
-      setPhase('Inhale');
-      Animated.timing(scale, {
-        toValue: 1.6,
-        duration: 4000,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: false,
-      }).start(() => {
-        setPhase('Exhale');
+    const breathingAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scale, {
+          toValue: 1.6,
+          duration: 4000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
         Animated.timing(scale, {
           toValue: 1,
           duration: 4000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
-        }).start(loopBreathing);
-      });
-    };
+        }),
+      ])
+    );
 
-    loopBreathing();
+    breathingAnimation.start();
+
+    // Cleanup
+    return () => {
+      breathingAnimation.stop();
+    };
   }, [scale]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhase((prev) => (prev === 'Inhale' ? 'Exhale' : 'Inhale'));
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -41,7 +53,6 @@ export default function BreatheCircle() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -59,6 +70,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#cfe9f1',
     textAlign: 'center',
-    paddingTop: 20,
+    paddingTop: 40,
   },
 });

@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 type FontAwesomeIconProps = {
     type?: 'FontAwesome';
@@ -31,10 +32,18 @@ type IoniconsIconProps = {
     size?: number;
 };
 
+type SimpleLineIconsIconProps = {
+    type: 'SimpleLineIcons';
+    name: React.ComponentProps<typeof SimpleLineIcons>['name'];
+    color: string;
+    size?: number;
+};
+
 type TabBarIconProps =
     | FontAwesomeIconProps
     | EntypoIconProps
     | AntDesignIconProps
+    | SimpleLineIconsIconProps
     | IoniconsIconProps;
 
 
@@ -49,6 +58,8 @@ export function TabBarIcon(props: TabBarIconProps) {
             return <AntDesign name={props.name} color={color} size={size} style={style} />;
         case 'Ionicons':
             return <Ionicons name={props.name} color={color} size={size} style={style} />;
+        case 'SimpleLineIcons':
+            return <SimpleLineIcons name={props.name} color={color} size={size} style={style} />;
         case 'FontAwesome':
         default:
             return <FontAwesome name={props.name} color={color} size={size} style={style} />;

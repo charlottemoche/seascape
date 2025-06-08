@@ -2,9 +2,30 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
+import { supabase } from '@/utils/supabase';
 
 export default function BreatheScreen() {
   const [isRunning, setIsRunning] = useState(false);
+
+  const handleBreathComplete = async (duration: number) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('You must be logged in to track this session.');
+      return;
+    }
+
+    const { error } = await supabase.from('breaths').insert({
+      user_id: user.id,
+      duration,
+    });
+
+    if (error) {
+      alert('Error saving session');
+      console.error(error);
+    } else {
+      console.info('Breathing session saved!');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -21,7 +42,7 @@ export default function BreatheScreen() {
         <BreatheTimer
           isRunning={isRunning}
           setIsRunning={setIsRunning}
-          onComplete={() => console.log('Meditation complete')}
+          onComplete={handleBreathComplete}
         />
       </View>
     </View>

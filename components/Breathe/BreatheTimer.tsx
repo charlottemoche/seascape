@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { supabase } from '@/utils/supabase';
 
 type BreatheTimerProps = {
   isRunning: boolean;
   setIsRunning: (val: boolean) => void;
-  onComplete: () => void;
+  onComplete: (duration: number) => void | Promise<void>;
 };
 
 export default function BreatheTimer({
@@ -30,7 +31,7 @@ export default function BreatheTimer({
         if (prev <= 1) {
           clearInterval(interval);
           setIsRunning(false);
-          onComplete();
+          onComplete(duration);
           return 0;
         }
         return prev - 1;
