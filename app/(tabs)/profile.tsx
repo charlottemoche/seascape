@@ -13,8 +13,6 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Profile</Text>
-
       <Pressable onPress={handleLogout} style={styles.button}>
         <Text style={styles.buttonText}>Log Out</Text>
       </Pressable>
