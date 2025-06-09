@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   overlay: {
-    backgroundColor: '#001f33',
+    backgroundColor: Colors.custom.background,
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',

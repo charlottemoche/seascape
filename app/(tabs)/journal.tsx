@@ -109,7 +109,7 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#001f33',
+    backgroundColor: Colors.custom.background,
     padding: 20,
   },
   title: {
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   selectedFeelingText: {
-    color: '#001f33',
+    color: Colors.custom.background,
     fontWeight: '600',
   },
   prompt: {
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   submitText: {
-    color: '#001f33',
+    color: Colors.custom.background,
     fontWeight: '600',
     fontSize: 16,
   },

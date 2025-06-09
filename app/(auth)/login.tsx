@@ -44,12 +44,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'center',
     fontSize: 18,
-    color: '#001f33',
+    color:  Colors.custom.background,
     fontWeight: 'bold',
   },
   buttonText: {
     fontSize: 16,
-    color: '#001f33',
+    color: Colors.custom.background,
     fontWeight: '600',
   },
 });

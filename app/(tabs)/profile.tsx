@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
+import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/utils/supabase';
 import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
@@ -17,7 +18,8 @@ import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, profile, setUser } = useUser();
+  const { user, setUser } = useUser();
+  const { profile } = useProfile();
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
@@ -51,50 +53,62 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Customize Your Fish</Text>
+    <View style={styles.wrapper}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Customize Your Fish</Text>
 
-      <View style={styles.colorOptions}>
-        {availableColors.map((color) => (
-          <Pressable key={color} onPress={() => setFishColor(color)}>
-            <Image
-              source={fishImages[color]}
-              style={[
-                styles.smallFish,
-                fishColor === color && styles.selectedFish,
-              ]}
-            />
-          </Pressable>
-        ))}
+        <View style={styles.colorOptions}>
+          {availableColors.map((color) => (
+            <Pressable key={color} onPress={() => setFishColor(color)}>
+              <Image
+                source={fishImages[color]}
+                style={[
+                  styles.smallFish,
+                  fishColor === color && styles.selectedFish,
+                ]}
+              />
+            </Pressable>
+          ))}
+        </View>
+
+        <Image source={fishImages[fishColor]} style={styles.bigFish} />
+
+        <TextInput
+          value={fishName}
+          onChangeText={setFishName}
+          placeholder="Name your fish"
+          placeholderTextColor="#888"
+          style={styles.input}
+        />
       </View>
 
-      <Image source={fishImages[fishColor]} style={styles.bigFish} />
-
-      <TextInput
-        value={fishName}
-        onChangeText={setFishName}
-        placeholder="Name your fish"
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
-
-      <Pressable onPress={handleSave} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </Pressable>
-
-      <Pressable onPress={handleLogout} style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Log out</Text>
-      </Pressable>
-    </ScrollView>
+      <View style={styles.logoutWrapper}>
+        <Pressable onPress={handleLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutText}>Log out</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: Colors.custom.background,
+  },
+
   container: {
-    backgroundColor: '#001f33',
-    padding: 24,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    flexGrow: 1,
+    padding: 24,
+  },
+
+  logoutWrapper: {
+    backgroundColor: Colors.custom.background,
+    paddingBottom: 24,
+    paddingTop: 12,
+    alignItems: 'center',
   },
   title: {
     color: Colors.custom.lightBlue,
@@ -138,11 +152,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saveButtonText: {
-    color: '#001f33',
+    color: Colors.custom.background,
     fontWeight: '600',
   },
   logoutButton: {
-    marginTop: 'auto',
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 8,

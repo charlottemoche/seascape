@@ -75,7 +75,7 @@ export default function BreatheTimer({
               <Text
                 style={[
                   styles.durationText,
-                  duration === min && { color: '#001f33', fontWeight: 'bold' },
+                  duration === min && { color: Colors.custom.background, fontWeight: 'bold' },
                 ]}
               >
                 {min} min
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   startText: {
     fontSize: 18,
-    color: '#001f33',
+    color: Colors.custom.background,
     fontWeight: 'bold',
   },
   buttonRow: {

@@ -53,7 +53,7 @@ export default function BreatheScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#001f33',
+    backgroundColor: Colors.custom.background,
     justifyContent: 'space-between',
   },
   bottom: {
