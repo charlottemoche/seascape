@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 
 export default function BreatheScreen() {

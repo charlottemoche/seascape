@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 
 const emotions = {

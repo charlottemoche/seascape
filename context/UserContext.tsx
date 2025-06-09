@@ -1,10 +1,10 @@
-// context/UserContext.tsx
 import React, { createContext, useEffect, useState, useContext, ReactNode } from 'react';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 type UserContextType = {
-  user: any | null;
-  setUser: (user: any | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   hasJournaledToday: boolean;
   hasMeditatedToday: boolean;
   loading: boolean;
@@ -13,33 +13,36 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [hasJournaledToday, setHasJournaledToday] = useState(false);
   const [hasMeditatedToday, setHasMeditatedToday] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserAndStreaks = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (error || !user) {
+    const fetchUserAndStreaks = async (currentUser: User | null) => {
+      if (!currentUser) {
+        setUser(null);
+        setHasJournaledToday(false);
+        setHasMeditatedToday(false);
         setLoading(false);
         return;
       }
 
-      setUser(user);
+      setUser(currentUser);
+      setLoading(true);
+
       const today = new Date().toISOString().split('T')[0];
 
       const { data: journal } = await supabase
         .from('journal')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .eq('date', today);
 
       const { data: breaths } = await supabase
         .from('breaths')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .eq('date', today);
 
       setHasJournaledToday((journal?.length ?? 0) > 0);
@@ -47,7 +50,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     };
 
-    fetchUserAndStreaks();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      fetchUserAndStreaks(session?.user ?? null);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      fetchUserAndStreaks(session?.user ?? null);
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return (

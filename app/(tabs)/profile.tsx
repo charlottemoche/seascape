@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,12 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  ScrollView,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
 import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
@@ -19,41 +19,74 @@ import Colors from '@/constants/Colors';
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, setUser } = useUser();
-  const { profile } = useProfile();
+  const { profile, refreshProfile } = useProfile();
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-  const rawColor = profile?.fish_color;
-  const initialColor = availableColors.includes(rawColor as FishColor)
-    ? (rawColor as FishColor)
-    : 'blue';
-
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
-  const [fishColor, setFishColor] = useState<FishColor>(initialColor);
+  const [fishColor, setFishColor] = useState<FishColor>(
+    availableColors.includes(profile?.fish_color as FishColor)
+      ? (profile?.fish_color as FishColor)
+      : 'blue'
+  );
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setFishName(profile?.fish_name ?? '');
+  }, [profile?.fish_name]);
+
+  useEffect(() => {
+    setFishColor(
+      availableColors.includes(profile?.fish_color as FishColor)
+        ? (profile?.fish_color as FishColor)
+        : 'blue'
+    );
+  }, [profile?.fish_color]);
 
   const handleSave = async () => {
     if (!user) return;
-    console.log('Saving fish profile...', { fishColor, fishName });
+    setSaving(true);
 
     const { error } = await supabase
       .from('profiles')
-      .update({ fish_color: fishColor, fish_name: fishName })
-      .eq('user_id', user.id);
+      .upsert(
+        {
+          user_id: user.id,
+          fish_color: fishColor,
+          fish_name: fishName,
+        },
+        { onConflict: 'user_id' }
+      );
+
+    setSaving(false);
 
     if (error) {
       console.error('Save error:', error);
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
     } else {
-      console.log('Profile saved!');
+      await refreshProfile();
+      Alert.alert('Success', 'Profile updated.');
     }
   };
 
-  const handleLogout = () => {
-    setUser(null); // fake logout
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Failed to log out. Please try again.');
+      return;
+    }
+    setUser(null);
     router.replace('/login');
   };
 
   return (
     <View style={styles.wrapper}>
+      <View style={styles.loggedInWrapper}>
+        <Text style={styles.loggedInText}>
+          Logged in as: {user?.email ?? 'No email'}
+        </Text>
+      </View>
       <View style={styles.container}>
         <Text style={styles.title}>Customize Your Fish</Text>
 
@@ -80,6 +113,14 @@ export default function ProfileScreen() {
           placeholderTextColor="#888"
           style={styles.input}
         />
+
+        <Pressable
+          onPress={handleSave}
+          style={[styles.saveButton, saving && { opacity: 0.6 }]}
+          disabled={saving}
+        >
+          <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save'}</Text>
+        </Pressable>
       </View>
 
       <View style={styles.logoutWrapper}>
@@ -96,14 +137,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.custom.background,
   },
-
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-
+  loggedInWrapper: {
+    backgroundColor: Colors.custom.background,
+    paddingTop: 24,
+    alignItems: 'center',
+  },
+  loggedInText: {
+    color: Colors.custom.lightBlue,
+  },
   logoutWrapper: {
     backgroundColor: Colors.custom.background,
     paddingBottom: 24,
@@ -133,7 +180,7 @@ const styles = StyleSheet.create({
   },
   selectedFish: {
     borderBottomColor: '#fff',
-    borderBottomWidth: 2
+    borderBottomWidth: 2,
   },
   input: {
     borderWidth: 1,
@@ -166,6 +213,6 @@ const styles = StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 8,
     borderWidth: 0.5,
-    padding: 6
+    padding: 6,
   },
 });

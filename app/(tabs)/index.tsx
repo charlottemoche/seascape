@@ -2,32 +2,24 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useUserStats } from '@/components/hooks/user/useUserStats';
-import { useUser } from '@/context/UserContext';
 import { ActivityIndicator } from 'react-native';
+import { useRequireAuth } from '@/components/hooks/user/useRequireAuth';
 import Colors from '@/constants/Colors';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, loading: userLoading } = useUser();
+  const { user, loading } = useRequireAuth();
 
-  if (userLoading) {
+  const {
+    journalStreak,
+    breathStreak,
+    totalMinutes,
+    loading: statsLoading,
+  } = useUserStats(user?.id ?? null);
+
+  if (loading || statsLoading || !user) {
     return (
       <View style={styles.overlay}>
-        <ActivityIndicator size="large" color="#cfe9f1" />
-      </View>
-    );
-  }
-
-  if (!user) {
-    router.replace('/login');
-    return null;
-  }
-
-  const { journalStreak, breathStreak, totalMinutes, loading: statsLoading } = useUserStats(user.id);
-
-  if (statsLoading) {
-    return (
-       <View style={styles.overlay}>
         <ActivityIndicator size="large" color="#cfe9f1" />
       </View>
     );

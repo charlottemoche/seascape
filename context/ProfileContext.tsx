@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
 
 type ProfileType = {
@@ -20,15 +20,22 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<ProfileType | null>(null);
 
   const refreshProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      setProfile(null);
+      return;
+    }
 
     const { data, error } = await supabase
       .from('profiles')
       .select('fish_color, fish_name')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (!error) setProfile(data ?? null);
+    if (error) {
+      console.error('Profile fetch error:', error);
+    } else {
+      setProfile(data ?? null);
+    }
   };
 
   useEffect(() => {
