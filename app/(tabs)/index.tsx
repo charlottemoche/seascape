@@ -4,6 +4,7 @@ import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useUserStats } from '@/components/hooks/user/useUserStats';
 import { useUser } from '@/context/UserContext';
 import { ActivityIndicator } from 'react-native';
+import Colors from '@/constants/Colors';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function HomeScreen() {
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="pencil" color="#ce6548" type="SimpleLineIcons" size={20} />
+                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Journaling</Text>
               <Text style={styles.cardDataStreaks}>
@@ -52,7 +53,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="leaf-outline" color="#4b9032" type="Ionicons" size={20} />
+                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Breathing</Text>
               <Text style={styles.cardDataStreaks}>
@@ -67,7 +68,7 @@ export default function HomeScreen() {
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="clock" color="#7bb6d4" type="SimpleLineIcons" size={20} />
+                <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Minutes</Text>
               <Text style={styles.cardDataStreaks}>
@@ -80,7 +81,7 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/journal')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="SimpleLineIcons" name="pencil" color="#ce6548" size={18} />
+              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
               <Text style={styles.cardTitle}>How are you feeling?</Text>
             </View>
             <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
@@ -90,7 +91,7 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/breathe')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="Ionicons" name="leaf-outline" color="#4b9032" size={20} />
+              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
               <Text style={styles.cardTitle}>Need a moment?</Text>
             </View>
             <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -145,11 +146,11 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     fontSize: 16,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
   },
   cardData: {
     fontSize: 16,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
   },
   streakTitle: {
     fontSize: 20,
@@ -160,21 +161,21 @@ const styles = StyleSheet.create({
   },
   streakSubtitle: {
     fontSize: 14,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     marginTop: 2,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#cfe9f1',
+    borderBottomColor: Colors.custom.lightBlue,
     paddingBottom: 2,
   },
   cardDataStreaks: {
     fontSize: 16,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     paddingTop: 4,
     marginTop: 8,
   },
   cardLink: {
     fontSize: 16,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     textDecorationLine: 'underline',
   },
   streakRow: {

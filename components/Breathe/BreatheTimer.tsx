@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { supabase } from '@/utils/supabase';
+import Colors from '@/constants/Colors';
 
 type BreatheTimerProps = {
   isRunning: boolean;
@@ -68,7 +68,7 @@ export default function BreatheTimer({
               onPress={() => setDuration(min)}
               style={[
                 styles.durationBtn,
-                duration === min && { backgroundColor: '#cfe9f1' },
+                duration === min && { backgroundColor: Colors.custom.lightBlue },
                 { opacity: 0.5 },
               ]}
             >
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   noTimer: {
     fontSize: 18,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     marginVertical: 30,
     textAlign: 'center',
   },
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   startBtn: {
-    backgroundColor: '#cfe9f1',
+    backgroundColor: Colors.custom.lightBlue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
@@ -142,18 +142,18 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   durationBtn: {
-    borderColor: '#cfe9f1',
+    borderColor: Colors.custom.lightBlue,
     borderWidth: 1,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
   durationText: {
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
   },
   phase: {
     fontSize: 20,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     textAlign: 'center',
     marginTop: 20,
   },

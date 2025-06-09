@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
+import Colors from '@/constants/Colors';
 
 export default function BreatheCircle() {
   const [phase, setPhase] = useState<'Inhale' | 'Exhale'>('Inhale');
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   },
   phase: {
     fontSize: 28,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     textAlign: 'center',
     paddingTop: 40,
   },

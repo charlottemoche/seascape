@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/utils/supabase';
+import Colors from '@/constants/Colors';
 
 export default function BreatheScreen() {
   const [isRunning, setIsRunning] = useState(false);
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   instruction: {
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     fontSize: 20,
     textAlign: 'center',
     lineHeight: 28,

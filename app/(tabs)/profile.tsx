@@ -13,7 +13,7 @@ import { useUser } from '@/context/UserContext';
 import { supabase } from '@/utils/supabase';
 import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
-
+import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -31,13 +31,18 @@ export default function ProfileScreen() {
 
   const handleSave = async () => {
     if (!user) return;
+    console.log('Saving fish profile...', { fishColor, fishName });
 
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({ fish_color: fishColor, fish_name: fishName })
       .eq('user_id', user.id);
 
-    // Optionally refresh user context if needed
+    if (error) {
+      console.error('Save error:', error);
+    } else {
+      console.log('Profile saved!');
+    }
   };
 
   const handleLogout = () => {
@@ -51,15 +56,15 @@ export default function ProfileScreen() {
 
       <View style={styles.colorOptions}>
         {availableColors.map((color) => (
-            <Pressable key={color} onPress={() => setFishColor(color)}>
+          <Pressable key={color} onPress={() => setFishColor(color)}>
             <Image
               source={fishImages[color]}
               style={[
-              styles.smallFish,
-              fishColor === color && styles.selectedFish,
+                styles.smallFish,
+                fishColor === color && styles.selectedFish,
               ]}
             />
-            </Pressable>
+          </Pressable>
         ))}
       </View>
 
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   title: {
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 24,
@@ -118,7 +123,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#cfe9f1',
+    borderColor: Colors.custom.lightBlue,
     borderRadius: 8,
     padding: 10,
     color: '#fff',
@@ -126,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saveButton: {
-    backgroundColor: '#cfe9f1',
+    backgroundColor: Colors.custom.lightBlue,
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 8,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { supabase } from '@/utils/supabase';
-
+import Colors from '@/constants/Colors';
 
 const emotions = {
   positive: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 18,
-    color: '#cfe9f1',
+    color: Colors.custom.lightBlue,
     marginBottom: 10,
   },
   feelingsContainer: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   submitButton: {
-    backgroundColor: '#cfe9f1',
+    backgroundColor: Colors.custom.lightBlue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,

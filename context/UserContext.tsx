@@ -1,61 +1,34 @@
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  useContext,
-  ReactNode,
-} from 'react';
+// context/UserContext.tsx
+import React, { createContext, useEffect, useState, useContext, ReactNode } from 'react';
 import { supabase } from '@/utils/supabase';
-import UserContextType from '@/types/User';
+
+type UserContextType = {
+  user: any | null;
+  setUser: (user: any | null) => void;
+  hasJournaledToday: boolean;
+  hasMeditatedToday: boolean;
+  loading: boolean;
+};
 
 const UserContext = createContext<UserContextType | null>(null);
 
-type UserProviderProps = {
-  children: ReactNode;
-};
-
-export const UserProvider = ({ children }: UserProviderProps) => {
+export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
   const [hasJournaledToday, setHasJournaledToday] = useState(false);
   const [hasMeditatedToday, setHasMeditatedToday] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      setLoading(false);
-      return;
-    }
+    const fetchUserAndStreaks = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-    const loadUserData = async () => {
+      if (error || !user) {
+        setLoading(false);
+        return;
+      }
+
+      setUser(user);
       const today = new Date().toISOString().split('T')[0];
-
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        setLoading(false);
-        return;
-      }
-
-      setUser(user);
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('fish_color, fish_name')
-        .eq('user_id', user.id)
-        .single();
-
-      setProfile(profile ?? null);
-
-      if (error || !user) {
-        setLoading(false);
-        return;
-      }
-
-      setUser(user);
 
       const { data: journal } = await supabase
         .from('journal')
@@ -74,20 +47,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       setLoading(false);
     };
 
-    loadUserData();
+    fetchUserAndStreaks();
   }, []);
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        profile,
-        setUser,
-        hasJournaledToday,
-        hasMeditatedToday,
-        loading,
-      }}
-    >
+    <UserContext.Provider value={{ user, setUser, hasJournaledToday, hasMeditatedToday, loading }}>
       {children}
     </UserContext.Provider>
   );
@@ -95,8 +59,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
+  if (!context) throw new Error('useUser must be used within a UserProvider');
   return context;
 };
