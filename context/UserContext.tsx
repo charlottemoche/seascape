@@ -16,6 +16,7 @@ type UserProviderProps = {
 
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<any | null>(null);
+  const [profile, setProfile] = useState<any | null>(null);
   const [hasJournaledToday, setHasJournaledToday] = useState(false);
   const [hasMeditatedToday, setHasMeditatedToday] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,25 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     const loadUserData = async () => {
       const today = new Date().toISOString().split('T')[0];
 
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        setLoading(false);
+        return;
+      }
+
+      setUser(user);
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('fish_color, fish_name')
+        .eq('user_id', user.id)
+        .single();
+
+      setProfile(profile ?? null);
 
       if (error || !user) {
         setLoading(false);
@@ -60,7 +79,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, hasJournaledToday, hasMeditatedToday, loading }}
+      value={{
+        user,
+        profile,
+        setUser,
+        hasJournaledToday,
+        hasMeditatedToday,
+        loading,
+      }}
     >
       {children}
     </UserContext.Provider>

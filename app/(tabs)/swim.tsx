@@ -11,6 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '@/context/UserContext';
 import { supabase } from '@/utils/supabase';
+import fishImages, { FishColor } from '@/constants/fishMap';
 
 const { height } = Dimensions.get('window');
 
@@ -21,6 +22,12 @@ export default function SwimScreen() {
 
   const { user, hasJournaledToday, hasMeditatedToday, loading } = useUser();
   const canPlayToday = hasJournaledToday && hasMeditatedToday;
+
+  const { profile } = useUser();
+
+  const rawColor = profile?.fish_color ?? 'blue';
+  const fishColor = (rawColor in fishImages ? rawColor : 'blue') as FishColor;
+  const fishImage = fishImages[fishColor];
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -158,7 +165,7 @@ export default function SwimScreen() {
             ) : null}
 
             <Animated.Image
-              source={require('@/assets/images/fish.png')}
+              source={fishImage}
               style={[styles.fish, { top: position }]}
               resizeMode="contain"
             />
