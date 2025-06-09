@@ -1,46 +1,36 @@
-import { View, Text, ImageBackground, StyleSheet, Pressable, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
+import { useUserStats } from '@/components/hooks/user/useUserStats';
+import { useUser } from '@/context/UserContext';
+import { ActivityIndicator } from 'react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user, loading: userLoading } = useUser();
 
-  const [totalMinutes, setTotalMinutes] = useState<number | null>(null);
-  const [journalStreak, setJournalStreak] = useState<number | null>(null);
-  const [breathStreak, setBreathStreak] = useState<number | null>(null);
+  if (userLoading) {
+    return (
+      <View style={styles.overlay}>
+        <ActivityIndicator size="large" color="#cfe9f1" />
+      </View>
+    );
+  }
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const { data: { user }, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !user) return;
+  if (!user) {
+    router.replace('/login');
+    return null;
+  }
 
-      const { data: streaks, error: streakErr } = await supabase
-        .from('streaks')
-        .select('type')
-        .eq('user_id', user.id);
+  const { journalStreak, breathStreak, totalMinutes, loading: statsLoading } = useUserStats(user.id);
 
-      if (!streakErr && streaks) {
-        const journal = streaks.filter((s) => s.type === 'journal');
-        const breath = streaks.filter((s) => s.type === 'breath');
-        setJournalStreak(journal.length || 0);
-        setBreathStreak(breath.length || 0);
-      }
-
-      const { data: breaths, error: breathErr } = await supabase
-        .from('breaths')
-        .select('duration')
-        .eq('user_id', user.id);
-
-      if (!breathErr && breaths) {
-        const total = breaths.reduce((sum, row) => sum + row.duration, 0);
-        setTotalMinutes(total || 0);
-      }
-    };
-
-    fetchStats();
-  }, []);
+  if (statsLoading) {
+    return (
+       <View style={styles.overlay}>
+        <ActivityIndicator size="large" color="#cfe9f1" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.background}>
@@ -53,7 +43,7 @@ export default function HomeScreen() {
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="pencil" color="#cfe9f1" type="SimpleLineIcons" size={20} />
+                <TabBarIcon name="pencil" color="#ce6548" type="SimpleLineIcons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Journaling</Text>
               <Text style={styles.cardDataStreaks}>
@@ -62,7 +52,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="leaf-outline" color="#cfe9f1" type="Ionicons" size={20} />
+                <TabBarIcon name="leaf-outline" color="#4b9032" type="Ionicons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Breathing</Text>
               <Text style={styles.cardDataStreaks}>
@@ -77,7 +67,7 @@ export default function HomeScreen() {
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="clock" color="#cfe9f1" type="SimpleLineIcons" size={20} />
+                <TabBarIcon name="clock" color="#7bb6d4" type="SimpleLineIcons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Minutes</Text>
               <Text style={styles.cardDataStreaks}>
@@ -90,7 +80,7 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/journal')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="SimpleLineIcons" name="pencil" color="#cfe9f1" size={18} />
+              <TabBarIcon type="SimpleLineIcons" name="pencil" color="#ce6548" size={18} />
               <Text style={styles.cardTitle}>How are you feeling?</Text>
             </View>
             <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
@@ -100,10 +90,10 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/breathe')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="Ionicons" name="leaf-outline" color="#cfe9f1" size={20} />
+              <TabBarIcon type="Ionicons" name="leaf-outline" color="#4b9032" size={20} />
               <Text style={styles.cardTitle}>Need a moment?</Text>
             </View>
-            <Text style={styles.cardSubtitle}>Try a quick breathing exercise to relax.</Text>
+            <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
           </Pressable>
         </View>
       </View>
@@ -122,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#001f33',
     padding: 24,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     width: '100%',
     height: '100%',
   },
@@ -205,12 +195,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderBottomWidth: 0.5,
     borderRightWidth: 0.5,
-    borderColor: 'rgba(207, 233, 241, 0.4)',
+    borderColor: '#7bb6d4',
   },
   actionHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
     marginBottom: 8,
-  }
+  },
 });

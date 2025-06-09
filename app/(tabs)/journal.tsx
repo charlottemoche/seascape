@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { supabase } from '@/utils/supabase';
 
 
@@ -47,7 +47,7 @@ export default function JournalScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>How are you feeling today?</Text>
 
       {Object.entries(emotions).map(([categoryKey, category]) => (
@@ -102,7 +102,7 @@ export default function JournalScreen() {
       >
         <Text style={styles.submitText}>Save Entry</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -117,6 +117,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
+    fontWeight: '600',
+    paddingVertical: 8,
   },
   categorySection: {
     marginBottom: 24,
