@@ -7,6 +7,7 @@ import {
   Pressable,
   Alert,
   AppState,
+  Image
 } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import Colors from '@/constants/Colors';
@@ -38,8 +39,30 @@ export default function LoginScreen() {
         data: { session },
         error,
       } = await supabase.auth.signUp({ email, password });
-      if (error) setError(error.message);
-      if (!session) Alert.alert('Please check your inbox for email verification!');
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!session) {
+        Alert.alert('Please check your inbox for email verification!');
+      } else {
+        const user = session.user;
+
+        const { error: profileError } = await supabase.from('profiles').insert([
+          {
+            id: user.id,
+            email: user.email,
+            onboarding_completed: false,
+          },
+        ]);
+
+        if (profileError) {
+          console.error('Failed to insert profile:', profileError.message);
+        }
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
@@ -54,8 +77,11 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
+      </View>
       <Text style={styles.title}>
-        {isSignUp ? 'Create Account' : 'Welcome to Current'}
+        {isSignUp ? 'Create Account' : 'Login'}
       </Text>
 
       <TextInput
@@ -108,9 +134,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.custom.background,
     padding: 24,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 26,
+    fontSize: 20,
     color: '#cfe9f1',
     marginBottom: 20,
     textAlign: 'center',
@@ -122,12 +149,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     color: '#fff',
+    width: 280,
   },
   button: {
     backgroundColor: Colors.custom.lightBlue,
     padding: 14,
     borderRadius: 8,
     marginTop: 8,
+    width: 280,
   },
   buttonText: {
     textAlign: 'center',
@@ -142,6 +171,19 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 12,
+    marginTop: 4,
     textAlign: 'center',
   },
+  logoContainer: {
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  logo: {
+    height: 90,
+    width: 200,
+    marginBottom: 60,
+    resizeMode: 'contain',
+  }
 })

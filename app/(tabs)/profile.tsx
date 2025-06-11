@@ -1,73 +1,19 @@
-import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   Pressable,
   StyleSheet,
-  Image,
-  TextInput,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
-import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
-import fishImages from '@/constants/fishMap';
-import { FishColor } from '@/constants/fishMap';
+import { FishCustomizer } from '@/components/FishCustomizer';
 import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, setUser } = useUser();
-  const { profile, refreshProfile } = useProfile();
-
-  const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
-
-  const [fishName, setFishName] = useState(profile?.fish_name ?? '');
-  const [fishColor, setFishColor] = useState<FishColor>(
-    availableColors.includes(profile?.fish_color as FishColor)
-      ? (profile?.fish_color as FishColor)
-      : 'blue'
-  );
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setFishName(profile?.fish_name ?? '');
-  }, [profile?.fish_name]);
-
-  useEffect(() => {
-    setFishColor(
-      availableColors.includes(profile?.fish_color as FishColor)
-        ? (profile?.fish_color as FishColor)
-        : 'blue'
-    );
-  }, [profile?.fish_color]);
-
-  const handleSave = async () => {
-    if (!user) return;
-    setSaving(true);
-
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(
-        {
-          user_id: user.id,
-          fish_color: fishColor,
-          fish_name: fishName,
-        },
-        { onConflict: 'user_id' }
-      );
-
-    setSaving(false);
-
-    if (error) {
-      console.error('Save error:', error);
-      Alert.alert('Error', 'Failed to save profile. Please try again.');
-    } else {
-      await refreshProfile();
-      Alert.alert('Success', 'Profile updated.');
-    }
-  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -87,41 +33,8 @@ export default function ProfileScreen() {
           Logged in as: {user?.email ?? 'No email'}
         </Text>
       </View>
-      <View style={styles.container}>
-        <Text style={styles.title}>Customize Your Fish</Text>
-
-        <View style={styles.colorOptions}>
-          {availableColors.map((color) => (
-            <Pressable key={color} onPress={() => setFishColor(color)}>
-              <Image
-                source={fishImages[color]}
-                style={[
-                  styles.smallFish,
-                  fishColor === color && styles.selectedFish,
-                ]}
-              />
-            </Pressable>
-          ))}
-        </View>
-
-        <Image source={fishImages[fishColor]} style={styles.bigFish} />
-
-        <TextInput
-          value={fishName}
-          onChangeText={setFishName}
-          placeholder="Name your fish"
-          placeholderTextColor="#888"
-          style={styles.input}
-        />
-
-        <Pressable
-          onPress={handleSave}
-          style={[styles.saveButton, saving && { opacity: 0.6 }]}
-          disabled={saving}
-        >
-          <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save'}</Text>
-        </Pressable>
-      </View>
+  
+      <FishCustomizer />
 
       <View style={styles.logoutWrapper}>
         <Pressable onPress={handleLogout} style={styles.logoutButton}>
@@ -156,51 +69,6 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     paddingTop: 12,
     alignItems: 'center',
-  },
-  title: {
-    color: Colors.custom.lightBlue,
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 24,
-  },
-  colorOptions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    marginBottom: 24,
-  },
-  smallFish: {
-    width: 40,
-    height: 40,
-  },
-  bigFish: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-  },
-  selectedFish: {
-    borderBottomColor: '#fff',
-    borderBottomWidth: 2,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: Colors.custom.lightBlue,
-    borderRadius: 8,
-    padding: 10,
-    color: '#fff',
-    width: '80%',
-    marginBottom: 20,
-  },
-  saveButton: {
-    backgroundColor: Colors.custom.lightBlue,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  saveButtonText: {
-    color: Colors.custom.background,
-    fontWeight: '600',
   },
   logoutButton: {
     paddingVertical: 10,

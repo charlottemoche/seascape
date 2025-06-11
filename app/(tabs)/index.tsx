@@ -27,68 +27,63 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.background}>
-      <View style={styles.overlay}>
-        <Text style={styles.title}>Welcome to Current</Text>
-        <Text style={styles.subtitle}>Your personal mindfulness companion</Text>
-
-        <View style={[styles.card, styles.darkCard]}>
-          <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
-          <View style={styles.streakRow}>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
-              </View>
-              <Text style={styles.streakSubtitle}>Journaling</Text>
-              <Text style={styles.cardDataStreaks}>
-                {journalStreak !== null && journalStreak > 0 ? `${journalStreak} days` : 'No data'}
-              </Text>
+      <View style={[styles.card, styles.darkCard]}>
+        <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
+        <View style={styles.streakRow}>
+          <View style={styles.streakItem}>
+            <View style={styles.iconWrapper}>
+              <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
             </View>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
-              </View>
-              <Text style={styles.streakSubtitle}>Breathing</Text>
-              <Text style={styles.cardDataStreaks}>
-                {breathStreak !== null && breathStreak > 0 ? `${breathStreak} days` : 'No data'}
-              </Text>
+            <Text style={styles.streakSubtitle}>Journaling</Text>
+            <Text style={styles.cardDataStreaks}>
+              {journalStreak !== null && journalStreak > 0 ? `${journalStreak} days` : 'No data'}
+            </Text>
+          </View>
+          <View style={styles.streakItem}>
+            <View style={styles.iconWrapper}>
+              <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
             </View>
+            <Text style={styles.streakSubtitle}>Breathing</Text>
+            <Text style={styles.cardDataStreaks}>
+              {breathStreak !== null && breathStreak > 0 ? `${breathStreak} days` : 'No data'}
+            </Text>
           </View>
         </View>
+      </View>
 
-        <View style={[styles.card, styles.darkCard]}>
-          <Text style={styles.streakTitle}>Total Time Meditated</Text>
-          <View style={styles.streakRow}>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
-              </View>
-              <Text style={styles.streakSubtitle}>Minutes</Text>
-              <Text style={styles.cardDataStreaks}>
-                {totalMinutes !== null ? `${totalMinutes} minutes` : 'No minutes logged yet'}
-              </Text>
+      <View style={[styles.card, styles.darkCard]}>
+        <Text style={styles.streakTitle}>Total Time Meditated</Text>
+        <View style={styles.streakRow}>
+          <View style={styles.streakItem}>
+            <View style={styles.iconWrapper}>
+              <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
             </View>
+            <Text style={styles.streakSubtitle}>Minutes</Text>
+            <Text style={styles.cardDataStreaks}>
+              {totalMinutes !== null ? `${totalMinutes} minutes` : 'No minutes logged yet'}
+            </Text>
           </View>
         </View>
+      </View>
 
-        <View style={[styles.card, styles.actionCard]}>
-          <Pressable onPress={() => router.push('/journal')}>
-            <View style={styles.actionHeader}>
-              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
-              <Text style={styles.cardTitle}>How are you feeling?</Text>
-            </View>
-            <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
-          </Pressable>
-        </View>
+      <View style={[styles.card, styles.actionCard]}>
+        <Pressable onPress={() => router.push('/journal')}>
+          <View style={styles.actionHeader}>
+            <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
+            <Text style={styles.cardTitle}>How are you feeling?</Text>
+          </View>
+          <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
+        </Pressable>
+      </View>
 
-        <View style={[styles.card, styles.actionCard]}>
-          <Pressable onPress={() => router.push('/breathe')}>
-            <View style={styles.actionHeader}>
-              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
-              <Text style={styles.cardTitle}>Need a moment?</Text>
-            </View>
-            <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
-          </Pressable>
-        </View>
+      <View style={[styles.card, styles.actionCard]}>
+        <Pressable onPress={() => router.push('/breathe')}>
+          <View style={styles.actionHeader}>
+            <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
+            <Text style={styles.cardTitle}>Need a moment?</Text>
+          </View>
+          <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -100,27 +95,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     justifyContent: 'center',
+    backgroundColor: Colors.custom.background,
+    padding: 24,
   },
   overlay: {
     backgroundColor: Colors.custom.background,
     padding: 24,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     width: '100%',
     height: '100%',
-  },
-  title: {
-    fontSize: 32,
-    color: 'white',
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: Colors.custom.lightBlue,
-    textAlign: 'center',
-    marginBottom: 32,
   },
   card: {
     borderRadius: 12,
