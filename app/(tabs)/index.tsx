@@ -91,7 +91,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: Colors.custom.background,
     padding: 24,
   },
