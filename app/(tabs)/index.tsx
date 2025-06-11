@@ -27,6 +27,8 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.background}>
+      <Text style={styles.title}>Dashboard</Text>
+      <Text style={styles.subtitle}>Your personal stats</Text>
       <View style={[styles.card, styles.darkCard]}>
         <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
         <View style={styles.streakRow}>
@@ -93,15 +95,28 @@ const styles = StyleSheet.create({
   background: {
     flexGrow: 1,
     backgroundColor: Colors.custom.background,
-    padding: 24,
+    padding: 20,
   },
   overlay: {
     backgroundColor: Colors.custom.background,
-    padding: 24,
+    padding: 20,
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: '100%',
     height: '100%',
+  },
+   title: {
+    fontSize: 20,
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontWeight: 600,
+  },
+   subtitle: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   card: {
     borderRadius: 12,
@@ -113,7 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(207, 233, 241, 0.1)'
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#fff',
     fontWeight: '600',
   },
@@ -126,7 +141,7 @@ const styles = StyleSheet.create({
     color: Colors.custom.lightBlue,
   },
   streakTitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#fff',
     fontWeight: '600',
     marginBottom: 6,

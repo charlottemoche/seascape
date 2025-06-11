@@ -84,36 +84,38 @@ export default function JournalScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>How are you feeling today?</Text>
-
-      {Object.entries(emotions).map(([categoryKey, category]) => (
-        <View key={categoryKey} style={styles.categorySection}>
-          <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
-          <View style={styles.feelingsContainer}>
-            {category.options.map((feeling) => (
-              <Pressable
-                key={feeling}
-                onPress={() =>
-                  setSelectedFeeling((prev) => (prev === feeling ? null : feeling))
-                }
-                style={[
-                  styles.feelingButton,
-                  selectedFeeling === feeling && styles.selectedFeelingButton,
-                ]}
-              >
-                <Text
+      <Text style={styles.title}>Journal</Text>
+      <Text style={styles.subtitle}>How are you feeling today?</Text>
+      <View style={styles.categoryContainer}>
+        {Object.entries(emotions).map(([categoryKey, category]) => (
+          <View key={categoryKey} style={styles.categorySection}>
+            <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
+            <View style={styles.feelingsContainer}>
+              {category.options.map((feeling) => (
+                <Pressable
+                  key={feeling}
+                  onPress={() =>
+                    setSelectedFeeling((prev) => (prev === feeling ? null : feeling))
+                  }
                   style={[
-                    styles.feelingText,
-                    selectedFeeling === feeling && styles.selectedFeelingText,
+                    styles.feelingButton,
+                    selectedFeeling === feeling && styles.selectedFeelingButton,
                   ]}
                 >
-                  {feeling}
-                </Text>
-              </Pressable>
-            ))}
+                  <Text
+                    style={[
+                      styles.feelingText,
+                      selectedFeeling === feeling && styles.selectedFeelingText,
+                    ]}
+                  >
+                    {feeling}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
+      </View>
 
       <Text style={styles.prompt}>Want to write a little more?</Text>
 
@@ -183,10 +185,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
-    fontWeight: '500',
-    paddingVertical: 8,
+    fontWeight: 600,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  categoryContainer: {
+    borderRadius: 12,
+    padding: 16,
+    width: '100%',
+    marginBottom: 20,
+    backgroundColor: 'rgba(207, 233, 241, 0.1)'
   },
   categorySection: {
     marginBottom: 24,
@@ -256,7 +270,7 @@ const styles = StyleSheet.create({
   entriesTitle: {
     fontSize: 18,
     color: '#fff',
-    marginTop: 30,
+    marginTop: 40,
     marginBottom: 10,
     textAlign: 'center',
   },
