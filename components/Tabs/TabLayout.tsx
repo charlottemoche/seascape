@@ -11,6 +11,7 @@ export function TabLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <Logo />
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -58,7 +59,6 @@ export function TabLayout() {
           }}
         />
       </Tabs>
-      <Logo />
     </View>
   );
 }

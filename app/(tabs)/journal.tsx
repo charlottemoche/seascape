@@ -113,11 +113,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: 500,
     paddingVertical: 8,
   },
   categorySection: {

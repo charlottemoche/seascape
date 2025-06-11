@@ -1,33 +1,28 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function Logo() {
-  const insets = useSafeAreaInsets();
-  
   return (
-    <View style={[styles.topBar, { paddingTop: insets.top }]}>
+    <SafeAreaView edges={['top']} style={styles.topBar}>
       <View style={styles.logoContainer}>
         <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   topBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 60,
+    backgroundColor: Colors.custom.background,
     paddingHorizontal: 24,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: Colors.custom.background,
-    zIndex: 10,
+    borderBottomColor: Colors.custom.blue,
+    borderBottomWidth: 1,
+    paddingBottom: 20,
   },
   logoContainer: {
     height: 40,
