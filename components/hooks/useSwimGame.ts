@@ -10,6 +10,7 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean) {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [playCount, setPlayCount] = useState(0);
+  const [currentSessionStarted, setCurrentSessionStarted] = useState(false);
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -31,7 +32,6 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean) {
       const count = await AsyncStorage.getItem(key);
       setPlayCount(count ? parseInt(count) : 0);
     };
-
     loadPlayCount();
   }, []);
 
@@ -54,31 +54,46 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean) {
 
       if (newY > height) {
         setGameOver(true);
+        setGameStarted(false);
+
+        if (currentSessionStarted) {
+          const key = getTodayKey();
+          const newCount = playCount + 1;
+          setPlayCount(newCount);
+          AsyncStorage.setItem(key, newCount.toString());
+          setCurrentSessionStarted(false);
+        }
       }
     }, 30);
 
     return () => clearInterval(loop);
   }, [gameStarted, gameOver, position]);
 
-  const swimUp = async () => {
+  const startNewGame = () => {
     if (loading || !canPlayToday || playCount >= 3) return;
 
-    const key = getTodayKey();
-    const newCount = playCount + 1;
-    setPlayCount(newCount);
-    await AsyncStorage.setItem(key, newCount.toString());
-
-    if (gameOver) {
-      resetGame();
-      return;
-    }
-
-    if (!gameStarted) {
-      setGameStarted(true);
-    }
-
+    resetGame();
+    setGameOver(false);
+    setGameStarted(true);
+    setCurrentSessionStarted(true);
     velocity.current = jumpForce;
   };
+
+  const swimUp = () => {
+    if (!gameStarted || gameOver) return;
+    velocity.current = jumpForce;
+  };
+
+  // UNCOMMENT FOR TESTING
+  // useEffect(() => {
+  //   const clearPlayCount = async () => {
+  //     const todayKey = `playCount:${new Date().toISOString().split('T')[0]}`;
+  //     await AsyncStorage.removeItem(todayKey);
+  //     console.log('Play count reset for today');
+  //   };
+
+  //   clearPlayCount();
+  // }, []);
 
   return {
     position,
@@ -86,6 +101,7 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean) {
     gameStarted,
     playCount,
     swimUp,
+    startNewGame,
     resetGame,
   };
 }

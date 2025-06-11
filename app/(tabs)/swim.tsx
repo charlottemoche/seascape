@@ -15,7 +15,7 @@ import { useSwimGame } from '@/components/hooks/useSwimGame';
 
 export default function SwimScreen() {
   const { hasJournaledToday, hasMeditatedToday, loading } = useUser();
-  const canPlayToday = hasJournaledToday && hasMeditatedToday;
+  const canPlayToday = hasJournaledToday && hasMeditatedToday
 
   const { profile } = useProfile();
 
@@ -23,8 +23,25 @@ export default function SwimScreen() {
   const fishColor = (rawColor in fishImages ? rawColor : 'blue') as FishColor;
   const fishImage = fishImages[fishColor];
 
-  const { position, gameOver, gameStarted, playCount, swimUp, resetGame } =
-    useSwimGame(canPlayToday, loading);
+  const {
+    position,
+    gameOver,
+    gameStarted,
+    playCount,
+    swimUp,
+    startNewGame,
+    resetGame,
+  } = useSwimGame(canPlayToday, loading);
+
+  const handlePress = () => {
+    if (!canPlayToday || playCount >= 3) return;
+
+    if (!gameStarted || gameOver) {
+      startNewGame();
+    } else {
+      swimUp();
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +50,7 @@ export default function SwimScreen() {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={swimUp}>
+    <TouchableWithoutFeedback onPress={handlePress}>
       <View style={styles.container}>
         <ImageBackground
           source={require('@/assets/images/swim-background.png')}
@@ -47,10 +64,11 @@ export default function SwimScreen() {
                   You must complete both a journal and a meditation session today to play.
                 </Text>
               </View>
-            ) : playCount >= 3 ? (
+            ) : playCount >= 3 && !gameStarted ? (
               <View style={styles.gameMessageOverlay}>
+                <Text style={styles.gameStatusText}>You’ve used all 3 plays for today</Text>
                 <Text style={styles.gameSubtext}>
-                  You’ve used all 3 plays for today. Come back tomorrow!
+                  Come back tomorrow!
                 </Text>
               </View>
             ) : gameOver ? (
@@ -109,7 +127,7 @@ const styles = StyleSheet.create({
   },
   gameStatusText: {
     color: 'white',
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
