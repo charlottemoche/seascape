@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(0, 31, 51, 0.5)',
+    backgroundColor: 'rgba(0, 31, 51, 0.7)',
   },
   customizeContainer: {
     backgroundColor: Colors.custom.background,
