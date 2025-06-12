@@ -30,7 +30,7 @@ export default function SwimScreen() {
   const tabBarHeight = useBottomTabBarHeight();
 
   // Define canPlayToday based on journal and meditation status
-  const canPlayToday = true
+  const canPlayToday = hasJournaledToday && hasMeditatedToday;
 
   const {
     position,
@@ -42,7 +42,7 @@ export default function SwimScreen() {
     resetGame,
     obstacles,
     preyEaten,
-  } = useSwimGame(true, loading, tabBarHeight);
+  } = useSwimGame(canPlayToday, loading, tabBarHeight);
 
   useEffect(() => {
     setLoading(false);
@@ -100,19 +100,19 @@ export default function SwimScreen() {
               </View>
             ) : null}
 
-            {/* {gameStarted && ( */}
-            <View style={styles.counter}>
-              <View style={styles.counterRow}>
-                <Text style={styles.counterLabel}>Prey:</Text>
-                <Image source={preyImg} style={styles.counterIcon} />
-                <Text style={styles.counterText}>{preyEaten}</Text>
+            {gameStarted && (
+              <View style={styles.counter}>
+                <View style={styles.counterRow}>
+                  <Text style={styles.counterLabel}>Prey:</Text>
+                  <Image source={preyImg} style={styles.counterIcon} />
+                  <Text style={styles.counterText}>{preyEaten}</Text>
+                </View>
+                <View style={styles.counterRow}>
+                  <Text style={styles.counterLabel}>Plays Left:</Text>
+                  <Text style={styles.counterText}>{3 - playCount}</Text>
+                </View>
               </View>
-              <View style={styles.counterRow}>
-                <Text style={styles.counterLabel}>Plays Left:</Text>
-                <Text style={styles.counterText}>{3 - playCount}</Text>
-              </View>
-            </View>
-            {/* )} */}
+            )}
 
             <Animated.Image
               source={fishImage}
