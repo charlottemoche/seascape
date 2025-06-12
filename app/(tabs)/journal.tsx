@@ -8,17 +8,17 @@ const emotions = {
   positive: {
     label: 'Positive',
     color: Colors.custom.blue,
-    options: ['Happy', 'Pleasant', 'Joyful'],
+    options: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful'],
   },
   neutral: {
     label: 'Neutral',
     color: Colors.custom.green,
-    options: ['Content', 'Tired', 'Calm'],
+    options: ['Content', 'Calm', 'Indifferent'],
   },
   negative: {
     label: 'Negative',
     color: Colors.custom.red,
-    options: ['Sad', 'Frustrated', 'Anxious'],
+    options: ['Sad', 'Frustrated', 'Anxious', 'Tired', 'Angry', 'Stressed'],
   },
 };
 
@@ -30,6 +30,7 @@ export default function JournalScreen() {
   const [entry, setEntry] = useState('');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const handleSubmit = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -59,19 +60,31 @@ export default function JournalScreen() {
   const handleGetEntries = async () => {
     setLoading(true);
 
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+
     const { data, error } = await supabase
       .from('journal_entries')
       .select('*')
       .order('created_at', { ascending: false })
-      .range(page * pageSize, (page + 1) * pageSize - 1);
+      .range(from, to);
 
     if (error) {
       console.error('Error fetching journal entries:', error);
       alert('Something went wrong while fetching your journal entries.');
     } else {
-      setJournalEntries(prevEntries => [...prevEntries, ...data]);
-      setLoading(false);
+      // Merge new data without duplicates
+      const mergedMap = new Map();
+      [...journalEntries, ...data].forEach((entry) => {
+        mergedMap.set(entry.id, entry); // last one wins
+      });
+      setJournalEntries(Array.from(mergedMap.values()));
+
+      // Update "hasMore"
+      setHasMore(data.length === pageSize);
     }
+
+    setLoading(false);
   };
 
   const handleLoadMore = () => {
@@ -80,12 +93,13 @@ export default function JournalScreen() {
 
   useEffect(() => {
     handleGetEntries();
+    console.log(journalEntries)
   }, [page]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Journal</Text>
-      <Text style={styles.subtitle}>How are you feeling today?</Text>
+      <Text style={styles.subtitle}>How are you feeling?</Text>
       <View style={styles.categoryContainer}>
         {Object.entries(emotions).map(([categoryKey, category]) => (
           <View key={categoryKey} style={styles.categorySection}>
@@ -117,7 +131,7 @@ export default function JournalScreen() {
         ))}
       </View>
 
-      <Text style={styles.prompt}>Want to write a little more?</Text>
+      <Text style={styles.prompt}>Want to write something?</Text>
 
       <TextInput
         value={entry}
@@ -157,11 +171,11 @@ export default function JournalScreen() {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#cfe9f1" />
             </View>
-          ) : (
+          ) : hasMore ? (
             <Pressable onPress={handleLoadMore} style={styles.loadMoreButton}>
               <Text style={styles.loadMoreText}>Load More</Text>
             </Pressable>
-          )}
+          ) : null}
         </>
       ) : (
         <Text style={styles.noEntries}>No entries yet!</Text>
@@ -218,10 +232,10 @@ const styles = StyleSheet.create({
   },
   feelingButton: {
     backgroundColor: 'rgba(207, 233, 241, 0.2)',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 20,
-    margin: 4,
+    margin: 3,
     borderWidth: 1,
     borderColor: '#ccc',
   },
@@ -241,6 +255,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     marginBottom: 8,
+    marginTop: 20,
   },
   textArea: {
     backgroundColor: 'rgba(207, 233, 241, 0.7)',
