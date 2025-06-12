@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { ActivityIndicator } from 'react-native';
+import { TabBarIcon } from '@/components/Tabs/TabBar';
+import { Alert } from 'react-native';
 import Colors from '@/constants/Colors';
 
 const emotions = {
@@ -87,6 +89,21 @@ export default function JournalScreen() {
     setLoading(false);
   };
 
+  const handleDeleteEntry = async (id: number) => {
+    const { error } = await supabase
+      .from('journal_entries')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      Alert.alert('Error', 'Error deleting entry.');
+      console.error(error);
+    } else {
+      setJournalEntries((prev) => prev.filter((e) => e.id !== id));
+      Alert.alert('Success', 'Entry deleted successfully.');
+    }
+  };
+
   const handleLoadMore = () => {
     setPage(prevPage => prevPage + 1);
   };
@@ -160,8 +177,18 @@ export default function JournalScreen() {
       {journalEntries.length > 0 ? (
         <>
           {journalEntries.map((entry, index) => (
-            <View key={index} style={styles.entryCard}>
-              <Text style={styles.entryFeeling}>{entry.feeling}</Text>
+            <View key={entry.id ?? index} style={styles.entryCard}>
+              <View style={styles.entryHeader}>
+                <Text style={styles.entryFeeling}>{entry.feeling}</Text>
+                <Pressable onPress={() => handleDeleteEntry(entry.id)}>
+                  <TabBarIcon
+                    type="AntDesign"
+                    name="delete"
+                    color={Colors.custom.red}
+                    size={16}
+                  />
+                </Pressable>
+              </View>
               <Text style={styles.entryText}>{entry.entry}</Text>
               <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
             </View>
@@ -329,5 +356,13 @@ const styles = StyleSheet.create({
     color: Colors.custom.background,
     fontWeight: '600',
     fontSize: 16,
+  },
+  entryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    paddingBottom: 6,
   },
 });
