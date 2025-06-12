@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Text,
@@ -7,21 +7,30 @@ import {
   Animated,
   StyleSheet,
   ImageBackground,
+  Image,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import { useSwimGame } from '@/components/hooks/useSwimGame';
+import predatorImg from '@/assets/images/predator.png';
+import preyImg from '@/assets/images/prey.png';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 export default function SwimScreen() {
-  const { hasJournaledToday, hasMeditatedToday, loading } = useUser();
-  const canPlayToday = hasJournaledToday && hasMeditatedToday
+  const { hasJournaledToday, hasMeditatedToday } = useUser();
+  const [loading, setLoading] = useState(true);
 
   const { profile } = useProfile();
 
+  // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
   const fishColor = (rawColor in fishImages ? rawColor : 'blue') as FishColor;
   const fishImage = fishImages[fishColor];
+  const tabBarHeight = useBottomTabBarHeight();
+
+  // Define canPlayToday based on journal and meditation status
+  const canPlayToday = true
 
   const {
     position,
@@ -31,7 +40,13 @@ export default function SwimScreen() {
     swimUp,
     startNewGame,
     resetGame,
-  } = useSwimGame(canPlayToday, loading);
+    obstacles,
+    preyEaten,
+  } = useSwimGame(true, loading, tabBarHeight);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [hasJournaledToday, hasMeditatedToday]);
 
   const handlePress = () => {
     if (!canPlayToday || playCount >= 3) return;
@@ -85,11 +100,47 @@ export default function SwimScreen() {
               </View>
             ) : null}
 
+            {/* {gameStarted && ( */}
+            <View style={styles.counter}>
+              <View style={styles.counterRow}>
+                <Text style={styles.counterLabel}>Prey:</Text>
+                <Image source={preyImg} style={styles.counterIcon} />
+                <Text style={styles.counterText}>{preyEaten}</Text>
+              </View>
+              <View style={styles.counterRow}>
+                <Text style={styles.counterLabel}>Plays Left:</Text>
+                <Text style={styles.counterText}>{3 - playCount}</Text>
+              </View>
+            </View>
+            {/* )} */}
+
             <Animated.Image
               source={fishImage}
               style={[styles.fish, { top: position }]}
               resizeMode="contain"
             />
+
+            {obstacles.map(({ id, xValue, y, type }) => (
+              <View
+                key={id}
+                style={{
+                  position: 'absolute',
+                  left: xValue,
+                  top: y,
+                  width: type === 'predator' ? 90 : 50,
+                  height: type === 'predator' ? 90 : 50,
+                }}
+              >
+                <Animated.Image
+                  source={type === 'predator' ? predatorImg : preyImg}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'contain',
+                  }}
+                />
+              </View>
+            ))}
           </View>
         </ImageBackground>
       </View>
@@ -136,5 +187,39 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     textAlign: 'center',
+  },
+  counter: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'rgba(0, 31, 51, 0.6)',
+    padding: 10,
+    borderRadius: 8,
+    zIndex: 20,
+  },
+
+  counterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: 4,
+  },
+
+  counterLabel: {
+    color: 'white',
+    fontSize: 14,
+    marginRight: 6,
+  },
+
+  counterIcon: {
+    width: 18,
+    height: 18,
+    marginRight: 4,
+  },
+
+  counterText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

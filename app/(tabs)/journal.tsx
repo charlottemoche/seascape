@@ -13,7 +13,7 @@ const emotions = {
   neutral: {
     label: 'Neutral',
     color: Colors.custom.green,
-    options: ['Content', 'Tired', 'Other'],
+    options: ['Content', 'Tired', 'Calm'],
   },
   negative: {
     label: 'Negative',
@@ -197,13 +197,14 @@ const styles = StyleSheet.create({
   },
   categoryContainer: {
     borderRadius: 12,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     width: '100%',
     marginBottom: 20,
     backgroundColor: 'rgba(207, 233, 241, 0.1)'
   },
   categorySection: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   categoryTitle: {
     fontSize: 18,

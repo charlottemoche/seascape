@@ -8,9 +8,19 @@ export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { user, loading: userLoading } = useUser();
 
-  if (userLoading || profileLoading) return <Text>Loading...</Text>;
+  if (userLoading || profileLoading)
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
 
-  if (profileError) return <Text>Error loading profile: {profileError}</Text>;
+  if (profileError)
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>We're having trouble loading your profile.</Text>
+      </View>
+    );
 
   if (!user) return <Redirect href="/login" />;
 

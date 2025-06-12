@@ -34,45 +34,50 @@ export default function LoginScreen() {
     setLoading(true);
     setError('');
 
-    if (isSignUp) {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.signUp({ email, password });
+    try {
+      if (isSignUp) {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.signUp({ email, password });
 
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
+        if (error) {
+          setError(error.message);
+          setLoading(false);
+          return;
+        }
 
-      if (!session) {
-        Alert.alert('Please check your inbox for email verification!');
+        if (!session) {
+          Alert.alert('Please check your inbox for email verification!');
+        } else {
+          const user = session.user;
+
+          const { error: profileError } = await supabase.from('profiles').insert([
+            {
+              id: user.id,
+              email: user.email,
+              onboarding_completed: false,
+            },
+          ]);
+
+          if (profileError) {
+            console.error('Failed to insert profile:', profileError.message);
+          }
+        }
       } else {
-        const user = session.user;
-
-        const { error: profileError } = await supabase.from('profiles').insert([
-          {
-            id: user.id,
-            email: user.email,
-            onboarding_completed: false,
-          },
-        ]);
-
-        if (profileError) {
-          console.error('Failed to insert profile:', profileError.message);
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setError("Unable to log in. Please try again later.");
+        } else {
+          router.replace('/');
         }
       }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message);
-      } else {
-        router.replace('/');
-      }
+    } catch (err) {
+      console.error('Unexpected auth error:', err);
+      setError("Something went wrong. Supabase might be down.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -89,6 +94,8 @@ export default function LoginScreen() {
         placeholder="Email"
         placeholderTextColor="#888"
         autoCapitalize="none"
+        autoCorrect={false}
+        spellCheck={false}
         keyboardType="email-address"
         onChangeText={setEmail}
         value={email}

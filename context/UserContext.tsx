@@ -28,7 +28,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      setUser(currentUser);
+        setUser(currentUser);
       setLoading(true);
 
       const today = new Date().toISOString().split('T')[0];

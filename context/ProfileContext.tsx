@@ -35,21 +35,25 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('fish_color, fish_name, onboarding_completed')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('fish_color, fish_name, onboarding_completed')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Profile fetch error:', error);
-      setError(error.message);
+      if (error) {
+        console.error('Profile fetch error:', error);
+        setError(error.message);
+      }
+
+      setProfile(data ?? null);
+    } catch (err) {
+      console.error('Supabase unreachable:', err);
+      setError('Supabase is currently unreachable.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setProfile(data ?? null);
-    setLoading(false);
   };
 
   useEffect(() => {
