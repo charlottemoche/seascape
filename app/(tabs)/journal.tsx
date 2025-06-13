@@ -102,19 +102,33 @@ export default function JournalScreen() {
     setLoading(false);
   }, [page, user, journalEntries]);
 
-  const handleDeleteEntry = async (id: number) => {
-    const { error } = await supabase
-      .from('journal_entries')
-      .delete()
-      .eq('id', id);
+  const handleDeleteEntry = (id: number) => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this entry?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const { error } = await supabase
+              .from('journal_entries')
+              .delete()
+              .eq('id', id);
 
-    if (error) {
-      Alert.alert('Error', 'Error deleting entry.');
-      console.error(error);
-    } else {
-      setJournalEntries((prev) => prev.filter((e) => e.id !== id));
-      Alert.alert('Success', 'Entry deleted successfully.');
-    }
+            if (error) {
+              Alert.alert('Error', 'Error deleting entry.');
+              console.error(error);
+            } else {
+              setJournalEntries((prev) => prev.filter((e) => e.id !== id));
+              Alert.alert('Success', 'Entry deleted successfully.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleLoadMore = () => {
