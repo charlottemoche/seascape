@@ -1,4 +1,4 @@
-package com.cbm.current
+package com.cbm.seascape
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

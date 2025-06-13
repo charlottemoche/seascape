@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "current",
-    "slug": "current",
+    "name": "Seascape",
+    "slug": "seascape",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/fish.png",
-    "scheme": "current",
+    "scheme": "seascape",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {

@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.cbm.current'
+    namespace 'com.cbm.seascape'
     defaultConfig {
-        applicationId 'com.cbm.current'
+        applicationId 'com.cbm.seascape'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

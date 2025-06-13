@@ -2,12 +2,13 @@ import 'dotenv/config';
 
 export default {
   expo: {
-    name: 'current',
-    slug: 'current',
+    name: 'Seascape',
+    slug: 'seascape',
+    owner: 'charlottebmoche',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/fish.png',
-    scheme: 'current',
+    scheme: 'seascape',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {
@@ -17,7 +18,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.cbm.current',
+      bundleIdentifier: 'com.cbm.seascape',
       infoPlist: {
         'ITSAppUsesNonExemptEncryption': false
       }
@@ -28,7 +29,7 @@ export default {
         backgroundColor: '#ffffff',
       },
       edgeToEdgeEnabled: true,
-      package: 'com.cbm.current',
+      package: 'com.cbm.seascape',
     },
     web: {
       bundler: 'metro',
@@ -43,8 +44,8 @@ export default {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
       eas: {
-        projectId: 'dbc0b800-b54d-4b00-b6d0-621952876a34',
-      },
+        'projectId': 'd38ddf75-e6f0-4ea2-b829-b732001a3f93'
+      }
     },
   },
 };

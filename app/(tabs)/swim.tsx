@@ -134,7 +134,7 @@ export default function SwimScreen() {
     if (!gameStarted) {
       return (
         <View style={styles.gameMessageOverlay}>
-          <Text style={styles.gameStatusText}>Welcome to Current!</Text>
+          <Text style={styles.gameStatusText}>Welcome to Seascape!</Text>
 
           <View style={styles.instructionsRow}>
             <Text style={styles.gameSubtext}>Avoid</Text>

@@ -83,7 +83,7 @@ export default function OnboardingScreen() {
         <Logo />
         <View style={styles.content}>
           {isFirstPage && (
-            <Text style={styles.header}>Welcome to Current</Text>
+            <Text style={styles.header}>Welcome to Seascape</Text>
           )}
           {slides[page].key === 'customize' ? (
             <FishCustomizer />

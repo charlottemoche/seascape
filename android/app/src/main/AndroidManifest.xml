@@ -24,8 +24,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="current"/>
-        <data android:scheme="exp+current"/>
+        <data android:scheme="seascape"/>
+        <data android:scheme="exp+seascape"/>
       </intent-filter>
     </activity>
   </application>
