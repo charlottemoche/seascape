@@ -76,7 +76,7 @@ export default function BreatheTimer({
               style={[
                 styles.durationBtn,
                 duration === min && { backgroundColor: Colors.custom.lightBlue },
-                { opacity: 0.5 },
+                { opacity: 0.6 },
               ]}
             >
               <Text

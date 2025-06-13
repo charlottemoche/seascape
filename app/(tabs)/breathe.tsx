@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
@@ -39,22 +39,30 @@ export default function BreatheScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.top, !isRunning && styles.centerInstruction]}>
-        {isRunning ? (
-          <BreatheCircle />
-        ) : (
-          <Text style={styles.instruction}>
-            Choose a duration and press start to begin your breathing session.
-          </Text>
-        )}
-      </View>
-      <View style={styles.bottom}>
-        <BreatheTimer
-          isRunning={isRunning}
-          setIsRunning={setIsRunning}
-          onComplete={handleBreathComplete}
-        />
-      </View>
+      <ImageBackground
+        source={require('@/assets/images/wave.png')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <View style={styles.overlay} />
+
+        <View style={[styles.top, !isRunning && styles.centerInstruction]}>
+          {isRunning ? (
+            <BreatheCircle />
+          ) : (
+            <Text style={styles.instruction}>
+              Choose a duration and press start to begin your breathing session.
+            </Text>
+          )}
+        </View>
+        <View style={styles.bottom}>
+          <BreatheTimer
+            isRunning={isRunning}
+            setIsRunning={setIsRunning}
+            onComplete={handleBreathComplete}
+          />
+        </View>
+      </ImageBackground>
     </View>
   );
 }
@@ -64,6 +72,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.custom.background,
     justifyContent: 'space-between',
+  },
+  overlay: {
+    flex: 1,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 31, 51, 0.7)',
   },
   bottom: {
     paddingBottom: 48,
