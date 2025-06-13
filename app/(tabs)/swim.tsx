@@ -21,7 +21,6 @@ import { supabase } from '@/lib/supabase';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
-  const { hasJournaledToday, hasMeditatedToday } = useUser();
   const { profile, refreshProfile } = useProfile();
 
   // Default color setup for fish
@@ -33,7 +32,7 @@ export default function SwimScreen() {
   const tabBarHeight = useBottomTabBarHeight();
 
   // Define canPlayToday based on journal and meditation status
-  const canPlayToday = hasJournaledToday && hasMeditatedToday;
+  const canPlayToday = (profile?.journal_streak ?? 0) > 0 && (profile?.breath_streak ?? 0) > 0;
   // Uncomment this if you want to play for testing
   // const canPlayToday = true;
 

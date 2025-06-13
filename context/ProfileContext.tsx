@@ -29,10 +29,12 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<ProfileType | null>(null);
 
   const refreshProfile = async ({ silent = false } = {}) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      if (!silent) setLoading(false);
+      return;
+    }
 
     if (!silent) setLoading(true);
-    setError(null);
 
     await supabase.rpc('refresh_journal_streak', { uid: user.id });
     await supabase.rpc('refresh_breath_streak', { uid: user.id });

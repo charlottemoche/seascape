@@ -3,11 +3,24 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/context/UserContext';
 import { ProfileProvider } from '@/context/ProfileContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Asset } from 'expo-asset';
+
+const imagesToCache = [
+  require('../assets/images/fish-yellow.png'),
+  require('../assets/images/fish-green.png'),
+  require('../assets/images/fish-purple.png'),
+  require('../assets/images/fish-red.png'),
+  require('../assets/images/fish.png'),
+  require('../assets/images/swim-background.png'),
+  require('../assets/images/predator.png'),
+  require('../assets/images/prey.png'),
+  require('../assets/images/wave.png'),
+];
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,6 +41,23 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function cacheImages() {
+      const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
+      await Promise.all(cachePromises);
+      setAssetsLoaded(true);
+    }
+    cacheImages();
+  }, []);
+
+  useEffect(() => {
+    if (loaded && assetsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, assetsLoaded]);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -39,7 +69,7 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
+  if (!loaded || !assetsLoaded) {
     return null;
   }
 

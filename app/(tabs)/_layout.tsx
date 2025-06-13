@@ -1,3 +1,5 @@
+console.log('Rendering TabLayout Component');
+
 import { TabLayout } from '../../components/Tabs/TabLayout';
 import { Redirect } from 'expo-router';
 import { useUser } from '@/context/UserContext';
@@ -10,25 +12,40 @@ export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { user, loading: userLoading } = useUser();
 
-  if (userLoading || profileLoading)
+  if (userLoading || profileLoading) {
+    console.log('Spinner condition: loading user or profile');
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
       </View>
     );
+  }
 
-  if (profileError)
+  if (profileError) {
+    console.log('Error condition:', profileError);
     return (
       <View style={styles.container}>
         <Text>We're having trouble loading your profile.</Text>
       </View>
     );
+  }
 
-  if (!user) return <Redirect href="/login" />;
+  if (!user) {
+    console.log('Redirecting to /login because user is null or undefined');
+    return <Redirect href="/login" />;
+  }
 
-  if (!profile) return <Redirect href="/welcome" />;
+  if (!profile) {
+    console.log('Redirecting to /welcome because profile is null or undefined');
+    return <Redirect href="/welcome" />;
+  }
 
-  if (profile.onboarding_completed === false) return <Redirect href="/welcome" />;
+  if (profile.onboarding_completed === false) {
+    console.log('Redirecting to /welcome because onboarding is incomplete');
+    return <Redirect href="/welcome" />;
+  }
+
+  console.log('Rendering TabLayout');
 
   return <TabLayout />;
 
