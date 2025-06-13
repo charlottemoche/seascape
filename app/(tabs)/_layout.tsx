@@ -1,5 +1,3 @@
-console.log('Rendering TabLayout Component');
-
 import { TabLayout } from '../../components/Tabs/TabLayout';
 import { Redirect } from 'expo-router';
 import { useUser } from '@/context/UserContext';

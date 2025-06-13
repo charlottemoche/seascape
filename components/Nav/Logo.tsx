@@ -7,7 +7,7 @@ export function Logo() {
   return (
     <SafeAreaView edges={['top']} style={styles.topBar}>
       <View style={styles.logoContainer}>
-        <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
+        <Image source={require('@/assets/images/logo-dark.png')} style={styles.logo} />
       </View>
     </SafeAreaView>
   );
@@ -15,7 +15,7 @@ export function Logo() {
 
 const styles = StyleSheet.create({
   topBar: {
-    backgroundColor: Colors.custom.background,
+    backgroundColor: Colors.custom.lightBlue,
     paddingHorizontal: 24,
     flexDirection: 'row',
     justifyContent: 'flex-end',

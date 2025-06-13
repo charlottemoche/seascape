@@ -135,9 +135,19 @@ export default function SwimScreen() {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>Welcome to Current!</Text>
+
+          <View style={styles.instructionsRow}>
+            <Text style={styles.gameSubtext}>Avoid</Text>
+            <Image source={predatorImg} style={styles.iconInlinePredator} resizeMode="contain" />
+            <Text style={styles.gameSubtext}> and collect</Text>
+            <Image source={preyImg} style={styles.iconInlinePrey} resizeMode="contain" />
+          </View>
+
           <Text style={styles.gameSubtext}>
-            Tap the screen to navigate your fish through the waters and find treats.
+            before you run out of plays.
           </Text>
+
+          <Text style={[styles.gameStartText, { paddingTop: 20 }]}>Tap the screen to start.</Text>
         </View>
       );
     }
@@ -240,6 +250,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  gameStartText: {
+    color: 'white',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   gameSubtext: {
     color: 'white',
     fontSize: 18,
@@ -277,6 +294,7 @@ const styles = StyleSheet.create({
   },
   highScoreRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
@@ -284,6 +302,26 @@ const styles = StyleSheet.create({
   preyIcon: {
     width: 24,
     height: 24,
+    marginHorizontal: 6,
+  },
+  instructionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  iconInlinePredator: {
+    width: 20,
+    height: 20,
     marginLeft: 6,
+    marginRight: 2,
+  },
+  iconInlinePrey: {
+    width: 24,
+    height: 24,
+    marginLeft: 6,
+    marginRight: 2,
   },
 });

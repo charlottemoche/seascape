@@ -6,7 +6,7 @@ export default {
     slug: 'current',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/images/icon.png',
+    icon: './assets/images/fish.png',
     scheme: 'current',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
