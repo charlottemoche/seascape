@@ -13,7 +13,6 @@ export default function ProtectedTabLayout() {
   const { user, loading: userLoading } = useUser();
 
   if (userLoading || profileLoading) {
-    console.log('Spinner condition: loading user or profile');
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
@@ -22,7 +21,6 @@ export default function ProtectedTabLayout() {
   }
 
   if (profileError) {
-    console.log('Error condition:', profileError);
     return (
       <View style={styles.container}>
         <Text>We're having trouble loading your profile.</Text>
@@ -31,21 +29,16 @@ export default function ProtectedTabLayout() {
   }
 
   if (!user) {
-    console.log('Redirecting to /login because user is null or undefined');
     return <Redirect href="/login" />;
   }
 
   if (!profile) {
-    console.log('Redirecting to /welcome because profile is null or undefined');
     return <Redirect href="/welcome" />;
   }
 
   if (profile.onboarding_completed === false) {
-    console.log('Redirecting to /welcome because onboarding is incomplete');
     return <Redirect href="/welcome" />;
   }
-
-  console.log('Rendering TabLayout');
 
   return <TabLayout />;
 
