@@ -9,7 +9,7 @@ const jumpForce = -10;
 type Obstacle = {
   id: string;
   x: Animated.Value;
-  xValue: number; // keep this updated via listener
+  xValue: number;
   y: number;
   type: 'predator' | 'prey';
   width: number;
@@ -31,7 +31,7 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
   const getTodayKey = () => `playCount:${new Date().toISOString().split('T')[0]}`;
 
   const resetGame = useCallback(() => {
-    positionY.current = height / 4;
+    positionY.current = height / 5;
     position.setValue(positionY.current);
     velocity.current = 0;
     setGameOver(false);

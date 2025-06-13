@@ -3,18 +3,26 @@ import { View, Text, StyleSheet } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
+import { updateStreak } from '@/hooks/user/updateStreak';
 import Colors from '@/constants/Colors';
+import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { ActivityIndicator } from 'react-native';
 
 export default function BreatheScreen() {
+  const { user, loading } = useRequireAuth();
   const [isRunning, setIsRunning] = useState(false);
 
-  const handleBreathComplete = async (duration: number) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert('You must be logged in to track this session.');
-      return;
-    }
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
+      </View>
+    );
+  }
 
+  if (!user) return null;
+
+  const handleBreathComplete = async (duration: number) => {
     const { error } = await supabase.from('breaths').insert({
       user_id: user.id,
       duration,
@@ -25,6 +33,7 @@ export default function BreatheScreen() {
       console.error(error);
     } else {
       console.info('Breathing session saved!');
+      await updateStreak(user.id, 'breath');
     }
   };
 
@@ -75,5 +84,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 28,
     paddingHorizontal: 40,
+  },
+  loading: {
+    backgroundColor: Colors.custom.background,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
 });

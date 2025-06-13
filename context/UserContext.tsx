@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useEffect, useState, useContext, ReactNode, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
@@ -28,22 +28,28 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-        setUser(currentUser);
+      setUser(currentUser);
       setLoading(true);
 
-      const today = new Date().toISOString().split('T')[0];
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
 
       const { data: journal } = await supabase
-        .from('journal')
+        .from('journal_entries')
         .select('id')
         .eq('user_id', currentUser.id)
-        .eq('date', today);
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString());
 
       const { data: breaths } = await supabase
         .from('breaths')
         .select('id')
         .eq('user_id', currentUser.id)
-        .eq('date', today);
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString());
 
       setHasJournaledToday((journal?.length ?? 0) > 0);
       setHasMeditatedToday((breaths?.length ?? 0) > 0);
@@ -63,8 +69,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  const value = useMemo(() => ({
+    user,
+    setUser,
+    hasJournaledToday,
+    hasMeditatedToday,
+    loading,
+  }), [user, hasJournaledToday, hasMeditatedToday, loading]);
+
   return (
-    <UserContext.Provider value={{ user, setUser, hasJournaledToday, hasMeditatedToday, loading }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );

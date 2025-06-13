@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/context/UserContext';
 import { ProfileProvider } from '@/context/ProfileContext';
-import { useColorScheme } from '@/components/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export {
   // Catch any errors thrown by the Layout component.

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
 
@@ -6,12 +6,16 @@ type ProfileType = {
   fish_color?: string;
   fish_name?: string;
   onboarding_completed?: boolean;
+  high_score?: number;
+  journal_streak?: number;
+  breath_streak?: number;
+  total_minutes?: number;
 };
 
 type ProfileContextType = {
   profile: ProfileType | null;
   setProfile: (profile: ProfileType | null) => void;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: (options?: { silent?: boolean }) => Promise<void>;
   loading: boolean;
   error: string | null;
 };
@@ -24,21 +28,19 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const [profile, setProfile] = useState<ProfileType | null>(null);
 
-  const refreshProfile = async () => {
-    if (!user) {
-      setProfile(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
+  const refreshProfile = async ({ silent = false } = {}) => {
+    if (!user?.id) return;
 
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
+
+    await supabase.rpc('refresh_journal_streak', { uid: user.id });
+    await supabase.rpc('refresh_breath_streak', { uid: user.id });
 
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('fish_color, fish_name, onboarding_completed')
+        .select('fish_color, fish_name, onboarding_completed, high_score, journal_streak, breath_streak, total_minutes')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -52,7 +54,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       console.error('Supabase unreachable:', err);
       setError('Supabase is currently unreachable.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -60,8 +62,16 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     refreshProfile();
   }, [user]);
 
+  const value = useMemo(() => ({
+    profile,
+    setProfile,
+    refreshProfile,
+    loading,
+    error,
+  }), [profile, loading, error, refreshProfile]);
+
   return (
-    <ProfileContext.Provider value={{ profile, setProfile, refreshProfile, loading, error }}>
+    <ProfileContext.Provider value={value}>
       {children}
     </ProfileContext.Provider>
   );

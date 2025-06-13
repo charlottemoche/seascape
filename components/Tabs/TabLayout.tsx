@@ -3,7 +3,7 @@ import { View, Image, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { Logo } from '@/components/Nav/Logo';
 
 export function TabLayout() {

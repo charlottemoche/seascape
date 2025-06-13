@@ -3,6 +3,8 @@ import { Redirect } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import { View, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import Colors from '@/constants/Colors';
 
 export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
@@ -10,14 +12,14 @@ export default function ProtectedTabLayout() {
 
   if (userLoading || profileLoading)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading...</Text>
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
       </View>
     );
 
   if (profileError)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.container}>
         <Text>We're having trouble loading your profile.</Text>
       </View>
     );
@@ -33,3 +35,12 @@ export default function ProtectedTabLayout() {
   // uncomment to test onboarding
   // return <Redirect href="/welcome" />;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.custom.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

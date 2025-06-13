@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '@/lib/supabase';
-import { ActivityIndicator } from 'react-native';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
-import { Alert } from 'react-native';
+import { updateStreak } from '@/hooks/user/updateStreak';
+import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import Colors from '@/constants/Colors';
 
 const emotions = {
@@ -27,39 +27,52 @@ const emotions = {
 const pageSize = 10;
 
 export default function JournalScreen() {
+  const { user, loading: authLoading } = useRequireAuth();
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [journalEntries, setJournalEntries] = useState<any[]>([]);
   const [entry, setEntry] = useState('');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const handleSubmit = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-
     if (!user) {
-      alert('You must be logged in to save your entry.');
+      Alert.alert('You must be logged in to save your entry.');
       return;
     }
+    if (submitLoading) return;
 
-    const { error } = await supabase.from('journal_entries').insert({
-      user_id: user.id,
-      feeling: selectedFeeling,
-      entry: entry,
-    });
+    setSubmitLoading(true);
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .insert({
+        user_id: user.id,
+        feeling: selectedFeeling,
+        entry: entry,
+      })
+      .select()
+      .single(); // get the inserted row back
 
     if (error) {
-      alert('Something went wrong. Try again.');
+      Alert.alert('Something went wrong. Try again.');
       console.error(error);
-    } else {
+    } else if (data) {
+      // Optimistically prepend new entry to current entries
+      setJournalEntries((prev) => [data, ...prev]);
+
       setSelectedFeeling(null);
       setEntry('');
-      alert('Journal entry saved!');
-      handleGetEntries();
+      Alert.alert('Journal entry saved!');
+
+      // Optionally update streak or other stats
+      await updateStreak(user.id, 'journal');
     }
+    setSubmitLoading(false);
   };
 
-  const handleGetEntries = async () => {
+  const handleGetEntries = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
 
     const from = page * pageSize;
@@ -68,12 +81,13 @@ export default function JournalScreen() {
     const { data, error } = await supabase
       .from('journal_entries')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(from, to);
 
     if (error) {
       console.error('Error fetching journal entries:', error);
-      alert('Something went wrong while fetching your journal entries.');
+      Alert.alert('Something went wrong while fetching your journal entries.');
     } else {
       // Merge new data without duplicates
       const mergedMap = new Map();
@@ -85,9 +99,8 @@ export default function JournalScreen() {
       // Update "hasMore"
       setHasMore(data.length === pageSize);
     }
-
     setLoading(false);
-  };
+  }, [page, user, journalEntries]);
 
   const handleDeleteEntry = async (id: number) => {
     const { error } = await supabase
@@ -105,13 +118,31 @@ export default function JournalScreen() {
   };
 
   const handleLoadMore = () => {
-    setPage(prevPage => prevPage + 1);
+    if (loading || !hasMore) return;
+    setPage((prev) => prev + 1);
   };
 
   useEffect(() => {
-    handleGetEntries();
-    console.log(journalEntries)
-  }, [page]);
+    if (!authLoading && user) {
+      handleGetEntries();
+    }
+  }, [page, user, authLoading]);
+
+  if (authLoading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>You must be logged in to view journal entries.</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -179,7 +210,7 @@ export default function JournalScreen() {
           {journalEntries.map((entry, index) => (
             <View key={entry.id ?? index} style={styles.entryCard}>
               <View style={styles.entryHeader}>
-                <Text style={styles.entryFeeling}>{entry.feeling}</Text>
+                <Text style={styles.entryFeeling}>{entry.feeling ?? 'Entry'}</Text>
                 <Pressable onPress={() => handleDeleteEntry(entry.id)}>
                   <TabBarIcon
                     type="AntDesign"
@@ -189,14 +220,18 @@ export default function JournalScreen() {
                   />
                 </Pressable>
               </View>
-              <Text style={styles.entryText}>{entry.entry}</Text>
+
+              {entry.entry ? (
+                <Text style={styles.entryText}>{entry.entry}</Text>
+              ) : null}
+
               <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
             </View>
           ))}
 
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#cfe9f1" />
+              <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
             </View>
           ) : hasMore ? (
             <Pressable onPress={handleLoadMore} style={styles.loadMoreButton}>
@@ -332,9 +367,10 @@ const styles = StyleSheet.create({
   entryText: {
     fontSize: 14,
     color: '#fff',
-    marginVertical: 8,
+    marginTop: 8,
   },
   entryDate: {
+    marginTop: 8,
     fontSize: 12,
     color: '#ccc',
   },
@@ -364,5 +400,13 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     paddingBottom: 6,
+  },
+  loading: {
+    backgroundColor: Colors.custom.background,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
 });

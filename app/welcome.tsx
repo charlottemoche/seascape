@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
-import { useUser } from '@/context/UserContext';
+import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { Logo } from '@/components/Nav/Logo';
 import Colors from '@/constants/Colors';
 
@@ -38,7 +38,7 @@ const slides = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const { refreshProfile } = useProfile();
-  const { user } = useUser();
+  const { user } = useRequireAuth();
 
   const [page, setPage] = useState(0);
 

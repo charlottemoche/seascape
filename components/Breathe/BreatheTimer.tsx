@@ -30,8 +30,7 @@ export default function BreatheTimer({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          setIsRunning(false);
-          onComplete(duration);
+          // Cannot call setIsRunning or onComplete here directly
           return 0;
         }
         return prev - 1;
@@ -40,6 +39,14 @@ export default function BreatheTimer({
 
     return () => clearInterval(interval);
   }, [isRunning]);
+
+  // Separate effect to handle side-effects after timeLeft changes
+  useEffect(() => {
+    if (timeLeft === 0 && isRunning) {
+      setIsRunning(false);
+      onComplete(duration);
+    }
+  }, [timeLeft, isRunning, onComplete, duration]);
 
   const handleStart = () => {
     setTimeLeft(duration * 60);
@@ -62,7 +69,7 @@ export default function BreatheTimer({
     <View>
       {!isRunning && (
         <View style={styles.buttonRow}>
-          {[5, 10].map((min) => (
+          {[1, 5, 10].map((min) => (
             <Pressable
               key={min}
               onPress={() => setDuration(min)}

@@ -1,29 +1,45 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
-import { useUserStats } from '@/components/hooks/user/useUserStats';
 import { ActivityIndicator } from 'react-native';
-import { useRequireAuth } from '@/components/hooks/user/useRequireAuth';
+import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { useProfile } from '@/context/ProfileContext';
 import Colors from '@/constants/Colors';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function HomeScreen() {
-  const router = useRouter();
   const { user, loading } = useRequireAuth();
+  const { profile, loading: profileLoading, refreshProfile } = useProfile();
+  const router = useRouter();
 
-  const {
-    journalStreak,
-    breathStreak,
-    totalMinutes,
-    loading: statsLoading,
-  } = useUserStats(user?.id ?? null);
+  useFocusEffect(
+    useCallback(() => {
+      refreshProfile({ silent: true });
+    }, [])
+  );
 
-  if (loading || statsLoading || !user) {
+  if (loading || profileLoading || !user || !profile) {
     return (
-      <View style={styles.overlay}>
-        <ActivityIndicator size="large" color="#cfe9f1" />
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
       </View>
     );
   }
+
+  function formatTime(totalMinutes: number) {
+    if (totalMinutes < 60) {
+      return `${totalMinutes} minute${totalMinutes === 1 ? '' : 's'}`;
+    } else {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return minutes === 0
+        ? `${hours} hour${hours === 1 ? '' : 's'}`
+        : `${hours} hour${hours === 1 ? '' : 's'} ${minutes} minute${minutes === 1 ? '' : 's'}`;
+    }
+  }
+
+  const { journal_streak, breath_streak, total_minutes } = profile;
 
   return (
     <ScrollView contentContainerStyle={styles.background}>
@@ -38,7 +54,9 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.streakSubtitle}>Journaling</Text>
             <Text style={styles.cardDataStreaks}>
-              {journalStreak !== null && journalStreak > 0 ? `${journalStreak} days` : 'No data'}
+              {typeof journal_streak === 'number'
+                ? `${journal_streak} day${journal_streak === 1 ? '' : 's'}`
+                : 'No data'}
             </Text>
           </View>
           <View style={styles.streakItem}>
@@ -47,7 +65,9 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.streakSubtitle}>Breathing</Text>
             <Text style={styles.cardDataStreaks}>
-              {breathStreak !== null && breathStreak > 0 ? `${breathStreak} days` : 'No data'}
+              {typeof breath_streak === 'number'
+                ? `${breath_streak} day${breath_streak === 1 ? '' : 's'}`
+                : 'No data'}
             </Text>
           </View>
         </View>
@@ -60,9 +80,11 @@ export default function HomeScreen() {
             <View style={styles.iconWrapper}>
               <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
             </View>
-            <Text style={styles.streakSubtitle}>Minutes</Text>
+            <Text style={styles.streakSubtitle}>Time</Text>
             <Text style={styles.cardDataStreaks}>
-              {totalMinutes !== null ? `${totalMinutes} minutes` : 'No minutes logged yet'}
+              {typeof total_minutes === 'number' && total_minutes > 0
+                ? formatTime(total_minutes)
+                : 'No time logged yet'}
             </Text>
           </View>
         </View>
@@ -97,22 +119,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.custom.background,
     padding: 20,
   },
-  overlay: {
+  loading: {
     backgroundColor: Colors.custom.background,
     padding: 20,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     width: '100%',
     height: '100%',
   },
-   title: {
+  title: {
     fontSize: 20,
     color: '#fff',
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: 600,
   },
-   subtitle: {
+  subtitle: {
     fontSize: 16,
     color: '#fff',
     textAlign: 'center',

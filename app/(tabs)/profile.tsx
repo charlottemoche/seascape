@@ -4,16 +4,23 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
+import { useProfile } from '@/context/ProfileContext';
+import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
+import { useEffect } from 'react';
+import preyImg from '@/assets/images/prey.png';
 import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user } = useRequireAuth();
+  const { setUser } = useUser();
+  const { profile } = useProfile();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -26,14 +33,31 @@ export default function ProfileScreen() {
     router.replace('/login');
   };
 
+  const highScore = profile?.high_score ?? 0;
+
+  useEffect(() => {
+    if (profile && profile.high_score !== undefined) {
+      console.log('High score:', profile.high_score);
+    }
+  }, [profile]);
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.loggedInWrapper}>
-        <Text style={styles.loggedInText}>
+        <Text style={styles.profileText}>
           Logged in as: {user?.email ?? 'No email'}
         </Text>
+        <View style={styles.highScoreWrapper}>
+          <Text style={styles.profileText}>
+            High Score: {highScore}
+          </Text>
+          <Image
+            source={preyImg}
+            style={styles.fishImage}
+          />
+        </View>
       </View>
-  
+
       <FishCustomizer />
 
       <View style={styles.logoutWrapper}>
@@ -61,7 +85,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     alignItems: 'center',
   },
-  loggedInText: {
+  profileText: {
     color: Colors.custom.lightBlue,
   },
   logoutWrapper: {
@@ -82,5 +106,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 0.5,
     padding: 6,
+  },
+  highScoreWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  fishImage: {
+    width: 24,
+    height: 24,
+    marginLeft: 4,
   },
 });
