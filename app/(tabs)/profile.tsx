@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Alert,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
@@ -42,30 +44,32 @@ export default function ProfileScreen() {
   }, [profile]);
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.loggedInWrapper}>
-        <Text style={styles.profileText}>
-          Logged in as: {user?.email ?? 'No email'}
-        </Text>
-        <View style={styles.highScoreWrapper}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.wrapper}>
+        <View style={styles.loggedInWrapper}>
           <Text style={styles.profileText}>
-            High Score: {highScore}
+            Logged in as: {user?.email ?? 'No email'}
           </Text>
-          <Image
-            source={preyImg}
-            style={styles.fishImage}
-          />
+          <View style={styles.highScoreWrapper}>
+            <Text style={styles.profileText}>
+              High Score: {highScore}
+            </Text>
+            <Image
+              source={preyImg}
+              style={styles.fishImage}
+            />
+          </View>
+        </View>
+
+        <FishCustomizer />
+
+        <View style={styles.logoutWrapper}>
+          <Pressable onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Log out</Text>
+          </Pressable>
         </View>
       </View>
-
-      <FishCustomizer />
-
-      <View style={styles.logoutWrapper}>
-        <Pressable onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Log out</Text>
-        </Pressable>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 

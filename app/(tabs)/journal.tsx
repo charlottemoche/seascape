@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { updateStreak } from '@/hooks/user/updateStreak';
@@ -159,104 +159,109 @@ export default function JournalScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Journal</Text>
-      <Text style={styles.subtitle}>How are you feeling?</Text>
-      <View style={styles.categoryContainer}>
-        {Object.entries(emotions).map(([categoryKey, category]) => (
-          <View key={categoryKey} style={styles.categorySection}>
-            <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
-            <View style={styles.feelingsContainer}>
-              {category.options.map((feeling) => (
-                <Pressable
-                  key={feeling}
-                  onPress={() =>
-                    setSelectedFeeling((prev) => (prev === feeling ? null : feeling))
-                  }
-                  style={[
-                    styles.feelingButton,
-                    selectedFeeling === feeling && styles.selectedFeelingButton,
-                  ]}
-                >
-                  <Text
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>Journal</Text>
+        <Text style={styles.subtitle}>How are you feeling?</Text>
+        <View style={styles.categoryContainer}>
+          {Object.entries(emotions).map(([categoryKey, category]) => (
+            <View key={categoryKey} style={styles.categorySection}>
+              <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
+              <View style={styles.feelingsContainer}>
+                {category.options.map((feeling) => (
+                  <Pressable
+                    key={feeling}
+                    onPress={() =>
+                      setSelectedFeeling((prev) => (prev === feeling ? null : feeling))
+                    }
                     style={[
-                      styles.feelingText,
-                      selectedFeeling === feeling && styles.selectedFeelingText,
+                      styles.feelingButton,
+                      selectedFeeling === feeling && styles.selectedFeelingButton,
                     ]}
                   >
-                    {feeling}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ))}
-      </View>
-
-      <Text style={styles.prompt}>Want to write something?</Text>
-
-      <TextInput
-        value={entry}
-        onChangeText={setEntry}
-        multiline
-        numberOfLines={5}
-        style={styles.textArea}
-        placeholder="Write your thoughts here..."
-        placeholderTextColor="rgba(0, 31, 51, 0.7)"
-      />
-
-      <Pressable
-        onPress={handleSubmit}
-        disabled={!selectedFeeling && !entry}
-        style={({ pressed }) => [
-          styles.submitButton,
-          (!selectedFeeling && !entry) && styles.disabledButton,
-          pressed && styles.pressedButton,
-        ]}
-      >
-        <Text style={styles.submitText}>Save Entry</Text>
-      </Pressable>
-
-      <Text style={styles.entriesTitle}>Your Journal Entries</Text>
-
-      {journalEntries.length > 0 ? (
-        <>
-          {journalEntries.map((entry, index) => (
-            <View key={entry.id ?? index} style={styles.entryCard}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryFeeling}>{entry.feeling ?? 'Entry'}</Text>
-                <Pressable onPress={() => handleDeleteEntry(entry.id)}>
-                  <TabBarIcon
-                    type="AntDesign"
-                    name="delete"
-                    color={Colors.custom.red}
-                    size={16}
-                  />
-                </Pressable>
+                    <Text
+                      style={[
+                        styles.feelingText,
+                        selectedFeeling === feeling && styles.selectedFeelingText,
+                      ]}
+                    >
+                      {feeling}
+                    </Text>
+                  </Pressable>
+                ))}
               </View>
-
-              {entry.entry ? (
-                <Text style={styles.entryText}>{entry.entry}</Text>
-              ) : null}
-
-              <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
             </View>
           ))}
+        </View>
 
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-            </View>
-          ) : hasMore ? (
-            <Pressable onPress={handleLoadMore} style={styles.loadMoreButton}>
-              <Text style={styles.loadMoreText}>Load More</Text>
-            </Pressable>
-          ) : null}
-        </>
-      ) : (
-        <Text style={styles.noEntries}>No entries yet!</Text>
-      )}
-    </ScrollView>
+        <Text style={styles.prompt}>Want to write something?</Text>
+
+        <TextInput
+          value={entry}
+          onChangeText={setEntry}
+          multiline
+          numberOfLines={5}
+          style={styles.textArea}
+          placeholder="Write your thoughts here..."
+          placeholderTextColor="rgba(0, 31, 51, 0.7)"
+        />
+
+        <Pressable
+          onPress={handleSubmit}
+          disabled={!selectedFeeling && !entry}
+          style={({ pressed }) => [
+            styles.submitButton,
+            (!selectedFeeling && !entry) && styles.disabledButton,
+            pressed && styles.pressedButton,
+          ]}
+        >
+          <Text style={styles.submitText}>Save Entry</Text>
+        </Pressable>
+
+        <Text style={styles.entriesTitle}>Your Journal Entries</Text>
+
+        {journalEntries.length > 0 ? (
+          <>
+            {journalEntries.map((entry, index) => (
+              <View key={entry.id ?? index} style={styles.entryCard}>
+                <View style={styles.entryHeader}>
+                  <Text style={styles.entryFeeling}>{entry.feeling ?? 'Entry'}</Text>
+                  <Pressable onPress={() => handleDeleteEntry(entry.id)}>
+                    <TabBarIcon
+                      type="AntDesign"
+                      name="delete"
+                      color={Colors.custom.red}
+                      size={16}
+                    />
+                  </Pressable>
+                </View>
+
+                {entry.entry ? (
+                  <Text style={styles.entryText}>{entry.entry}</Text>
+                ) : null}
+
+                <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
+              </View>
+            ))}
+
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
+              </View>
+            ) : hasMore ? (
+              <Pressable onPress={handleLoadMore} style={styles.loadMoreButton}>
+                <Text style={styles.loadMoreText}>Load More</Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <Text style={styles.noEntries}>No entries yet!</Text>
+        )}
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
