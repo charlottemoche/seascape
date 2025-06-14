@@ -62,7 +62,7 @@ export function FishCustomizer() {
         Alert.alert('Error', 'Failed to save profile. Please try again.');
       } else {
         setEditing(false);
-        Alert.alert('Success', 'Profile updated.');
+        Alert.alert('Success', 'Fish updated.');
       }
     } else {
       setEditing(true);
@@ -108,7 +108,7 @@ export function FishCustomizer() {
           style={styles.input}
         />
       ) : (
-        <Text style={styles.fishNameText}>{fishName || ''}</Text>
+        <Text style={styles.fishNameText}>{fishName || 'Name your fish'}</Text>
       )}
 
       <Pressable

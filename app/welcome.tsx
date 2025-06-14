@@ -46,8 +46,6 @@ export default function OnboardingScreen() {
   const isLastPage = page === slides.length - 1;
 
   const onNext = async () => {
-    console.log('OnboardingScreen is calling refreshProfile');
-
     if (!isLastPage) {
       setPage((prev) => prev + 1);
     } else {
