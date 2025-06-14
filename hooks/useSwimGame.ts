@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Animated, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getPlayCount, incrementPlayCount } from '@/lib/playCount';
 
 const { height, width } = Dimensions.get('window');
 const gravity = 0.6;
@@ -15,7 +15,7 @@ type Obstacle = {
   width: number;
 };
 
-export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeight: number) {
+export function useSwimGame(userId: string | undefined, canPlayToday: boolean, loading: boolean, tabBarHeight: number) {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [playCount, setPlayCount] = useState(0);
@@ -28,8 +28,6 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
   const velocity = useRef(0);
   const collidedPreyIds = useRef<Set<string>>(new Set());
 
-  const getTodayKey = () => `playCount:${new Date().toISOString().split('T')[0]}`;
-
   const resetGame = useCallback(() => {
     positionY.current = height / 5;
     position.setValue(positionY.current);
@@ -41,13 +39,10 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
   }, [position]);
 
   useEffect(() => {
-    const loadPlayCount = async () => {
-      const key = getTodayKey();
-      const count = await AsyncStorage.getItem(key);
-      setPlayCount(count ? parseInt(count, 10) : 0);
-    };
-    loadPlayCount();
-  }, []);
+    if (!loading && canPlayToday && userId) {
+      getPlayCount(userId).then(setPlayCount);
+    }
+  }, [loading, canPlayToday, userId]);
 
   const handlePreyEaten = useCallback((obstacle: Obstacle) => {
     if (collidedPreyIds.current.has(obstacle.id)) return;
@@ -83,12 +78,13 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
         setObstacles([]);
         setGameStarted(false);
 
-        if (currentSessionStarted) {
-          const key = getTodayKey();
-          const newCount = playCount + 1;
-          setPlayCount(newCount);
-          AsyncStorage.setItem(key, newCount.toString());
-          setCurrentSessionStarted(false);
+        if (currentSessionStarted && userId) {
+          const updateCount = async () => {
+            const newCount = await incrementPlayCount(userId);
+            console.log('DB updated play count:', newCount);
+            setPlayCount(newCount);
+          };
+          updateCount();
         }
         return;
       }
@@ -200,20 +196,6 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
     if (!gameStarted || gameOver) return;
     velocity.current = jumpForce;
   }, [gameStarted, gameOver]);
-
-
-  // Uncomment this if you want to reset play count for testing purposes
-  // useEffect(() => {
-  //   const clearPlayCount = async () => {
-  //     const todayKey = `playCount:${new Date().toISOString().split('T')[0]}`;
-  //     await AsyncStorage.removeItem(todayKey);
-  //     console.log('Play count reset for today');
-  //     resetGame(); // Reset game position and obstacles
-  //     setGameStarted(false); // ensure game is stopped after reset
-  //     setGameOver(false);
-  //   };
-  //   clearPlayCount();
-  // }, []);
 
   return {
     position,

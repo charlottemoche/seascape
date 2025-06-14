@@ -47,7 +47,7 @@ export default function SwimScreen() {
     startNewGame,
     obstacles,
     preyEaten,
-  } = useSwimGame(canPlayToday, loading, tabBarHeight);
+  } = useSwimGame(user?.id, canPlayToday, loading, tabBarHeight);
   // Set canPlayToday to true for testing
 
   const handlePress = () => {
