@@ -35,7 +35,6 @@ export default function SwimScreen() {
 
   // Define canPlayToday based on journal and meditation status
   const canPlayToday = (journalStreak ?? 0) > 0 && (breathStreak ?? 0) > 0;
-  console.log('breathStreak =', breathStreak);
   // Uncomment this if you want to play for testing
   // const canPlayToday = true;
 

@@ -19,7 +19,7 @@ const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'
 
 export function FishCustomizer() {
   const { user } = useUser();
-  const { profile, refreshProfile } = useProfile();
+  const { profile } = useProfile();
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(
@@ -28,6 +28,7 @@ export function FishCustomizer() {
       : 'blue'
   );
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     setFishName(profile?.fish_name ?? '');
@@ -43,27 +44,28 @@ export function FishCustomizer() {
 
   const handleSave = async () => {
     if (!user) return;
-    setSaving(true);
 
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(
-        {
-          user_id: user.id,
+    if (editing) {
+      setSaving(true);
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
           fish_color: fishColor,
           fish_name: fishName,
-        },
-        { onConflict: 'user_id' }
-      );
+        })
+        .eq('user_id', user.id);
 
-    setSaving(false);
+      setSaving(false);
 
-    if (error) {
-      console.error('Save error:', error);
-      Alert.alert('Error', 'Failed to save profile. Please try again.');
+      if (error) {
+        Alert.alert('Error', 'Failed to save profile. Please try again.');
+      } else {
+        setEditing(false);
+        Alert.alert('Success', 'Profile updated.');
+      }
     } else {
-      await refreshProfile();
-      Alert.alert('Success', 'Profile updated.');
+      setEditing(true);
     }
   };
 
@@ -72,35 +74,52 @@ export function FishCustomizer() {
       <Text style={styles.title}>Customize Your Fish</Text>
 
       <View style={styles.colorOptions}>
-        {availableColors.map((color) => (
-          <Pressable key={color} onPress={() => setFishColor(color)}>
-            <Image
-              source={fishImages[color]}
-              style={[
-                styles.smallFish,
-                fishColor === color && styles.selectedFish,
-              ]}
-            />
-          </Pressable>
-        ))}
+        <View style={styles.colorOptions}>
+          {availableColors.map((color) => (
+            <Pressable
+              key={color}
+              onPress={() => {
+                if (color !== fishColor) {
+                  setFishColor(color);
+                  setEditing(true);
+                }
+              }}
+            >
+              <Image
+                source={fishImages[color]}
+                style={[
+                  styles.smallFish,
+                  fishColor === color && editing && styles.selectedFish,
+                ]}
+              />
+            </Pressable>
+          ))}
+        </View>
       </View>
 
       <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
-      <TextInput
-        value={fishName}
-        onChangeText={setFishName}
-        placeholder="Name your fish"
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
+      {editing ? (
+        <TextInput
+          value={fishName}
+          onChangeText={setFishName}
+          placeholder="Name your fish"
+          placeholderTextColor="#888"
+          style={styles.input}
+        />
+      ) : (
+        <Text style={styles.fishNameText}>{fishName || ''}</Text>
+      )}
 
       <Pressable
         onPress={handleSave}
         style={[styles.saveButton, saving && { opacity: 0.6 }]}
         disabled={saving}
       >
-        <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save'}</Text>
+        <Text style={styles.saveButtonText}>
+          {saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
+        </Text>
+
       </Pressable>
     </View>
   );
@@ -161,5 +180,11 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: Colors.custom.background,
     fontWeight: '600',
+  },
+  fishNameText: {
+    fontSize: 18,
+    color: '#fff',
+    marginBottom: 20,
+    height: 40,
   }
 });

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 
-export function useRequireAuth() {
+export function useRequireAuth() {  
   const router = useRouter();
   const { user, loading } = useUser();
 

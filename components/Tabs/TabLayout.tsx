@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import Colors from '@/constants/Colors';

@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
+import { useRef } from 'react'
 
 type ProfileType = {
   fish_color?: string;
@@ -47,8 +48,6 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes')
         .eq('user_id', user.id)
         .maybeSingle();
-
-      console.log('Profile data after refresh:', data);
 
       if (error) {
         console.error('Profile fetch error:', error);
