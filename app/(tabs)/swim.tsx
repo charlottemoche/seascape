@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect } from 'react';
 import {
   Text,
   View,
@@ -8,8 +7,8 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
+  TouchableOpacity
 } from 'react-native';
-import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import fishImages, { FishColor } from '@/constants/fishMap';
@@ -18,10 +17,13 @@ import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '@/lib/supabase';
+import Colors from '@/constants/Colors';
+import { useStreaks } from '@/hooks/user/useStreaks';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, refreshProfile } = useProfile();
+  const { breathStreak, journalStreak } = useStreaks(user?.id); 
 
   // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
@@ -32,7 +34,8 @@ export default function SwimScreen() {
   const tabBarHeight = useBottomTabBarHeight();
 
   // Define canPlayToday based on journal and meditation status
-  const canPlayToday = (profile?.journal_streak ?? 0) > 0 && (profile?.breath_streak ?? 0) > 0;
+  const canPlayToday = (journalStreak ?? 0) > 0 && (breathStreak ?? 0) > 0;
+  console.log('breathStreak =', breathStreak);
   // Uncomment this if you want to play for testing
   // const canPlayToday = true;
 
@@ -43,7 +46,6 @@ export default function SwimScreen() {
     playCount,
     swimUp,
     startNewGame,
-    resetGame,
     obstacles,
     preyEaten,
   } = useSwimGame(canPlayToday, loading, tabBarHeight);
@@ -52,18 +54,10 @@ export default function SwimScreen() {
   const handlePress = () => {
     if (!canPlayToday || playCount >= 3) return;
 
-    if (!gameStarted || gameOver) {
-      startNewGame();
-    } else {
+    if (gameStarted) {
       swimUp();
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      resetGame();
-    }, [resetGame])
-  );
 
   useEffect(() => {
     const maybeUpdateHighScore = async () => {
@@ -118,7 +112,6 @@ export default function SwimScreen() {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>Game Over</Text>
-          <Text style={styles.gameSubtext}>Tap to restart.</Text>
           <View style={styles.highScoreRow}>
             <Text style={styles.gameSubtext}>High Score: {profile?.high_score ?? 0}</Text>
             <Image
@@ -127,6 +120,12 @@ export default function SwimScreen() {
               resizeMode="contain"
             />
           </View>
+          <TouchableOpacity
+            onPress={startNewGame}
+            style={styles.playButtonContainer}
+          >
+            <Text style={styles.playButton}>Play Again</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -147,7 +146,12 @@ export default function SwimScreen() {
             before you run out of plays.
           </Text>
 
-          <Text style={[styles.gameStartText, { paddingTop: 20 }]}>Tap the screen to start.</Text>
+          <TouchableOpacity
+            onPress={startNewGame}
+            style={styles.playButtonContainer}
+          >
+            <Text style={styles.playButton}>Play</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -250,13 +254,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  gameStartText: {
-    color: 'white',
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
   gameSubtext: {
     color: 'white',
     fontSize: 18,
@@ -324,4 +321,17 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     marginRight: 2,
   },
+  playButton: {
+    backgroundColor: Colors.custom.lightBlue,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: 'center',
+    fontSize: 18,
+    color: Colors.custom.background,
+    fontWeight: 'bold',
+  },
+  playButtonContainer: {
+    marginTop: 24
+  }
 });

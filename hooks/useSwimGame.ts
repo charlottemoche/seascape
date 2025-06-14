@@ -194,7 +194,7 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
     setGameStarted(true);
     setCurrentSessionStarted(true);
     velocity.current = jumpForce;
-  }, [loading, canPlayToday, playCount, resetGame]);
+  }, [loading, canPlayToday, playCount]);
 
   const swimUp = useCallback(() => {
     if (!gameStarted || gameOver) return;
@@ -203,17 +203,17 @@ export function useSwimGame(canPlayToday: boolean, loading: boolean, tabBarHeigh
 
 
   // Uncomment this if you want to reset play count for testing purposes
-  // useEffect(() => {
-  //   const clearPlayCount = async () => {
-  //     const todayKey = `playCount:${new Date().toISOString().split('T')[0]}`;
-  //     await AsyncStorage.removeItem(todayKey);
-  //     console.log('Play count reset for today');
-  //     resetGame(); // Reset game position and obstacles
-  //     setGameStarted(false); // ensure game is stopped after reset
-  //     setGameOver(false);
-  //   };
-  //   clearPlayCount();
-  // }, []);
+  useEffect(() => {
+    const clearPlayCount = async () => {
+      const todayKey = `playCount:${new Date().toISOString().split('T')[0]}`;
+      await AsyncStorage.removeItem(todayKey);
+      console.log('Play count reset for today');
+      resetGame(); // Reset game position and obstacles
+      setGameStarted(false); // ensure game is stopped after reset
+      setGameOver(false);
+    };
+    clearPlayCount();
+  }, []);
 
   return {
     position,

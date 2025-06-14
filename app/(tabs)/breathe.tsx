@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
-import { updateStreak } from '@/hooks/user/updateStreak';
 import Colors from '@/constants/Colors';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { updateStreak } from '@/hooks/user/updateStreak';
 import { ActivityIndicator } from 'react-native';
 
 export default function BreatheScreen() {
@@ -23,6 +23,8 @@ export default function BreatheScreen() {
   if (!user) return null;
 
   const handleBreathComplete = async (duration: number) => {
+    if (!user) return;
+
     const { error } = await supabase.from('breaths').insert({
       user_id: user.id,
       duration,

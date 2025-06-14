@@ -7,6 +7,7 @@ import { useProfile } from '@/context/ProfileContext';
 import Colors from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { useStreaks } from '@/hooks/user/useStreaks';
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
@@ -39,7 +40,8 @@ export default function HomeScreen() {
     }
   }
 
-  const { journal_streak, breath_streak, total_minutes } = profile;
+  const { total_minutes } = profile;
+  const { breathStreak, journalStreak } = useStreaks(user?.id);
 
   return (
     <ScrollView contentContainerStyle={styles.background}>
@@ -54,8 +56,8 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.streakSubtitle}>Journaling</Text>
             <Text style={styles.cardDataStreaks}>
-              {typeof journal_streak === 'number'
-                ? `${journal_streak} day${journal_streak === 1 ? '' : 's'}`
+              {typeof journalStreak === 'number'
+                ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
                 : 'No data'}
             </Text>
           </View>
@@ -65,8 +67,8 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.streakSubtitle}>Breathing</Text>
             <Text style={styles.cardDataStreaks}>
-              {typeof breath_streak === 'number'
-                ? `${breath_streak} day${breath_streak === 1 ? '' : 's'}`
+              {typeof breathStreak === 'number'
+                ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
                 : 'No data'}
             </Text>
           </View>

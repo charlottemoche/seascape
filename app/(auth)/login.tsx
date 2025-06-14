@@ -7,7 +7,9 @@ import {
   Pressable,
   Alert,
   AppState,
-  Image
+  Image,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import Colors from '@/constants/Colors';
@@ -81,57 +83,59 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
+        </View>
+        <Text style={styles.title}>
+          {isSignUp ? 'Create Account' : 'Login'}
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          autoCorrect={false}
+          spellCheck={false}
+          keyboardType="email-address"
+          onChangeText={setEmail}
+          value={email}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          onChangeText={setPassword}
+          value={password}
+        />
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <Pressable onPress={handleAuth} style={styles.button} disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading
+              ? 'Please wait...'
+              : isSignUp
+                ? 'Sign Up'
+                : 'Log In'}
+          </Text>
+        </Pressable>
+
+        <Pressable onPress={() => {
+          setIsSignUp(!isSignUp)
+          setError('')
+        }}>
+          <Text style={styles.switchText}>
+            {isSignUp
+              ? 'Already have an account? Log in'
+              : 'No account? Sign up'}
+          </Text>
+        </Pressable>
       </View>
-      <Text style={styles.title}>
-        {isSignUp ? 'Create Account' : 'Login'}
-      </Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        autoCorrect={false}
-        spellCheck={false}
-        keyboardType="email-address"
-        onChangeText={setEmail}
-        value={email}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        secureTextEntry
-        onChangeText={setPassword}
-        value={password}
-      />
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <Pressable onPress={handleAuth} style={styles.button} disabled={loading}>
-        <Text style={styles.buttonText}>
-          {loading
-            ? 'Please wait...'
-            : isSignUp
-              ? 'Sign Up'
-              : 'Log In'}
-        </Text>
-      </Pressable>
-
-      <Pressable onPress={() => {
-        setIsSignUp(!isSignUp)
-        setError('')
-      }}>
-        <Text style={styles.switchText}>
-          {isSignUp
-            ? 'Already have an account? Log in'
-            : 'No account? Sign up'}
-        </Text>
-      </Pressable>
-    </View>
+    </TouchableWithoutFeedback>
   )
 }
 

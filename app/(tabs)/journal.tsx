@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
-import { updateStreak } from '@/hooks/user/updateStreak';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { updateStreak } from '@/hooks/user/updateStreak';
 import Colors from '@/constants/Colors';
 
 const emotions = {
@@ -221,10 +221,10 @@ export default function JournalScreen() {
           <Text style={styles.submitText}>Save Entry</Text>
         </Pressable>
 
-        <Text style={styles.entriesTitle}>Your Journal Entries</Text>
 
-        {journalEntries.length > 0 ? (
+        {journalEntries.length > 0 &&
           <>
+            <Text style={styles.entriesTitle}>Your Journal Entries</Text>
             {journalEntries.map((entry, index) => (
               <View key={entry.id ?? index} style={styles.entryCard}>
                 <View style={styles.entryHeader}>
@@ -257,9 +257,7 @@ export default function JournalScreen() {
               </Pressable>
             ) : null}
           </>
-        ) : (
-          <Text style={styles.noEntries}>No entries yet!</Text>
-        )}
+        }
       </ScrollView>
     </TouchableWithoutFeedback>
   );
@@ -316,7 +314,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
-    margin: 3,
+    marginHorizontal: 1,
+    marginVertical: 2,
     borderWidth: 1,
     borderColor: '#ccc',
   },

@@ -1,4 +1,11 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+  useMemo,
+} from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
 
@@ -7,8 +14,6 @@ type ProfileType = {
   fish_name?: string;
   onboarding_completed?: boolean;
   high_score?: number;
-  journal_streak?: number;
-  breath_streak?: number;
   total_minutes?: number;
 };
 
@@ -36,15 +41,14 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
 
     if (!silent) setLoading(true);
 
-    await supabase.rpc('refresh_journal_streak', { uid: user.id });
-    await supabase.rpc('refresh_breath_streak', { uid: user.id });
-
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('fish_color, fish_name, onboarding_completed, high_score, journal_streak, breath_streak, total_minutes')
+        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes')
         .eq('user_id', user.id)
         .maybeSingle();
+
+      console.log('Profile data after refresh:', data);
 
       if (error) {
         console.error('Profile fetch error:', error);
@@ -64,13 +68,16 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     refreshProfile();
   }, [user]);
 
-  const value = useMemo(() => ({
-    profile,
-    setProfile,
-    refreshProfile,
-    loading,
-    error,
-  }), [profile, loading, error, refreshProfile]);
+  const value = useMemo(
+    () => ({
+      profile,
+      setProfile,
+      refreshProfile,
+      loading,
+      error,
+    }),
+    [profile, loading, error, refreshProfile]
+  );
 
   return (
     <ProfileContext.Provider value={value}>

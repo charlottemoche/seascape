@@ -16,7 +16,6 @@ export function Logo() {
 const styles = StyleSheet.create({
   topBar: {
     backgroundColor: Colors.custom.lightBlue,
-    paddingHorizontal: 24,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
