@@ -21,13 +21,17 @@ export default {
       bundleIdentifier: 'com.cbm.seascape',
       infoPlist: {
         'ITSAppUsesNonExemptEncryption': false,
-        'CFBundleURLTypes': [
+        CFBundleURLTypes: [
           {
-            'CFBundleURLSchemes': [
-              '1756789639-53rm9l38v3nshkh0o750j31hqh-ncpcjk'
-            ]
-          }
-        ]
+            CFBundleURLSchemes: ['seascape', 'com.cbm.seascape'],
+          },
+          {
+            CFBundleURLSchemes: ['exp+seascape'],
+          },
+          {
+            CFBundleURLSchemes: ['1756789639-53rm9l38v3nshkh0o750j31hqh-ncpcjk'],
+          },
+        ],
       }
     },
     android: {
