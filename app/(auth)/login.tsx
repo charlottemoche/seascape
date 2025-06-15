@@ -127,7 +127,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: Constants.expoConfig?.extra?.googleIosClientId!,
+      iosClientId: Constants.expoConfig?.extra?.googleIosClientId!,
       scopes: ['profile', 'email'],
     });
   }, []);
@@ -138,9 +138,6 @@ export default function LoginScreen() {
         <View style={styles.logoContainer}>
           <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
         </View>
-        <Text style={styles.title}>
-          {isSignUp ? 'Create Account' : 'Login'}
-        </Text>
 
         <TextInput
           style={styles.input}
@@ -185,8 +182,14 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
 
+        <View style={styles.separatorContainer}>
+          <View style={styles.separatorLine} />
+          <Text style={styles.separatorText}>or</Text>
+          <View style={styles.separatorLine} />
+        </View>
+
         <GoogleSigninButton
-          style={{ width: 280, height: 48, marginTop: 20 }}
+          style={styles.googleButton}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={handleGoogleLogin}
@@ -253,5 +256,27 @@ const styles = StyleSheet.create({
     width: 200,
     marginBottom: 60,
     resizeMode: 'contain',
-  }
+  },
+  googleButton: {
+    borderRadius: 20,
+    width: 280,
+  },
+  separatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+    width: 160,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.custom.lightBlue,
+  },
+  separatorText: {
+    marginHorizontal: 12,
+    color: Colors.custom.lightBlue,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+
 })

@@ -20,7 +20,14 @@ export default {
       supportsTablet: true,
       bundleIdentifier: 'com.cbm.seascape',
       infoPlist: {
-        'ITSAppUsesNonExemptEncryption': false
+        'ITSAppUsesNonExemptEncryption': false,
+        'CFBundleURLTypes': [
+          {
+            'CFBundleURLSchemes': [
+              '1756789639-53rm9l38v3nshkh0o750j31hqh-ncpcjk'
+            ]
+          }
+        ]
       }
     },
     android: {
