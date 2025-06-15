@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
       }
 
       await refreshProfile();
-      router.replace('/');
+        router.replace('/');
     }
   };
 

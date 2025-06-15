@@ -8,18 +8,15 @@ import {
   TouchableWithoutFeedback,
   Keyboard
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
-import { useEffect } from 'react';
 import preyImg from '@/assets/images/prey.png';
 import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
-  const router = useRouter();
   const { user } = useRequireAuth();
   const { setUser } = useUser();
   const { profile } = useProfile();
@@ -32,16 +29,9 @@ export default function ProfileScreen() {
       return;
     }
     setUser(null);
-    router.replace('/login');
   };
 
   const highScore = profile?.high_score ?? 0;
-
-  useEffect(() => {
-    if (profile && profile.high_score !== undefined) {
-      console.log('High score:', profile.high_score);
-    }
-  }, [profile]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -64,9 +54,9 @@ export default function ProfileScreen() {
         <FishCustomizer />
 
         <View style={styles.logoutWrapper}>
-          <Pressable onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Log out</Text>
-          </Pressable>
+            <Pressable onPress={handleLogout} style={styles.logoutButton}>
+              <Text style={styles.logoutText}>Log out</Text>
+            </Pressable>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -100,7 +90,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     paddingVertical: 10,
-    paddingHorizontal: 24,
     borderRadius: 8,
   },
   logoutText: {

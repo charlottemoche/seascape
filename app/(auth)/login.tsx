@@ -45,45 +45,139 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.signUp({ email, password });
+        // Attempt to sign up
+        const { data: { session } = {}, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
 
         if (error) {
+          if (error.message.includes('User already registered')) {
+            setError('Email already registered. Please log in.');
+            setIsSignUp(false);
+            setLoading(false);
+            return;
+          }
           setError(error.message);
           setLoading(false);
           return;
         }
 
-        if (!session) {
-          Alert.alert('Please check your inbox for email verification!');
-        } else {
+        if (session) {
+          // User signed up & logged in
           const user = session.user;
 
-          const { error: profileError } = await supabase.from('profiles').insert([
-            {
-              id: user.id,
-              email: user.email,
-              onboarding_completed: false,
-            },
-          ]);
+          // Check and insert profile if missing
+          const { data: existingProfile, error: profileQueryError } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('user_id', user.id)
+            .single();
 
-          if (profileError) {
-            console.error('Failed to insert profile:', profileError.message);
+          if (profileQueryError && profileQueryError.code !== 'PGRST116') {
+            console.error('Profile query error:', profileQueryError);
+          }
+
+          if (!existingProfile) {
+            const { error: insertError } = await supabase.from('profiles').insert([
+              {
+                user_id: user.id,
+                email: user.email,
+                onboarding_completed: false,
+              },
+            ]);
+            if (insertError) {
+              console.error('Profile insert error:', insertError.message);
+            }
+          }
+
+          router.replace('/');
+          setLoading(false);
+          return;
+        } else {
+          // No session returned, try logging in to check user status
+          const { error: loginError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!loginError) {
+            // Login succeeded, user confirmed
+            router.replace('/');
+            setLoading(false);
+            return;
+          } else if (
+            loginError.message.includes('Email not confirmed') ||
+            loginError.message.includes('email not verified')
+          ) {
+            // User exists but not verified
+            router.push({ pathname: '/verify', params: { email } });
+            setLoading(false);
+            return;
+          } else {
+            setError(loginError.message);
+            setLoading(false);
+            return;
           }
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          setError("Unable to log in. Please try again later.");
-        } else {
-          router.replace('/');
+        // Login flow
+        if (!password) {
+          setError('Please enter your password.');
+          setLoading(false);
+          return;
         }
+
+        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (loginError) {
+          if (
+            loginError.message.includes('Email not confirmed') ||
+            loginError.message.includes('email not verified')
+          ) {
+            setError('Please verify your email first. Check your inbox.');
+          } else if (loginError.message.includes('Invalid login credentials')) {
+            setError('Invalid email or password.');
+          } else {
+            setError(loginError.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // After successful login, create profile if missing
+        const user = loginData.user;
+
+        const { data: profile, error: profileQueryError } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profileQueryError && profileQueryError.code !== 'PGRST116') {
+          console.error('Profile query error:', profileQueryError);
+        }
+
+        if (!profile) {
+          const { error: insertError } = await supabase.from('profiles').insert([
+            {
+              user_id: user.id,
+              onboarding_completed: false,
+            },
+          ]);
+          if (insertError) {
+            console.error('Profile insert error:', insertError.message);
+          }
+        }
+
+        router.replace('/');
       }
     } catch (err) {
       console.error('Unexpected auth error:', err);
-      setError("Something went wrong. Supabase might be down.");
+      setError('Something went wrong. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -161,7 +255,7 @@ export default function LoginScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Pressable onPress={handleAuth} style={styles.button} disabled={loading}>
+        <Pressable onPress={handleAuth} style={[isSignUp ? styles.signUpButton : styles.logInButton, styles.button]} disabled={loading}>
           <Text style={styles.buttonText}>
             {loading
               ? 'Please wait...'
@@ -223,11 +317,16 @@ const styles = StyleSheet.create({
     width: 280,
   },
   button: {
-    backgroundColor: Colors.custom.lightBlue,
     padding: 14,
     borderRadius: 8,
     marginTop: 8,
     width: 280,
+  },
+  logInButton: {
+    backgroundColor: Colors.custom.lightBlue,
+  },
+  signUpButton: {
+    backgroundColor: Colors.custom.blue,
   },
   buttonText: {
     textAlign: 'center',

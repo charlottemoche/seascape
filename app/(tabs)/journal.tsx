@@ -63,7 +63,6 @@ export default function JournalScreen() {
 
       setSelectedFeeling(null);
       setEntry('');
-      console.log("saved")
       Alert.alert('Journal entry saved!');
 
       // Optionally update streak or other stats

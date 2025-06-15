@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
-import { useRef } from 'react'
 
 type ProfileType = {
   fish_color?: string;
