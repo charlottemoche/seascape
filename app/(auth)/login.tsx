@@ -14,11 +14,11 @@ import {
 import { supabase } from '@/lib/supabase'
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+// import {
+//   GoogleSignin,
+//   GoogleSigninButton,
+//   statusCodes,
+// } from '@react-native-google-signin/google-signin';
 import { useEffect } from 'react';
 import Constants from 'expo-constants';
 
@@ -183,48 +183,48 @@ export default function LoginScreen() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices();
+  //     const userInfo = await GoogleSignin.signIn();
 
-      const tokens = await GoogleSignin.getTokens();
+  //     const tokens = await GoogleSignin.getTokens();
 
-      if (tokens.idToken) {
-        const { data, error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: tokens.idToken,
-        });
+  //     if (tokens.idToken) {
+  //       const { data, error } = await supabase.auth.signInWithIdToken({
+  //         provider: 'google',
+  //         token: tokens.idToken,
+  //       });
 
-        if (error) {
-          console.error('Supabase login error:', error.message);
-          Alert.alert('Google login failed');
-        } else {
-          router.replace('/');
-        }
-      } else {
-        throw new Error('No ID token found');
-      }
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        // already signing in
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Google Play Services not available');
-      } else {
-        console.error('Google sign-in error:', error);
-        Alert.alert('Google Sign-In failed', error.message);
-      }
-    }
-  };
+  //       if (error) {
+  //         console.error('Supabase login error:', error.message);
+  //         Alert.alert('Google login failed');
+  //       } else {
+  //         router.replace('/');
+  //       }
+  //     } else {
+  //       throw new Error('No ID token found');
+  //     }
+  //   } catch (error: any) {
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       // user cancelled
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       // already signing in
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       Alert.alert('Google Play Services not available');
+  //     } else {
+  //       console.error('Google sign-in error:', error);
+  //       Alert.alert('Google Sign-In failed', error.message);
+  //     }
+  //   }
+  // };
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      iosClientId: Constants.expoConfig?.extra?.googleIosClientId!,
-      scopes: ['profile', 'email'],
-    });
-  }, []);
+  // useEffect(() => {
+  //   GoogleSignin.configure({
+  //     iosClientId: Constants.expoConfig?.extra?.googleIosClientId!,
+  //     scopes: ['profile', 'email'],
+  //   });
+  // }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -276,7 +276,7 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
 
-        <View style={styles.separatorContainer}>
+        {/* <View style={styles.separatorContainer}>
           <View style={styles.separatorLine} />
           <Text style={styles.separatorText}>or</Text>
           <View style={styles.separatorLine} />
@@ -287,7 +287,7 @@ export default function LoginScreen() {
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={handleGoogleLogin}
-        />
+        /> */}
       </View>
     </TouchableWithoutFeedback>
   )

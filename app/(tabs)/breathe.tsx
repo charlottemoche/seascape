@@ -36,6 +36,7 @@ export default function BreatheScreen() {
     } else {
       console.info('Breathing session saved!');
       await updateStreak(user.id, 'breath');
+      await supabase.rpc('refresh_breath_streak', { uid: user.id });
     }
   };
 

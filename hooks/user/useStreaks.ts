@@ -1,5 +1,5 @@
-import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export function useStreaks(userId: string | undefined) {
   const [breathStreak, setBreathStreak] = useState<number | null>(null);
@@ -8,22 +8,21 @@ export function useStreaks(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
 
-    const fetchStreak = async (type: 'breath' | 'journal', setter: (val: number) => void) => {
-      const { data } = await supabase
-        .from('streaks')
-        .select('length')
-        .eq('user_id', userId)
-        .eq('type', type)
-        .order('end_date', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    const fetchStreaks = async () => {
+      const { data: breathData, error: breathError } = await supabase.rpc('refresh_breath_streak', { uid: userId });
+      const { data: journalData, error: journalError } = await supabase.rpc('refresh_journal_streak', { uid: userId });
 
-      if (data?.length) setter(data.length);
-      else setter(0);
+      if (breathError || journalError) {
+        console.error('Error fetching streaks:', breathError || journalError);
+        setBreathStreak(0);
+        setJournalStreak(0);
+      } else {
+        setBreathStreak(breathData ?? 0);
+        setJournalStreak(journalData ?? 0);
+      }
     };
 
-    fetchStreak('breath', setBreathStreak);
-    fetchStreak('journal', setJournalStreak);
+    fetchStreaks();
   }, [userId]);
 
   return { breathStreak, journalStreak };

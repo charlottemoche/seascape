@@ -22,6 +22,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
   const [currentSessionStarted, setCurrentSessionStarted] = useState(false);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [preyEaten, setPreyEaten] = useState(0);
+  const [playCountLoaded, setPlayCountLoaded] = useState(false);
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -40,7 +41,22 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
 
   useEffect(() => {
     if (!loading && canPlayToday && userId) {
-      getPlayCount(userId).then(setPlayCount);
+      setPlayCountLoaded(false); // start loading
+      getPlayCount(userId).then(count => {
+        setPlayCount(count);
+        setPlayCountLoaded(true);
+      }).catch(() => {
+        // handle error if needed
+        setPlayCount(0);
+        setPlayCountLoaded(true);
+      });
+    } else if (!userId || !canPlayToday) {
+      // No need to fetch playCount if no user or cannot play, but consider playCount loaded with 0
+      setPlayCount(0);
+      setPlayCountLoaded(true);
+    } else {
+      // waiting for loading user/profile to finish
+      setPlayCountLoaded(false);
     }
   }, [loading, canPlayToday, userId]);
 
@@ -202,6 +218,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
     gameOver,
     gameStarted,
     playCount,
+    playCountLoaded,
     swimUp,
     startNewGame,
     resetGame,

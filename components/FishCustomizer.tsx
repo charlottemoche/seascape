@@ -185,6 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     marginBottom: 20,
-    height: 40,
+    height: 36,
   }
 });

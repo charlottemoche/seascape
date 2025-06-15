@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { ActivityIndicator } from 'react-native';
@@ -12,6 +12,8 @@ import { useStreaks } from '@/hooks/user/useStreaks';
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading, refreshProfile } = useProfile();
+  const { breathStreak, journalStreak } = useStreaks(user?.id);
+
   const router = useRouter();
 
   useFocusEffect(
@@ -41,77 +43,78 @@ export default function HomeScreen() {
   }
 
   const { total_minutes } = profile;
-  const { breathStreak, journalStreak } = useStreaks(user?.id);
 
   return (
-    <ScrollView contentContainerStyle={styles.background}>
-      <Text style={styles.title}>Dashboard</Text>
-      <Text style={styles.subtitle}>Your personal stats</Text>
-      <View style={[styles.card, styles.darkCard]}>
-        <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
-        <View style={styles.streakRow}>
-          <View style={styles.streakItem}>
-            <View style={styles.iconWrapper}>
-              <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
+    <SafeAreaView style={styles.backgroundColor}>
+      <ScrollView contentContainerStyle={styles.background}>
+        <Text style={styles.title}>Dashboard</Text>
+        <Text style={styles.subtitle}>Your personal stats</Text>
+        <View style={[styles.card, styles.darkCard]}>
+          <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
+          <View style={styles.streakRow}>
+            <View style={styles.streakItem}>
+              <View style={styles.iconWrapper}>
+                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
+              </View>
+              <Text style={styles.streakSubtitle}>Journaling</Text>
+              <Text style={styles.cardDataStreaks}>
+                {typeof journalStreak === 'number'
+                  ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
+                  : 'No data'}
+              </Text>
             </View>
-            <Text style={styles.streakSubtitle}>Journaling</Text>
-            <Text style={styles.cardDataStreaks}>
-              {typeof journalStreak === 'number'
-                ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
-                : 'No data'}
-            </Text>
-          </View>
-          <View style={styles.streakItem}>
-            <View style={styles.iconWrapper}>
-              <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
+            <View style={styles.streakItem}>
+              <View style={styles.iconWrapper}>
+                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
+              </View>
+              <Text style={styles.streakSubtitle}>Breathing</Text>
+              <Text style={styles.cardDataStreaks}>
+                {typeof breathStreak === 'number'
+                  ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
+                  : 'No data'}
+              </Text>
             </View>
-            <Text style={styles.streakSubtitle}>Breathing</Text>
-            <Text style={styles.cardDataStreaks}>
-              {typeof breathStreak === 'number'
-                ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
-                : 'No data'}
-            </Text>
           </View>
         </View>
-      </View>
 
-      <View style={[styles.card, styles.darkCard]}>
-        <Text style={styles.streakTitle}>Total Time Meditated</Text>
-        <View style={styles.streakRow}>
-          <View style={styles.streakItem}>
-            <View style={styles.iconWrapper}>
-              <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
+        <View style={[styles.card, styles.darkCard]}>
+          <Text style={styles.streakTitle}>Total Time Meditated</Text>
+          <View style={styles.streakRow}>
+            <View style={styles.streakItem}>
+              <View style={styles.iconWrapper}>
+                <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
+              </View>
+              <Text style={styles.streakSubtitle}>Time</Text>
+              <Text style={styles.cardDataStreaks}>
+                {typeof total_minutes === 'number' && total_minutes > 0
+                  ? formatTime(total_minutes)
+                  : 'No time logged yet'}
+              </Text>
             </View>
-            <Text style={styles.streakSubtitle}>Time</Text>
-            <Text style={styles.cardDataStreaks}>
-              {typeof total_minutes === 'number' && total_minutes > 0
-                ? formatTime(total_minutes)
-                : 'No time logged yet'}
-            </Text>
           </View>
         </View>
-      </View>
 
-      <View style={[styles.card, styles.actionCard]}>
-        <Pressable onPress={() => router.push('/journal')}>
-          <View style={styles.actionHeader}>
-            <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
-            <Text style={styles.cardTitle}>How are you feeling?</Text>
-          </View>
-          <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
-        </Pressable>
-      </View>
+        <View style={[styles.card, styles.actionCard]}>
+          <Pressable onPress={() => router.push('/journal')}>
+            <View style={styles.actionHeader}>
+              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
+              <Text style={styles.cardTitle}>How are you feeling?</Text>
+            </View>
+            <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
+          </Pressable>
+        </View>
 
-      <View style={[styles.card, styles.actionCard]}>
-        <Pressable onPress={() => router.push('/breathe')}>
-          <View style={styles.actionHeader}>
-            <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
-            <Text style={styles.cardTitle}>Need a moment?</Text>
-          </View>
-          <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+        <View style={[styles.card, styles.actionCard]}>
+          <Pressable onPress={() => router.push('/breathe')}>
+            <View style={styles.actionHeader}>
+              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
+              <Text style={styles.cardTitle}>Need a moment?</Text>
+            </View>
+            <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -120,6 +123,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: Colors.custom.background,
     padding: 20,
+  },
+  backgroundColor: {
+    flex: 1,
+    backgroundColor: Colors.custom.background,
   },
   loading: {
     backgroundColor: Colors.custom.background,

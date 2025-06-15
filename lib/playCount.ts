@@ -7,7 +7,7 @@ export async function getPlayCount(userId: string): Promise<number> {
 
   const { data, error } = await supabase
     .from('play_counts')
-    .select('count')
+    .select('play_count')
     .eq('user_id', userId)
     .eq('date', today)
     .maybeSingle();
@@ -17,7 +17,7 @@ export async function getPlayCount(userId: string): Promise<number> {
     return 0;
   }
 
-  return data?.count ?? 0;
+  return data?.play_count ?? 0;
 }
 
 /**
@@ -32,12 +32,16 @@ export async function incrementPlayCount(userId: string): Promise<number> {
     play_date: today,
   });
 
-  console.log('New play count:', data?.count);
+  console.log('New play count:', data?.play_count);
 
   if (error) {
     console.error('Error incrementing play count:', error);
     return 0;
   }
 
-  return data?.count ?? 0;
+  if (Array.isArray(data) && data.length > 0) {
+    return data[0].play_count ?? 0;
+  }
+
+  return 0;
 }

@@ -13,17 +13,20 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import { useSwimGame } from '@/hooks/useSwimGame';
+import { useCanPlayToday } from '@/hooks/user/useCanPlayToday';
 import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 import { useStreaks } from '@/hooks/user/useStreaks';
+import { ActivityIndicator } from 'react-native';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, refreshProfile } = useProfile();
-  const { breathStreak, journalStreak } = useStreaks(user?.id); 
+  const { breathStreak, journalStreak } = useStreaks(user?.id);
+  const canPlay = useCanPlayToday(user?.id);
 
   // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
@@ -34,7 +37,8 @@ export default function SwimScreen() {
   const tabBarHeight = useBottomTabBarHeight();
 
   // Define canPlayToday based on journal and meditation status
-  const canPlayToday = (journalStreak ?? 0) > 0 && (breathStreak ?? 0) > 0;
+  const canPlayToday = canPlay ?? false;
+
   // Uncomment this if you want to play for testing
   // const canPlayToday = true;
 
@@ -43,12 +47,19 @@ export default function SwimScreen() {
     gameOver,
     gameStarted,
     playCount,
+    playCountLoaded,
     swimUp,
     startNewGame,
     obstacles,
     preyEaten,
   } = useSwimGame(user?.id, canPlayToday, loading, tabBarHeight);
   // Set canPlayToday to true for testing
+
+  const isReady =
+    !loading &&
+    breathStreak !== null &&
+    journalStreak !== null &&
+    playCountLoaded;
 
   const handlePress = () => {
     if (!canPlayToday || playCount >= 3) return;
@@ -80,7 +91,13 @@ export default function SwimScreen() {
   }, [gameOver, preyEaten, profile, user]);
 
   const renderOverlay = () => {
-    if (!canPlayToday) {
+    if (!isReady) {
+      return (
+        <View style={[styles.container, styles.gameMessageOverlay]}>
+          <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
+        </View>
+      );
+    } else if (!canPlayToday) {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameSubtext}>
@@ -88,9 +105,7 @@ export default function SwimScreen() {
           </Text>
         </View>
       );
-    }
-
-    if (playCount >= 3 && !gameStarted) {
+    } else if (playCount >= 3 && !gameStarted) {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>You’ve used all 3 plays for today</Text>
@@ -105,9 +120,7 @@ export default function SwimScreen() {
           </View>
         </View>
       );
-    }
-
-    if (gameOver) {
+    } else if (gameOver) {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>Game Over</Text>
@@ -127,9 +140,7 @@ export default function SwimScreen() {
           </TouchableOpacity>
         </View>
       );
-    }
-
-    if (!gameStarted) {
+    } else if (!gameStarted) {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>Welcome to Seascape!</Text>

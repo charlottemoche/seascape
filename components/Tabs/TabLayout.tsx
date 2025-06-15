@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from 'react';
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
@@ -16,6 +15,10 @@ export function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarStyle: {
+            backgroundColor:
+              colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.lightBlue,
+          },
           headerShown: false
         }}
       >
