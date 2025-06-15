@@ -47,11 +47,11 @@ ios/Pods/
 ios/*.xcworkspace
 ios/Podfile.lock
 ios/DerivedData/
-ios/seascape.xcworkspace/
-ios/seascape.xcodeproj/project.xcworkspace/
-ios/seascape.xcodeproj/xcuserdata/
-ios/seascape.xcodeproj/project.pbxproj
-ios/seascape/Images.xcassets/
+ios/Seascape.xcworkspace/
+ios/Seascape.xcodeproj/project.xcworkspace/
+ios/Seascape.xcodeproj/xcuserdata/
+ios/Seascape.xcodeproj/project.pbxproj
+ios/Seascape/Images.xcassets/
 
 # Android
 android/.gradle/
