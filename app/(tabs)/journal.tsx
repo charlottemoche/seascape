@@ -15,7 +15,8 @@ import {
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
-import { updateStreak } from '@/hooks/user/updateStreak';
+import { updateStreak } from '@/lib/streakService';
+import { useStreaks } from '@/context/StreakContext';
 import Colors from '@/constants/Colors';
 
 const emotions = {
@@ -40,6 +41,8 @@ const pageSize = 10;
 
 export default function JournalScreen() {
   const { user, loading: authLoading } = useRequireAuth();
+  const { refreshStreaks } = useStreaks();
+
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [journalEntries, setJournalEntries] = useState<any[]>([]);
   const [entry, setEntry] = useState('');
@@ -56,31 +59,37 @@ export default function JournalScreen() {
     if (submitLoading) return;
 
     setSubmitLoading(true);
+
     const { data, error } = await supabase
       .from('journal_entries')
       .insert({
         user_id: user.id,
         feeling: selectedFeeling,
-        entry: entry,
+        entry,
       })
       .select()
-      .single(); // get the inserted row back
+      .single();
 
     if (error) {
       Alert.alert('Something went wrong. Try again.');
       console.error(error);
-    } else if (data) {
-      // Optimistically prepend new entry to current entries
-      setJournalEntries((prev) => [data, ...prev]);
-
-      setSelectedFeeling(null);
-      setEntry('');
-      Alert.alert('Journal entry saved!');
-
-      // Optionally update streak or other stats
-      await updateStreak(user.id, 'journal');
-      await supabase.rpc('refresh_journal_streak', { uid: user.id });
+      setSubmitLoading(false);
+      return;
     }
+
+    // Success path
+    setJournalEntries((prev) => [data, ...prev]);
+    setSelectedFeeling(null);
+    setEntry('');
+    Alert.alert('Journal entry saved!');
+
+    try {
+      await updateStreak(user.id, 'journal');
+      await refreshStreaks();
+    } catch (e) {
+      console.error('Failed to update streak:', e);
+    }
+
     setSubmitLoading(false);
   };
 
@@ -215,6 +224,7 @@ export default function JournalScreen() {
           <Text style={styles.prompt}>Want to write something?</Text>
 
           <TextInput
+            testID="journal-entry-input"
             value={entry}
             onChangeText={setEntry}
             multiline
@@ -225,6 +235,7 @@ export default function JournalScreen() {
           />
 
           <Pressable
+            testID="journal-submit-button"
             onPress={handleSubmit}
             disabled={!selectedFeeling && !entry}
             style={({ pressed }) => [

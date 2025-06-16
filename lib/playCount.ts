@@ -1,9 +1,12 @@
 import { supabase } from '@/lib/supabase';
 
-
-// Fetches today's play count for the given user.
 export async function getPlayCount(userId: string): Promise<number> {
-  const today = new Date().toISOString().split('T')[0];
+  // Get user's local date as YYYY-MM-DD
+  const localDate = new Date();
+  const yyyy = localDate.getFullYear();
+  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(localDate.getDate()).padStart(2, '0');
+  const today = `${yyyy}-${mm}-${dd}`;
 
   const { data, error } = await supabase
     .from('play_counts')
@@ -20,19 +23,18 @@ export async function getPlayCount(userId: string): Promise<number> {
   return data?.play_count ?? 0;
 }
 
-/**
- * Increments today's play count for the given user using the
- * `increment_play_count` Postgres function.
- */
 export async function incrementPlayCount(userId: string): Promise<number> {
-  const today = new Date().toISOString().split('T')[0];
+  // Use local device date for consistency
+  const localDate = new Date();
+  const yyyy = localDate.getFullYear();
+  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(localDate.getDate()).padStart(2, '0');
+  const today = `${yyyy}-${mm}-${dd}`;
 
   const { data, error } = await supabase.rpc('increment_play_count', {
     uid: userId,
     play_date: today,
   });
-
-  console.log('New play count:', data?.play_count);
 
   if (error) {
     console.error('Error incrementing play count:', error);

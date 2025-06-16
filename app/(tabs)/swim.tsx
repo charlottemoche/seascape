@@ -13,20 +13,26 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import { useSwimGame } from '@/hooks/useSwimGame';
-import { useCanPlayToday } from '@/hooks/user/useCanPlayToday';
+import { useCanPlay } from '@/hooks/user/useCanPlayToday';
 import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
-import { useStreaks } from '@/hooks/user/useStreaks';
+import { useStreaks } from '@/context/StreakContext';
 import { ActivityIndicator } from 'react-native';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, refreshProfile } = useProfile();
-  const { breathStreak, journalStreak } = useStreaks(user?.id);
-  const canPlay = useCanPlayToday(user?.id);
+  const { breathStreak, journalStreak } = useStreaks();
+  const {
+    canPlay,
+    loading: canPlayLoading,
+    playCount,
+    playCountLoaded,
+    setPlayCount,
+  } = useCanPlay(user?.id);
 
   // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
@@ -36,24 +42,23 @@ export default function SwimScreen() {
   const fishImage = fishImages[fishColor];
   const tabBarHeight = useBottomTabBarHeight();
 
-  // Define canPlayToday based on journal and meditation status
-  const canPlayToday = canPlay ?? false;
-
-  // Uncomment this if you want to play for testing
-  // const canPlayToday = true;
-
   const {
     position,
     gameOver,
     gameStarted,
-    playCount,
-    playCountLoaded,
     swimUp,
     startNewGame,
     obstacles,
     preyEaten,
-  } = useSwimGame(user?.id, canPlayToday, loading, tabBarHeight);
-  // Set canPlayToday to true for testing
+  } = useSwimGame({
+    userId: user?.id,
+    canPlayToday: canPlay,
+    loading: loading || canPlayLoading,
+    tabBarHeight,
+    playCount: playCount ?? 0,
+    playCountLoaded: playCountLoaded ?? false,
+    onPlayCountChange: setPlayCount,
+  });
 
   const isReady =
     !loading &&
@@ -62,8 +67,7 @@ export default function SwimScreen() {
     playCountLoaded;
 
   const handlePress = () => {
-    if (!canPlayToday || playCount >= 3) return;
-
+    if (!canPlay) return;
     if (gameStarted) {
       swimUp();
     }
@@ -97,15 +101,7 @@ export default function SwimScreen() {
           <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
         </View>
       );
-    } else if (!canPlayToday) {
-      return (
-        <View style={styles.gameMessageOverlay}>
-          <Text style={styles.gameSubtext}>
-            You must complete both a journal and a meditation session today to play.
-          </Text>
-        </View>
-      );
-    } else if (playCount >= 3 && !gameStarted) {
+    } else if ((playCount ?? 0) >= 3 && !gameStarted) {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>You’ve used all 3 plays for today</Text>
@@ -118,6 +114,14 @@ export default function SwimScreen() {
               resizeMode="contain"
             />
           </View>
+        </View>
+      );
+    } else if (!canPlay) {
+      return (
+        <View style={styles.gameMessageOverlay}>
+          <Text style={styles.gameSubtext}>
+            You must complete both a journal and a meditation session today to play.
+          </Text>
         </View>
       );
     } else if (gameOver) {
@@ -190,7 +194,7 @@ export default function SwimScreen() {
                 </View>
                 <View style={styles.counterRow}>
                   <Text style={styles.counterLabel}>Plays Left:</Text>
-                  <Text style={styles.counterText}>{3 - playCount}</Text>
+                  <Text style={styles.counterText}>{3 - (playCount ?? 0)}</Text>
                 </View>
               </View>
             )}

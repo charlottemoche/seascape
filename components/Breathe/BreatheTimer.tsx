@@ -92,7 +92,13 @@ export default function BreatheTimer({
         </View>
       )}
 
-      <Pressable onPress={() => setShowTime(!showTime)}>
+      <Pressable
+        onPress={() => {
+          if (isRunning) {
+            setShowTime(!showTime);
+          }
+        }}
+      >
         <View style={styles.timerWrapper}>
           <Text style={showTime ? styles.timer : styles.noTimer}>
             {showTime ? formatTime(timeLeft) : 'Tap to reveal time remaining'}

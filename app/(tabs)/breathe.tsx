@@ -5,11 +5,13 @@ import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
-import { updateStreak } from '@/hooks/user/updateStreak';
+import { updateStreak } from '@/lib/streakService';
+import { useStreaks } from '@/context/StreakContext';
 import { ActivityIndicator } from 'react-native';
 
 export default function BreatheScreen() {
   const { user, loading } = useRequireAuth();
+  const { refreshStreaks } = useStreaks();
   const [isRunning, setIsRunning] = useState(false);
 
   if (loading) {
@@ -36,7 +38,7 @@ export default function BreatheScreen() {
     } else {
       console.info('Breathing session saved!');
       await updateStreak(user.id, 'breath');
-      await supabase.rpc('refresh_breath_streak', { uid: user.id });
+      await refreshStreaks();
     }
   };
 

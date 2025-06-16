@@ -7,7 +7,9 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/context/UserContext';
 import { ProfileProvider } from '@/context/ProfileContext';
+import { StreakProvider } from '@/context/StreakContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useUser } from '@/context/UserContext';
 import { Asset } from 'expo-asset';
 
 const imagesToCache = [
@@ -73,15 +75,20 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <UserProvider>
+      <RootLayoutNav />
+    </UserProvider>
+  );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { user } = useUser();
 
   return (
-    <UserProvider>
-      <ProfileProvider>
+    <ProfileProvider>
+      <StreakProvider userId={user?.id}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -90,7 +97,7 @@ function RootLayoutNav() {
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
         </ThemeProvider>
-      </ProfileProvider>
-    </UserProvider>
+      </StreakProvider>
+    </ProfileProvider>
   );
 }

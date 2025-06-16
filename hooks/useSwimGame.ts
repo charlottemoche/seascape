@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Animated, Dimensions } from 'react-native';
-import { getPlayCount, incrementPlayCount } from '@/lib/playCount';
+import { incrementPlayCount } from '@/lib/playCount';
 
 const { height, width } = Dimensions.get('window');
 const gravity = 0.6;
@@ -15,14 +15,30 @@ type Obstacle = {
   width: number;
 };
 
-export function useSwimGame(userId: string | undefined, canPlayToday: boolean, loading: boolean, tabBarHeight: number) {
+type UseSwimGameParams = {
+  userId?: string;
+  canPlayToday: boolean;
+  loading: boolean;
+  tabBarHeight: number;
+  playCount: number;
+  playCountLoaded: boolean;
+  onPlayCountChange?: (newCount: number) => void;
+};
+
+export function useSwimGame({
+  userId,
+  canPlayToday,
+  loading,
+  tabBarHeight,
+  playCount,
+  playCountLoaded,
+  onPlayCountChange,
+}: UseSwimGameParams) {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [playCount, setPlayCount] = useState(0);
   const [currentSessionStarted, setCurrentSessionStarted] = useState(false);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [preyEaten, setPreyEaten] = useState(0);
-  const [playCountLoaded, setPlayCountLoaded] = useState(false);
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -39,41 +55,17 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
     collidedPreyIds.current.clear();
   }, [position]);
 
-  useEffect(() => {
-    if (!loading && canPlayToday && userId) {
-      setPlayCountLoaded(false); // start loading
-      getPlayCount(userId).then(count => {
-        setPlayCount(count);
-        setPlayCountLoaded(true);
-      }).catch(() => {
-        // handle error if needed
-        setPlayCount(0);
-        setPlayCountLoaded(true);
-      });
-    } else if (!userId || !canPlayToday) {
-      // No need to fetch playCount if no user or cannot play, but consider playCount loaded with 0
-      setPlayCount(0);
-      setPlayCountLoaded(true);
-    } else {
-      // waiting for loading user/profile to finish
-      setPlayCountLoaded(false);
-    }
-  }, [loading, canPlayToday, userId]);
-
-  const handlePreyEaten = useCallback((obstacle: Obstacle) => {
-    if (collidedPreyIds.current.has(obstacle.id)) return;
-    collidedPreyIds.current.add(obstacle.id);
-
-    setObstacles((prev) => prev.filter((ob) => ob.id !== obstacle.id));
-    setPreyEaten((count) => count + 1);
-    velocity.current = jumpForce * 1.2;
-  }, []);
-
-  const handlePredatorCollision = useCallback(() => {
+  const endGame = useCallback(() => {
     setGameOver(true);
     setObstacles([]);
     setGameStarted(false);
-  }, []);
+
+    if (currentSessionStarted && userId && onPlayCountChange) {
+      incrementPlayCount(userId).then((newCount) => {
+        onPlayCountChange(newCount);
+      });
+    }
+  }, [currentSessionStarted, userId, onPlayCountChange]);
 
   useEffect(() => {
     if (!gameStarted || gameOver) return;
@@ -90,18 +82,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
       }
 
       if (newY > height - tabBarHeight) {
-        setGameOver(true);
-        setObstacles([]);
-        setGameStarted(false);
-
-        if (currentSessionStarted && userId) {
-          const updateCount = async () => {
-            const newCount = await incrementPlayCount(userId);
-            console.log('DB updated play count:', newCount);
-            setPlayCount(newCount);
-          };
-          updateCount();
-        }
+        endGame();
         return;
       }
 
@@ -109,7 +90,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
       Animated.timing(position, {
         toValue: newY,
         duration: 0,
-        useNativeDriver: false, // or true depending on your case
+        useNativeDriver: false,
       }).start();
 
       // Collision detection
@@ -125,9 +106,14 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
 
         if (isXAligned && isYAligned) {
           if (obstacle.type === 'predator') {
-            handlePredatorCollision();
+            endGame();
           } else {
-            handlePreyEaten(obstacle);
+            if (!collidedPreyIds.current.has(obstacle.id)) {
+              collidedPreyIds.current.add(obstacle.id);
+              setObstacles((prev) => prev.filter((ob) => ob.id !== obstacle.id));
+              setPreyEaten((count) => count + 1);
+              velocity.current = jumpForce * 1.2;
+            }
           }
         }
       });
@@ -137,15 +123,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
 
     animationFrame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animationFrame);
-  }, [
-    gameStarted,
-    gameOver,
-    obstacles,
-    currentSessionStarted,
-    playCount,
-    handlePreyEaten,
-    handlePredatorCollision,
-  ]);
+  }, [gameStarted, gameOver, obstacles, tabBarHeight, endGame]);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -155,9 +133,10 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
     const spawnInterval = setInterval(() => {
       const id = Math.random().toString(36).slice(2);
       const type = Math.random() > 0.5 ? 'predator' : 'prey';
-      const y = type === 'predator'
-        ? Math.random() * (height - 150)
-        : 100 + Math.random() * (height / 2 - 150);
+      const y =
+        type === 'predator'
+          ? Math.random() * (height - 150)
+          : 100 + Math.random() * (height / 2 - 150);
 
       const x = new Animated.Value(width);
       const newObstacle: Obstacle = {
@@ -171,9 +150,7 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
 
       const listenerId = x.addListener(({ value }) => {
         setObstacles((prev) =>
-          prev.map((ob) =>
-            ob.id === id ? { ...ob, xValue: value } : ob
-          )
+          prev.map((ob) => (ob.id === id ? { ...ob, xValue: value } : ob))
         );
       });
       listeners[id] = listenerId;
@@ -197,16 +174,17 @@ export function useSwimGame(userId: string | undefined, canPlayToday: boolean, l
         if (obs) obs.x.removeListener(listenerId);
       });
     };
-  }, [gameStarted]);
+  }, [gameStarted, obstacles]);
 
   const startNewGame = useCallback(() => {
-    if (loading || !canPlayToday || playCount >= 3) return;
+    if (loading || !canPlayToday || playCountLoaded === false || playCount >= 3)
+      return;
     resetGame();
     setGameOver(false);
     setGameStarted(true);
     setCurrentSessionStarted(true);
     velocity.current = jumpForce;
-  }, [loading, canPlayToday, playCount]);
+  }, [loading, canPlayToday, playCount, playCountLoaded, resetGame]);
 
   const swimUp = useCallback(() => {
     if (!gameStarted || gameOver) return;

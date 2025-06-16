@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabase';
-import { updateStreak } from '@/hooks/user/updateStreak';
+import { updateStreak } from '@/lib/streakService';
 import { Alert } from 'react-native';
 
 jest.mock('@/lib/supabase');
-jest.mock('@/hooks/user/updateStreak');
+jest.mock('@/lib/streakService');
 
 beforeEach(() => {
   jest.clearAllMocks();

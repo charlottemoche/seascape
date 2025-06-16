@@ -1,66 +1,53 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
+import { useStreaks } from '@/context/StreakContext';
+import { getPlayCount } from '@/lib/playCount';
 
-function isToday(dateString: string | undefined | null) {
+function isToday(dateString?: string | null) {
   if (!dateString) return false;
-
   const date = new Date(dateString);
   const now = new Date();
-
   return (
-    date.getUTCFullYear() === now.getUTCFullYear() &&
-    date.getUTCMonth() === now.getUTCMonth() &&
-    date.getUTCDate() === now.getUTCDate()
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
   );
 }
 
-export function useCanPlayToday(userId: string | undefined) {
-  const [canPlay, setCanPlay] = useState<boolean | null>(null);
+export function useCanPlay(userId?: string | null) {
+  const { breathStreakDate, journalStreakDate } = useStreaks();
+  const [playCount, setPlayCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [playCountLoaded, setPlayCountLoaded] = useState(false);
 
   useEffect(() => {
     if (!userId) {
-      setCanPlay(false);
+      setPlayCount(null);
+      setLoading(false);
+      setPlayCountLoaded(false);
       return;
     }
 
-    const fetchLatestStreaks = async () => {
+    async function fetchPlayCount() {
+      setLoading(true);
       try {
-        const { data: breathStreak, error: breathError } = await supabase
-          .from('streaks')
-          .select('end_date')
-          .eq('user_id', userId)
-          .eq('type', 'breath')
-          .order('end_date', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        const { data: journalStreak, error: journalError } = await supabase
-          .from('streaks')
-          .select('end_date')
-          .eq('user_id', userId)
-          .eq('type', 'journal')
-          .order('end_date', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (breathError || journalError) {
-          console.error('Error fetching streaks:', breathError || journalError);
-          setCanPlay(false);
-          return;
-        }
-
-        const breathDoneToday = isToday(breathStreak?.end_date);
-        const journalDoneToday = isToday(journalStreak?.end_date);
-
-        setCanPlay(breathDoneToday && journalDoneToday);
-      } catch (error) {
-        console.error('Error fetching streaks:', error);
-        setCanPlay(false);
+        const count = await getPlayCount(userId!);
+        setPlayCount(count);
+        setPlayCountLoaded(true);
+      } catch (e) {
+        console.error('Failed fetching play count:', e);
+        setPlayCount(0);
+        setPlayCountLoaded(true);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
 
-    fetchLatestStreaks();
+    fetchPlayCount();
   }, [userId]);
 
-  return canPlay;
+  const prerequisitesMet = isToday(breathStreakDate) && isToday(journalStreakDate);
+  const hasPlaysLeft = playCount !== null && playCount < 3;
+  const canPlay = prerequisitesMet && hasPlaysLeft;
+
+  return { canPlay, loading, playCount, playCountLoaded, setPlayCount };
 }

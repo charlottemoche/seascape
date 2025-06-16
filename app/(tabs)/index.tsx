@@ -7,12 +7,12 @@ import { useProfile } from '@/context/ProfileContext';
 import Colors from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { useStreaks } from '@/hooks/user/useStreaks';
+import { useStreaks } from '@/context/StreakContext';
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading, refreshProfile } = useProfile();
-  const { breathStreak, journalStreak } = useStreaks(user?.id);
+  const { breathStreak, journalStreak } = useStreaks();
 
   const router = useRouter();
 
@@ -57,7 +57,7 @@ export default function HomeScreen() {
                 <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Journaling</Text>
-              <Text style={styles.cardDataStreaks}>
+              <Text testID="journal-streak"style={styles.cardDataStreaks}>
                 {typeof journalStreak === 'number'
                   ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
                   : 'No data'}
@@ -68,7 +68,7 @@ export default function HomeScreen() {
                 <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
               </View>
               <Text style={styles.streakSubtitle}>Breathing</Text>
-              <Text style={styles.cardDataStreaks}>
+              <Text testID="breathing-streak" style={styles.cardDataStreaks}>
                 {typeof breathStreak === 'number'
                   ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
                   : 'No data'}

@@ -14,6 +14,7 @@ export const supabase = {
       error: null,
     }),
   })),
+  rpc: jest.fn().mockResolvedValue({ data: null, error: null }),
   auth: {
     getSession: jest.fn().mockResolvedValue({ data: { session: { user: { id: 'test-user' } } } }),
     onAuthStateChange: jest.fn(() => ({
