@@ -179,6 +179,7 @@ export default function SwimScreen() {
             <Image source={predatorImg} style={styles.iconInlinePredator} resizeMode="contain" />
             <Text style={styles.gameSubtext}> and collect</Text>
             <Image source={preyImg} style={styles.iconInlinePrey} resizeMode="contain" />
+            <Text style={styles.gameSubtext}>Tap repeatedly to swim up.</Text>
           </View>
 
           <Text style={styles.gameSubtext}>

@@ -5,16 +5,16 @@ import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
-import { updateStreak } from '@/lib/streakService';
 import { useStreaks } from '@/context/StreakContext';
 import { useAudioPlayer } from 'expo-audio';
+import { updateStreak } from '@/lib/streakService';
 
 export default function BreatheScreen() {
   const { user, loading } = useRequireAuth();
-  const { refreshStreaks } = useStreaks();
   const [isRunning, setIsRunning] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
   const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
+  const { refreshStreaks } = useStreaks();
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 

@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
-  ScrollView,
   SafeAreaView,
   Alert,
   ActivityIndicator,
@@ -15,10 +14,10 @@ import {
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
-import { updateStreak } from '@/lib/streakService';
 import { useStreaks } from '@/context/StreakContext';
 import Colors from '@/constants/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { updateStreak } from '@/lib/streakService';
 
 const emotions = {
   positive: {
@@ -94,7 +93,6 @@ export default function JournalScreen() {
 
     setSubmitLoading(false);
   };
-
 
   const handleGetEntries = useCallback(async () => {
     if (!user) return;

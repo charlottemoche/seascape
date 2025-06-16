@@ -21,9 +21,8 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
 
 export async function updateStreak(userId: string, type: 'journal' | 'breath', userTimezone: string) {
   const rpcName = type === 'journal' ? 'refresh_journal_streak' : 'refresh_breath_streak';
-  const { data, error } = await supabase.rpc(rpcName, { uid: userId, user_timezone: userTimezone });
+  const { error } = await supabase.rpc(rpcName, { uid: userId, user_timezone: userTimezone });
   if (error) {
     console.error('[updateStreak] RPC error:', error);
   }
-  return data;
 }

@@ -3,20 +3,20 @@ let breathDates = new Set<string>();
 let breathMinutesValue = 0;
 
 export function resetMockStreaks() {
-  journalDates = new Set();
-  breathDates = new Set();
+  journalDates.clear();
+  breathDates.clear();
   breathMinutesValue = 0;
 }
 
-export function incrementJournalStreak() {
+export const incrementJournalStreak = async () => {
   const today = new Date().toISOString().split('T')[0];
   journalDates.add(today);
-}
+};
 
-export function incrementBreathStreak() {
+export const incrementBreathStreak = async () => {
   const today = new Date().toISOString().split('T')[0];
   breathDates.add(today);
-}
+};
 
 export function addBreathMinutes(minutes: number) {
   breathMinutesValue += minutes;
