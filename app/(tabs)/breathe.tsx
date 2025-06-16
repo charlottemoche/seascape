@@ -14,6 +14,8 @@ export default function BreatheScreen() {
   const { refreshStreaks } = useStreaks();
   const [isRunning, setIsRunning] = useState(false);
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   if (loading) {
     return (
       <View style={styles.loading}>
@@ -37,7 +39,7 @@ export default function BreatheScreen() {
       console.error(error);
     } else {
       console.info('Breathing session saved!');
-      await updateStreak(user.id, 'breath');
+      await updateStreak(user.id, 'breath', userTimezone);
       await refreshStreaks();
     }
   };

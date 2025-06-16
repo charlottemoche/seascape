@@ -1,8 +1,15 @@
+let entryIdCounter = 1;
+
 export const supabase = {
   from: jest.fn(() => ({
     insert: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
-    single: jest.fn().mockResolvedValue({ data: { id: 1 }, error: null }),
+    single: jest.fn().mockImplementation(() => {
+      return Promise.resolve({
+        data: { id: entryIdCounter++ }, // increment ID here
+        error: null,
+      });
+    }),
     maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
     eq: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),

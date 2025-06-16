@@ -51,6 +51,8 @@ export default function JournalScreen() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   const handleSubmit = async () => {
     if (!user) {
       Alert.alert('You must be logged in to save your entry.');
@@ -84,7 +86,7 @@ export default function JournalScreen() {
     Alert.alert('Journal entry saved!');
 
     try {
-      await updateStreak(user.id, 'journal');
+      await updateStreak(user.id, 'journal', userTimezone);
       await refreshStreaks();
     } catch (e) {
       console.error('Failed to update streak:', e);
