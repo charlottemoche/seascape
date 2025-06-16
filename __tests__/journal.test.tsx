@@ -92,4 +92,19 @@ describe('journal', () => {
 
     clear();
   });
+
+  it('loses the streak after a full day of inactivity', async () => {
+    await submitJournalEntry('Day 1 journal');
+
+    advanceTo(new Date(2025, 5, 16, 12));
+    await submitJournalEntry('Day 2 journal');
+
+    advanceTo(new Date(2025, 5, 17, 12));
+    await submitJournalEntry('Day 3 journal');
+
+    const { journalStreak } = await streakModule.fetchStreaks('test-user', 'America/New_York');
+    expect(journalStreak).toBe(1);
+
+    clear();
+  });
 });

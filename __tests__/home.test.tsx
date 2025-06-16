@@ -12,6 +12,9 @@ import {
   incrementBreathStreak,
   getJournalStreak,
   getBreathStreak,
+  getLatestDate,
+  journalDates,
+  breathDates,
 } from '@/__mocks__/mockBackend';
 
 jest.mock('@/lib/supabase');
@@ -45,21 +48,33 @@ const renderWithContext = (incrementFn: () => void) =>
 function mockStreakRpc() {
   (supabase.rpc as jest.Mock).mockImplementation(async (fnName: string) => {
     if (fnName === 'refresh_journal_streak') {
+      const streak_count = getJournalStreak();
+      const latest = getLatestDate(journalDates);
       return {
         data: [
-          { streak_count: getJournalStreak(), streak_end_date: '2025-06-15' },
+          {
+            streak_count,
+            streak_end_date: latest ?? null,
+          },
         ],
         error: null,
       };
     }
+
     if (fnName === 'refresh_breath_streak') {
+      const streak_count = getBreathStreak();
+      const latest = getLatestDate(breathDates);
       return {
         data: [
-          { streak_count: getBreathStreak(), streak_end_date: '2025-06-15' },
+          {
+            streak_count,
+            streak_end_date: latest ?? null,
+          },
         ],
         error: null,
       };
     }
+
     return { data: null, error: null };
   });
 }
@@ -126,8 +141,8 @@ describe('HomeScreen streak updates', () => {
       .spyOn(require('@/__mocks__/mockBackend'), 'getJournalStreak')
       .mockReturnValue(2);
 
-    advanceTo(new Date(2025, 5, 16)); // Day 2
-    rendered = renderWithContext(() => {});
+    advanceTo(new Date(2025, 5, 16));
+    rendered = renderWithContext(() => { });
     await waitAFrame();
     await expectStreak(rendered, 'journal-streak', '2 days');
   });
