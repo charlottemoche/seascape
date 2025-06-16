@@ -5,8 +5,7 @@ import HomeScreen from '@/app/(tabs)/index';
 import { MockUserProvider, ProfileProvider } from '@/__mocks__/authMocks';
 import { StreakProvider, useStreaks } from '@/context/StreakContext';
 import { supabase } from '@/lib/supabase';
-import { advanceBy, advanceTo, clear } from 'jest-date-mock';
-
+import { advanceTo, clear } from 'jest-date-mock';
 import {
   resetMockStreaks,
   incrementJournalStreak,
@@ -16,6 +15,8 @@ import {
 } from '@/__mocks__/mockBackend';
 
 jest.mock('@/lib/supabase');
+
+const waitAFrame = () => act(() => new Promise((r) => setTimeout(r, 100)));
 
 const TestWrapper = ({ incrementFn }: { incrementFn: () => void }) => {
   const { refreshStreaks } = useStreaks();
@@ -28,8 +29,8 @@ const TestWrapper = ({ incrementFn }: { incrementFn: () => void }) => {
   return <HomeScreen />;
 };
 
-const renderWithContext = (incrementFn: () => void) => {
-  return render(
+const renderWithContext = (incrementFn: () => void) =>
+  render(
     <MockUserProvider>
       <ProfileProvider>
         <StreakProvider userId="test-user">
@@ -40,147 +41,94 @@ const renderWithContext = (incrementFn: () => void) => {
       </ProfileProvider>
     </MockUserProvider>
   );
-};
 
 function mockStreakRpc() {
   (supabase.rpc as jest.Mock).mockImplementation(async (fnName: string) => {
     if (fnName === 'refresh_journal_streak') {
-      return { data: [{ streak_count: getJournalStreak(), streak_end_date: '2025-06-15' }], error: null };
+      return {
+        data: [
+          { streak_count: getJournalStreak(), streak_end_date: '2025-06-15' },
+        ],
+        error: null,
+      };
     }
     if (fnName === 'refresh_breath_streak') {
-      return { data: [{ streak_count: getBreathStreak(), streak_end_date: '2025-06-15' }], error: null };
+      return {
+        data: [
+          { streak_count: getBreathStreak(), streak_end_date: '2025-06-15' },
+        ],
+        error: null,
+      };
     }
     return { data: null, error: null };
   });
 }
 
-describe('HomeScreen streak updates', () => {
-  beforeEach(() => {
-    resetMockStreaks();
-    clear();
-    mockStreakRpc();
-  });
+const expectStreak = async (
+  rendered: ReturnType<typeof render>,
+  testId: string,
+  value: string
+) => {
+  await waitFor(() =>
+    expect(rendered.getByTestId(testId)).toHaveTextContent(value)
+  );
+};
 
+beforeEach(() => {
+  resetMockStreaks();
+  clear();
+  mockStreakRpc();
+});
+
+describe('HomeScreen streak updates', () => {
   it('updates the journal streak in HomeScreen after journal entry', async () => {
     const rendered = renderWithContext(incrementJournalStreak);
+    await expectStreak(rendered, 'journal-streak', '0 days');
 
-    // Initially 0 days
-    await waitFor(() =>
-      expect(rendered.getByTestId('journal-streak')).toHaveTextContent('0 days')
-    );
-
-    // Wait for update after increment + refresh
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
-
-    // Should now show 1 day
-    await waitFor(() =>
-      expect(rendered.getByTestId('journal-streak')).toHaveTextContent('1 day')
-    );
+    await waitAFrame();
+    await expectStreak(rendered, 'journal-streak', '1 day');
   });
 
   it('updates the breath streak in HomeScreen after breath session', async () => {
     const rendered = renderWithContext(incrementBreathStreak);
+    await expectStreak(rendered, 'breathing-streak', '0 days');
 
-    // Initially 0 days
-    await waitFor(() =>
-      expect(rendered.getByTestId('breathing-streak')).toHaveTextContent('0 days')
-    );
-
-    // Wait for update after increment + refresh
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
-
-    // Should now show 1 day
-    await waitFor(() =>
-      expect(rendered.getByTestId('breathing-streak')).toHaveTextContent('1 day')
-    );
+    await waitAFrame();
+    await expectStreak(rendered, 'breathing-streak', '1 day');
   });
 
-  describe('HomeScreen streak updates across days', () => {
-    beforeEach(() => {
-      resetMockStreaks();
-      clear();
-      mockStreakRpc();
-    });
+  it('increments the journal streak across two days', async () => {
+    advanceTo(new Date(2025, 5, 15)); // June 15
+    let rendered = renderWithContext(incrementJournalStreak);
 
-    it('increments the journal streak across two days', async () => {
-      // Mock today as June 15
-      advanceTo(new Date(2025, 5, 15));
+    await expectStreak(rendered, 'journal-streak', '0 days');
+    await waitAFrame();
+    await expectStreak(rendered, 'journal-streak', '1 day');
 
-      // First render: submit on day 1
-      let rendered = renderWithContext(incrementJournalStreak);
+    rendered.unmount();
+    advanceTo(new Date(2025, 5, 16)); // June 16
 
-      await waitFor(() =>
-        expect(rendered.getByTestId('journal-streak')).toHaveTextContent('0 days')
-      );
-
-      // wait for update to 1 day
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 100));
-      });
-      await waitFor(() =>
-        expect(rendered.getByTestId('journal-streak')).toHaveTextContent('1 day')
-      );
-
-      rendered.unmount();
-
-      // Advance mocked date to next day (June 16)
-      advanceTo(new Date(2025, 5, 16));
-
-      // Second render: submit on day 2
-      rendered = renderWithContext(incrementJournalStreak);
-
-      // wait for update to 2 days
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 100));
-      });
-      await waitFor(() =>
-        expect(rendered.getByTestId('journal-streak')).toHaveTextContent('2 days')
-      );
-    });
+    rendered = renderWithContext(incrementJournalStreak);
+    await waitAFrame();
+    await expectStreak(rendered, 'journal-streak', '2 days');
   });
 
-  describe('HomeScreen streak preserved after deleting journal entry', () => {
-    beforeEach(() => {
-      resetMockStreaks();
-      clear();
-      mockStreakRpc();
-    });
+  it('streak stays 2 even after journal entry deletion simulation', async () => {
+    advanceTo(new Date(2025, 5, 15)); // Day 1
+    let rendered = renderWithContext(incrementJournalStreak);
 
-    it('passes because streak stays 2 even after journal entry deletion simulation', async () => {
-      // Day 1: increment streak to 1
-      advanceTo(new Date(2025, 5, 15));
-      let rendered = renderWithContext(incrementJournalStreak);
+    await waitAFrame();
+    await expectStreak(rendered, 'journal-streak', '1 day');
 
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 100));
-      });
-      await waitFor(() =>
-        expect(rendered.getByTestId('journal-streak')).toHaveTextContent('1 day')
-      );
+    rendered.unmount();
 
-      rendered.unmount();
+    jest
+      .spyOn(require('@/__mocks__/mockBackend'), 'getJournalStreak')
+      .mockReturnValue(2);
 
-      // Simulate journal entry deleted on day 1 by mocking getJournalStreak to 2 (preserving streak)
-      jest.spyOn(require('@/__mocks__/mockBackend'), 'getJournalStreak').mockReturnValue(2);
-
-      // Day 2: advance date
-      advanceTo(new Date(2025, 5, 16));
-
-      // Render again and refresh streaks (no increment this time)
-      rendered = renderWithContext(() => { });
-
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 100));
-      });
-
-      // Assert that streak is still 2 days (passes because mock returns 2)
-      await waitFor(() =>
-        expect(rendered.getByTestId('journal-streak')).toHaveTextContent('2 days')
-      );
-    });
+    advanceTo(new Date(2025, 5, 16)); // Day 2
+    rendered = renderWithContext(() => {});
+    await waitAFrame();
+    await expectStreak(rendered, 'journal-streak', '2 days');
   });
 });

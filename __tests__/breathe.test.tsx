@@ -34,7 +34,8 @@ const handleBreathComplete = async (duration: number, user: User | undefined) =>
     console.error(error);
   } else {
     console.info('Breathing session saved!');
-    await updateStreak(user.id, 'breath');
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    await updateStreak(user.id, 'breath', timezone);
   }
 };
 
@@ -59,7 +60,7 @@ describe('handleBreathComplete', () => {
       user_id: user.id,
       duration,
     });
-    expect(updateStreak).toHaveBeenCalledWith(user.id, 'breath');
+    expect(updateStreak).toHaveBeenCalledWith(user.id, 'breath', 'America/New_York');
     expect(Alert.alert).not.toHaveBeenCalled();
   });
 
