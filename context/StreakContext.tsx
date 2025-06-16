@@ -7,6 +7,7 @@ type StreakContextType = {
   breathStreakDate?: string | null;
   journalStreakDate?: string | null;
   refreshStreaks: () => Promise<void>;
+  streaksLoading: boolean;
 };
 
 type StreakProviderProps = {
@@ -20,6 +21,7 @@ const StreakContext = createContext<StreakContextType>({
   breathStreakDate: null,
   journalStreakDate: null,
   refreshStreaks: async () => {},
+  streaksLoading: true,
 });
 
 export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
@@ -27,9 +29,11 @@ export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
   const [journalStreak, setJournalStreak] = useState(0);
   const [breathStreakDate, setBreathStreakDate] = useState<string | null>(null);
   const [journalStreakDate, setJournalStreakDate] = useState<string | null>(null);
+  const [streaksLoading, setStreaksLoading] = useState(true);
 
   const refreshStreaks = useCallback(async () => {
     if (!userId) return;
+    setStreaksLoading(true);
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const {
       breathStreak,
@@ -41,6 +45,7 @@ export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
     setBreathStreakDate(breathStreakDate);
     setJournalStreak(journalStreak);
     setJournalStreakDate(journalStreakDate);
+    setStreaksLoading(false);
   }, [userId]);
   
   useEffect(() => {
@@ -53,6 +58,7 @@ export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
     breathStreakDate,
     journalStreakDate,
     refreshStreaks,
+    streaksLoading,
   }), [breathStreak, journalStreak, breathStreakDate, journalStreakDate, refreshStreaks]);
 
   return (

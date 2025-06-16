@@ -5,21 +5,27 @@ import Colors from '@/constants/Colors';
 type BreatheTimerProps = {
   isRunning: boolean;
   setIsRunning: (val: boolean) => void;
-  onComplete: (duration: number) => void | Promise<void>;
+  sessionComplete: boolean;
+  setSessionComplete: (val: boolean) => void;
+  onComplete: () => void;
+  onSessionEnd: (duration: number) => void;
 };
 
 export default function BreatheTimer({
   isRunning,
   setIsRunning,
+  sessionComplete,
+  setSessionComplete,
   onComplete,
+  onSessionEnd,
 }: BreatheTimerProps) {
   const [duration, setDuration] = useState(5);
-  const [timeLeft, setTimeLeft] = useState(5 * 60);
+  const [timeLeft, setTimeLeft] = useState(5);
   const [showTime, setShowTime] = useState(true);
 
   useEffect(() => {
     if (!isRunning) {
-      setTimeLeft(duration * 60);
+      setTimeLeft(duration);
     }
   }, [duration, isRunning]);
 
@@ -30,7 +36,6 @@ export default function BreatheTimer({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Cannot call setIsRunning or onComplete here directly
           return 0;
         }
         return prev - 1;
@@ -40,16 +45,16 @@ export default function BreatheTimer({
     return () => clearInterval(interval);
   }, [isRunning]);
 
-  // Separate effect to handle side-effects after timeLeft changes
   useEffect(() => {
     if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
-      onComplete(duration);
+      setSessionComplete(true);
+      onComplete();
     }
-  }, [timeLeft, isRunning, onComplete, duration]);
+  }, [timeLeft, isRunning]);
 
   const handleStart = () => {
-    setTimeLeft(duration * 60);
+    setTimeLeft(duration);
     setIsRunning(true);
     setShowTime(false);
   };
@@ -57,6 +62,13 @@ export default function BreatheTimer({
   const handleStop = () => {
     setIsRunning(false);
     setShowTime(true);
+  };
+
+  const handleSessionEnd = () => {
+    onSessionEnd(duration);
+    setSessionComplete(false);
+    setShowTime(true);
+    setTimeLeft(duration);
   };
 
   const formatTime = (seconds: number) => {
@@ -67,7 +79,7 @@ export default function BreatheTimer({
 
   return (
     <View>
-      {!isRunning && (
+      {!isRunning && !sessionComplete && (
         <View style={styles.buttonRow}>
           {[1, 5, 10].map((min) => (
             <Pressable
@@ -100,19 +112,33 @@ export default function BreatheTimer({
         }}
       >
         <View style={styles.timerWrapper}>
-          <Text style={showTime ? styles.timer : styles.noTimer}>
-            {showTime ? formatTime(timeLeft) : 'Tap to reveal time remaining'}
-          </Text>
+          <View style={styles.timerWrapper}>
+            <Text style={sessionComplete || showTime ? styles.timer : styles.noTimer}>
+              {sessionComplete
+                ? '00:00'
+                : showTime
+                  ? formatTime(timeLeft)
+                  : 'Tap to reveal time remaining'}
+            </Text>
+          </View>
         </View>
       </Pressable>
 
-      {!isRunning ? (
+      {!isRunning && !sessionComplete && (
         <Pressable onPress={handleStart} style={styles.startBtn}>
           <Text style={styles.startText}>Start</Text>
         </Pressable>
-      ) : (
+      )}
+
+      {isRunning && (
         <Pressable onPress={handleStop} style={styles.startBtn}>
           <Text style={styles.startText}>Stop</Text>
+        </Pressable>
+      )}
+
+      {sessionComplete && (
+        <Pressable onPress={handleSessionEnd} style={styles.startBtn}>
+          <Text style={styles.startText}>End Session</Text>
         </Pressable>
       )}
     </View>
@@ -163,11 +189,5 @@ const styles = StyleSheet.create({
   },
   durationText: {
     color: Colors.custom.lightBlue,
-  },
-  phase: {
-    fontSize: 20,
-    color: Colors.custom.lightBlue,
-    textAlign: 'center',
-    marginTop: 20,
   },
 });

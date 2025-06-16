@@ -12,7 +12,7 @@ import { useStreaks } from '@/context/StreakContext';
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading, refreshProfile } = useProfile();
-  const { breathStreak, journalStreak } = useStreaks();
+  const { breathStreak, journalStreak, streaksLoading } = useStreaks();
 
   const router = useRouter();
 
@@ -22,7 +22,7 @@ export default function HomeScreen() {
     }, [])
   );
 
-  if (loading || profileLoading || !user || !profile) {
+  if (loading || profileLoading || streaksLoading || !user || !profile) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color={Colors.custom.lightBlue} />

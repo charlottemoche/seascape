@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
 
-export default function BreatheCircle() {
+export default function BreatheCircle({ sessionComplete }: { sessionComplete: boolean }) {
   const [phase, setPhase] = useState<'Inhale' | 'Exhale'>('Inhale');
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -45,12 +45,12 @@ export default function BreatheCircle() {
       <Animated.View
         style={[
           styles.circle,
-          {
+          !sessionComplete && {
             transform: [{ scale }],
           },
         ]}
       />
-      <Text style={styles.phase}>{phase}</Text>
+      <Text style={styles.phase}>{sessionComplete ? 'Completed' : phase}</Text>
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, ActivityIndicator } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { supabase } from '@/lib/supabase';
@@ -7,12 +7,14 @@ import Colors from '@/constants/Colors';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { updateStreak } from '@/lib/streakService';
 import { useStreaks } from '@/context/StreakContext';
-import { ActivityIndicator } from 'react-native';
+import { useAudioPlayer } from 'expo-audio';
 
 export default function BreatheScreen() {
   const { user, loading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
   const [isRunning, setIsRunning] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
+  const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -26,8 +28,17 @@ export default function BreatheScreen() {
 
   if (!user) return null;
 
-  const handleBreathComplete = async (duration: number) => {
-    if (!user) return;
+  const handleBreathComplete = () => {
+    setSessionComplete(true);
+    setIsRunning(false);
+    player.loop = true;
+    player.play();
+  };
+
+  const handleSessionEnd = async (duration: number) => {
+    player.pause();
+    player.seekTo(0);
+    player.loop = false;
 
     const { error } = await supabase.from('breaths').insert({
       user_id: user.id,
@@ -38,10 +49,11 @@ export default function BreatheScreen() {
       alert('Error saving session');
       console.error(error);
     } else {
-      console.info('Breathing session saved!');
       await updateStreak(user.id, 'breath', userTimezone);
       await refreshStreaks();
     }
+
+    setSessionComplete(false);
   };
 
   return (
@@ -53,20 +65,24 @@ export default function BreatheScreen() {
       >
         <View style={styles.overlay} />
 
-        <View style={[styles.top, !isRunning && styles.centerInstruction]}>
-          {isRunning ? (
-            <BreatheCircle />
+        <View style={[styles.top, !isRunning && !sessionComplete && styles.centerInstruction]}>
+          {isRunning || sessionComplete ? (
+            <BreatheCircle sessionComplete={sessionComplete} />
           ) : (
             <Text style={styles.instruction}>
               Choose a duration and press start to begin your breathing session.
             </Text>
           )}
         </View>
+
         <View style={styles.bottom}>
           <BreatheTimer
             isRunning={isRunning}
             setIsRunning={setIsRunning}
+            sessionComplete={sessionComplete}
+            setSessionComplete={setSessionComplete}
             onComplete={handleBreathComplete}
+            onSessionEnd={handleSessionEnd}
           />
         </View>
       </ImageBackground>
