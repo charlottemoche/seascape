@@ -5,6 +5,7 @@ import React, {
   useContext,
   ReactNode,
   useMemo,
+  useCallback,
 } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
@@ -15,6 +16,7 @@ type ProfileType = {
   onboarding_completed?: boolean;
   high_score?: number;
   total_minutes?: number;
+  admin?: boolean;
 };
 
 type ProfileContextType = {
@@ -33,7 +35,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const [profile, setProfile] = useState<ProfileType | null>(null);
 
-  const refreshProfile = async ({ silent = false } = {}) => {
+  const refreshProfile = useCallback(async ({ silent = false } = {}) => {
     if (!user?.id) {
       if (!silent) setLoading(false);
       return;
@@ -44,7 +46,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes')
+        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -60,11 +62,11 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     refreshProfile();
-  }, [user]);
+  }, [refreshProfile]);
 
   const value = useMemo(
     () => ({

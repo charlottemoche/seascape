@@ -7,7 +7,8 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
@@ -21,6 +22,7 @@ import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 import { useStreaks } from '@/context/StreakContext';
 import { ActivityIndicator } from 'react-native';
+import { resetPlayCount } from '@/lib/playCount';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
@@ -33,6 +35,7 @@ export default function SwimScreen() {
     playCountLoaded,
     setPlayCount,
   } = useCanPlay(user?.id);
+  const [resetting, setResetting] = React.useState(false);
 
   // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
@@ -70,6 +73,20 @@ export default function SwimScreen() {
     if (!canPlay) return;
     if (gameStarted) {
       swimUp();
+    }
+  };
+
+  const handleResetPlayCount = async () => {
+    if (!user?.id) return;
+    setResetting(true);
+    try {
+      await resetPlayCount(user.id);
+      setPlayCount(0);
+    } catch (err) {
+      console.error('Reset play count failed:', err);
+      Alert.alert('Error', 'Failed to reset play count.');
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -114,6 +131,14 @@ export default function SwimScreen() {
               resizeMode="contain"
             />
           </View>
+          {profile?.admin && (
+            <TouchableOpacity
+              onPress={handleResetPlayCount}
+              style={[styles.playButtonContainer, { marginTop: 20 }]}
+            >
+              <Text style={styles.playButton}>Reset</Text>
+            </TouchableOpacity>
+          )}
         </View>
       );
     } else if (!canPlay) {

@@ -47,3 +47,22 @@ export async function incrementPlayCount(userId: string): Promise<number> {
 
   return 0;
 }
+
+export async function resetPlayCount(userId: string): Promise<void> {
+  const localDate = new Date();
+  const yyyy = localDate.getFullYear();
+  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(localDate.getDate()).padStart(2, '0');
+  const today = `${yyyy}-${mm}-${dd}`;
+
+  const { error } = await supabase
+    .from('play_counts')
+    .update({ play_count: 0 })
+    .eq('user_id', userId)
+    .eq('date', today);
+
+  if (error) {
+    console.error('Error resetting play count:', error);
+    throw error;
+  }
+}

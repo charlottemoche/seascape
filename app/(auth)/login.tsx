@@ -19,8 +19,8 @@ import { useRouter } from 'expo-router';
 //   GoogleSigninButton,
 //   statusCodes,
 // } from '@react-native-google-signin/google-signin';
-import { useEffect } from 'react';
-import Constants from 'expo-constants';
+// import { useEffect } from 'react';
+// import Constants from 'expo-constants';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
