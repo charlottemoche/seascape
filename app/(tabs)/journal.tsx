@@ -18,6 +18,7 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { updateStreak } from '@/lib/streakService';
 import { useStreaks } from '@/context/StreakContext';
 import Colors from '@/constants/Colors';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const emotions = {
   positive: {
@@ -43,7 +44,7 @@ export default function JournalScreen() {
   const { user, loading: authLoading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
 
-  const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
+  const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
   const [journalEntries, setJournalEntries] = useState<any[]>([]);
   const [entry, setEntry] = useState('');
   const [page, setPage] = useState(0);
@@ -66,7 +67,7 @@ export default function JournalScreen() {
       .from('journal_entries')
       .insert({
         user_id: user.id,
-        feeling: selectedFeeling,
+        feeling: selectedFeelings,
         entry,
       })
       .select()
@@ -79,9 +80,8 @@ export default function JournalScreen() {
       return;
     }
 
-    // Success path
     setJournalEntries((prev) => [data, ...prev]);
-    setSelectedFeeling(null);
+    setSelectedFeelings([]);
     setEntry('');
     Alert.alert('Journal entry saved!');
 
@@ -94,6 +94,7 @@ export default function JournalScreen() {
 
     setSubmitLoading(false);
   };
+
 
   const handleGetEntries = useCallback(async () => {
     if (!user) return;
@@ -186,8 +187,11 @@ export default function JournalScreen() {
     <SafeAreaView style={styles.backgroundColor}>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <ScrollView
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={styles.container}
+          enableOnAndroid
+          extraScrollHeight={100}
           keyboardShouldPersistTaps="handled"
         >
           <Text style={styles.title}>Journal</Text>
@@ -200,18 +204,27 @@ export default function JournalScreen() {
                   {category.options.map((feeling) => (
                     <Pressable
                       key={feeling}
-                      onPress={() =>
-                        setSelectedFeeling((prev) => (prev === feeling ? null : feeling))
-                      }
+                      onPress={() => {
+                        setSelectedFeelings((prev) => {
+                          if (prev.includes(feeling)) {
+                            return prev.filter((f) => f !== feeling);
+                          } else if (prev.length < 3) {
+                            return [...prev, feeling];
+                          } else {
+                            Alert.alert('Limit Reached', 'You can only select up to 3 feelings.');
+                            return prev;
+                          }
+                        });
+                      }}
                       style={[
                         styles.feelingButton,
-                        selectedFeeling === feeling && styles.selectedFeelingButton,
+                        selectedFeelings.includes(feeling) && styles.selectedFeelingButton,
                       ]}
                     >
                       <Text
                         style={[
                           styles.feelingText,
-                          selectedFeeling === feeling && styles.selectedFeelingText,
+                          selectedFeelings.includes(feeling) && styles.selectedFeelingText,
                         ]}
                       >
                         {feeling}
@@ -239,10 +252,10 @@ export default function JournalScreen() {
           <Pressable
             testID="journal-submit-button"
             onPress={handleSubmit}
-            disabled={!selectedFeeling && !entry}
+            disabled={!selectedFeelings.length && !entry}
             style={({ pressed }) => [
               styles.submitButton,
-              (!selectedFeeling && !entry) && styles.disabledButton,
+              (!selectedFeelings.length && !entry) && styles.disabledButton,
               pressed && styles.pressedButton,
             ]}
           >
@@ -256,7 +269,9 @@ export default function JournalScreen() {
               {journalEntries.map((entry, index) => (
                 <View key={entry.id ?? index} style={styles.entryCard}>
                   <View style={styles.entryHeader}>
-                    <Text style={styles.entryFeeling}>{entry.feeling ?? 'Entry'}</Text>
+                    <Text style={styles.entryTitle}>
+                      {Array.isArray(entry.feeling) ? entry.feeling.join(', ') : entry.feeling ?? 'Entry'}
+                    </Text>
                     <Pressable onPress={() => handleDeleteEntry(entry.id)}>
                       <TabBarIcon
                         type="AntDesign"
@@ -286,7 +301,7 @@ export default function JournalScreen() {
               ) : null}
             </>
           }
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );
@@ -410,8 +425,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: 8,
   },
-  entryFeeling: {
-    fontSize: 16,
+  entryTitle: {
+    fontSize: 14,
     fontWeight: '500',
     color: Colors.custom.lightBlue,
   },
