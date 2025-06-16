@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Animated, Dimensions } from 'react-native';
 import { incrementPlayCount } from '@/lib/playCount';
+import { useAudioPlayer } from 'expo-audio';
 
 const { height, width } = Dimensions.get('window');
 const gravity = 0.6;
@@ -45,6 +46,8 @@ export function useSwimGame({
   const velocity = useRef(0);
   const collidedPreyIds = useRef<Set<string>>(new Set());
 
+  const player = useAudioPlayer(require('@/assets/sounds/chomp.wav'));
+
   const resetGame = useCallback(() => {
     positionY.current = height / 5;
     position.setValue(positionY.current);
@@ -59,6 +62,16 @@ export function useSwimGame({
     setGameOver(true);
     setObstacles([]);
     setGameStarted(false);
+
+    if (player.playing) {
+      player.pause();
+      player.seekTo(0);
+    } else {
+      player.seekTo(0);
+    }
+
+    player.replace(require('@/assets/sounds/pop.wav'));
+    player.play();
 
     if (currentSessionStarted && userId && onPlayCountChange) {
       incrementPlayCount(userId).then((newCount) => {
@@ -112,6 +125,17 @@ export function useSwimGame({
               collidedPreyIds.current.add(obstacle.id);
               setObstacles((prev) => prev.filter((ob) => ob.id !== obstacle.id));
               setPreyEaten((count) => count + 1);
+
+              if (player.playing) {
+                player.pause();
+                player.seekTo(0);
+              } else {
+                player.seekTo(0);
+              }
+
+              player.replace(require('@/assets/sounds/chomp.wav'));
+              player.play();
+
               velocity.current = jumpForce * 1.2;
             }
           }
@@ -131,41 +155,48 @@ export function useSwimGame({
     const listeners: { [obstacleId: string]: string } = {};
 
     const spawnInterval = setInterval(() => {
-      const id = Math.random().toString(36).slice(2);
-      const type = Math.random() > 0.5 ? 'predator' : 'prey';
-      const y =
-        type === 'predator'
-          ? Math.random() * (height - 150)
-          : 100 + Math.random() * (height / 2 - 150);
+      const spawnCount = 2;
 
-      const x = new Animated.Value(width);
-      const newObstacle: Obstacle = {
-        id,
-        x,
-        xValue: width,
-        y,
-        type,
-        width: 50,
-      };
+      for (let i = 0; i < spawnCount; i++) {
+        const id = Math.random().toString(36).slice(2);
+        const type = Math.random() > 0.5 ? 'predator' : 'prey';
 
-      const listenerId = x.addListener(({ value }) => {
-        setObstacles((prev) =>
-          prev.map((ob) => (ob.id === id ? { ...ob, xValue: value } : ob))
-        );
-      });
-      listeners[id] = listenerId;
+        const baseY =
+          type === 'predator'
+            ? Math.random() * (height - 150)
+            : 100 + Math.random() * (height / 2 - 150);
+        const y = baseY + i * 60;
 
-      setObstacles((prev) => [...prev, newObstacle]);
+        const x = new Animated.Value(width);
+        const newObstacle: Obstacle = {
+          id,
+          x,
+          xValue: width,
+          y,
+          type,
+          width: 50,
+        };
 
-      Animated.timing(x, {
-        toValue: -100,
-        duration: 3000,
-        useNativeDriver: false,
-      }).start(() => {
-        setObstacles((prev) => prev.filter((ob) => ob.id !== id));
-        x.removeListener(listenerId);
-      });
-    }, 1500);
+        const listenerId = x.addListener(({ value }) => {
+          setObstacles((prev) =>
+            prev.map((ob) => (ob.id === id ? { ...ob, xValue: value } : ob))
+          );
+        });
+        listeners[id] = listenerId;
+
+        setObstacles((prev) => [...prev, newObstacle]);
+
+        Animated.timing(x, {
+          toValue: -100,
+          duration: 3000,
+          delay: i * 300 + Math.random() * 300,
+          useNativeDriver: false,
+        }).start(() => {
+          setObstacles((prev) => prev.filter((ob) => ob.id !== id));
+          x.removeListener(listenerId);
+        });
+      }
+    }, 400);
 
     return () => {
       clearInterval(spawnInterval);

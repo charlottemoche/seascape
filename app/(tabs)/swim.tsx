@@ -37,6 +37,8 @@ export default function SwimScreen() {
   } = useCanPlay(user?.id);
   const [resetting, setResetting] = React.useState(false);
 
+  const swimIntervalRef = React.useRef<number | null>(null);
+
   // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
   const fishColor = React.useMemo(() => {
@@ -69,10 +71,16 @@ export default function SwimScreen() {
     journalStreak !== null &&
     playCountLoaded;
 
-  const handlePress = () => {
-    if (!canPlay) return;
-    if (gameStarted) {
-      swimUp();
+  const handlePressIn = () => {
+    if (!canPlay || !gameStarted) return;
+    swimUp();
+    swimIntervalRef.current = setInterval(swimUp, 120);
+  };
+
+  const handlePressOut = () => {
+    if (swimIntervalRef.current) {
+      clearInterval(swimIntervalRef.current);
+      swimIntervalRef.current = null;
     }
   };
 
@@ -179,7 +187,7 @@ export default function SwimScreen() {
             <Image source={predatorImg} style={styles.iconInlinePredator} resizeMode="contain" />
             <Text style={styles.gameSubtext}> and collect</Text>
             <Image source={preyImg} style={styles.iconInlinePrey} resizeMode="contain" />
-            <Text style={styles.gameSubtext}>Tap repeatedly to swim up.</Text>
+            <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
           </View>
 
           <Text style={styles.gameSubtext}>
@@ -200,7 +208,7 @@ export default function SwimScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handlePress}>
+    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
       <View style={styles.container}>
         <ImageBackground
           source={require('@/assets/images/swim-background.png')}
