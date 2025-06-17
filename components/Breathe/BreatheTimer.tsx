@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
+import { Text, Button } from '@/components/Themed';
 
 type BreatheTimerProps = {
   isRunning: boolean;
@@ -125,21 +126,17 @@ export default function BreatheTimer({
       </Pressable>
 
       {!isRunning && !sessionComplete && (
-        <Pressable onPress={handleStart} style={styles.startBtn}>
-          <Text style={styles.startText}>Start</Text>
-        </Pressable>
+        <Button
+          onPress={handleStart}
+          title="Start"
+        />
       )}
-
       {isRunning && (
-        <Pressable onPress={handleStop} style={styles.startBtn}>
-          <Text style={styles.startText}>Stop</Text>
-        </Pressable>
+        <Button onPress={handleStop} title="Stop" />
       )}
 
       {sessionComplete && (
-        <Pressable onPress={handleSessionEnd} style={styles.startBtn}>
-          <Text style={styles.startText}>End Session</Text>
-        </Pressable>
+        <Button onPress={handleSessionEnd} title="End Session" />
       )}
     </View>
   );

@@ -1,6 +1,4 @@
 import {
-  View,
-  Text,
   Pressable,
   StyleSheet,
   Alert,
@@ -14,7 +12,7 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import preyImg from '@/assets/images/prey.png';
-import Colors from '@/constants/Colors';
+import { View, Text } from '@/components/Themed';
 
 export default function ProfileScreen() {
   const { user } = useRequireAuth();
@@ -37,11 +35,11 @@ export default function ProfileScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.wrapper}>
         <View style={styles.loggedInWrapper}>
-          <Text style={styles.profileText}>
+          <Text>
             Logged in as: {user?.email ?? 'No email'}
           </Text>
           <View style={styles.highScoreWrapper}>
-            <Text style={styles.profileText}>
+            <Text>
               High Score: {highScore}
             </Text>
             <Image
@@ -66,7 +64,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
   },
   container: {
     flex: 1,
@@ -75,15 +72,10 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   loggedInWrapper: {
-    backgroundColor: Colors.custom.background,
     paddingTop: 24,
     alignItems: 'center',
   },
-  profileText: {
-    color: Colors.custom.lightBlue,
-  },
   logoutWrapper: {
-    backgroundColor: Colors.custom.background,
     paddingBottom: 24,
     paddingTop: 12,
     alignItems: 'center',
@@ -93,7 +85,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   logoutText: {
-    color: '#aaa',
     fontSize: 16,
     borderColor: '#aaa',
     borderRadius: 8,

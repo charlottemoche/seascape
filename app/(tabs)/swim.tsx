@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import {
-  Text,
   View,
   TouchableWithoutFeedback,
   Animated,
   StyleSheet,
   ImageBackground,
   Image,
-  TouchableOpacity,
   Alert
 } from 'react-native';
 import { useProfile } from '@/context/ProfileContext';
@@ -19,10 +17,11 @@ import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '@/lib/supabase';
-import Colors from '@/constants/Colors';
 import { useStreaks } from '@/context/StreakContext';
-import { ActivityIndicator } from 'react-native';
 import { resetPlayCount } from '@/lib/playCount';
+import { Button } from '@/components/Themed';
+import { Text } from '@/components/Themed';
+import { Loader } from '@/components/Loader';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
@@ -122,9 +121,7 @@ export default function SwimScreen() {
   const renderOverlay = () => {
     if (!isReady) {
       return (
-        <View style={[styles.container, styles.gameMessageOverlay]}>
-          <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-        </View>
+        <Loader />
       );
     } else if ((playCount ?? 0) >= 3 && !gameStarted) {
       return (
@@ -140,12 +137,7 @@ export default function SwimScreen() {
             />
           </View>
           {profile?.admin && (
-            <TouchableOpacity
-              onPress={handleResetPlayCount}
-              style={[styles.playButtonContainer, { marginTop: 20 }]}
-            >
-              <Text style={styles.playButton}>Reset</Text>
-            </TouchableOpacity>
+            <Button onPress={handleResetPlayCount} title="Reset" style={styles.playButtonContainer} />
           )}
         </View>
       );
@@ -169,12 +161,7 @@ export default function SwimScreen() {
               resizeMode="contain"
             />
           </View>
-          <TouchableOpacity
-            onPress={startNewGame}
-            style={styles.playButtonContainer}
-          >
-            <Text style={styles.playButton}>Play Again</Text>
-          </TouchableOpacity>
+          <Button onPress={startNewGame} title="Play Again" style={styles.playButtonContainer} />
         </View>
       );
     } else if (!gameStarted) {
@@ -194,12 +181,7 @@ export default function SwimScreen() {
             before you run out of plays.
           </Text>
 
-          <TouchableOpacity
-            onPress={startNewGame}
-            style={styles.playButtonContainer}
-          >
-            <Text style={styles.playButton}>Play</Text>
-          </TouchableOpacity>
+          <Button onPress={startNewGame} title="Play" style={styles.playButtonContainer} />
         </View>
       );
     }
@@ -356,6 +338,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginTop: 12,
     marginBottom: 4,
+    backgroundColor: 'transparent',
   },
   iconInlinePredator: {
     width: 20,
@@ -368,16 +351,6 @@ const styles = StyleSheet.create({
     height: 24,
     marginLeft: 6,
     marginRight: 2,
-  },
-  playButton: {
-    backgroundColor: Colors.custom.lightBlue,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignSelf: 'center',
-    fontSize: 18,
-    color: Colors.custom.background,
-    fontWeight: 'bold',
   },
   playButtonContainer: {
     marginTop: 24

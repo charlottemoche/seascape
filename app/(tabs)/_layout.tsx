@@ -2,9 +2,10 @@ import { TabLayout } from '../../components/Tabs/TabLayout';
 import { Redirect } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
-import { View, Text } from 'react-native';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
+import { View, Text } from '@/components/Themed';
+import { Loader } from '@/components/Loader';
 
 export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
@@ -12,9 +13,7 @@ export default function ProtectedTabLayout() {
 
   if (userLoading || profileLoading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-      </View>
+      <Loader />
     );
   }
 

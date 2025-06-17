@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
   Pressable,
   StyleSheet,
   Alert,
-  Image,
-  TextInput
+  Image
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
 import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
-import Colors from '@/constants/Colors';
+import { Button, Input } from '@/components/Themed';
+import { View, Text } from '@/components/Themed';
 
 const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
@@ -100,7 +98,7 @@ export function FishCustomizer() {
       <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
       {editing ? (
-        <TextInput
+        <Input
           value={fishName}
           onChangeText={setFishName}
           placeholder="Name your fish"
@@ -111,16 +109,12 @@ export function FishCustomizer() {
         <Text style={styles.fishNameText}>{fishName || 'Name your fish'}</Text>
       )}
 
-      <Pressable
+      <Button
         onPress={handleSave}
-        style={[styles.saveButton, saving && { opacity: 0.6 }]}
         disabled={saving}
-      >
-        <Text style={styles.saveButtonText}>
-          {saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
-        </Text>
-
-      </Pressable>
+        loading={saving}
+        title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
+      />
     </View>
   );
 }
@@ -128,7 +122,6 @@ export function FishCustomizer() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
   },
   container: {
     flex: 1,
@@ -137,7 +130,6 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    color: Colors.custom.lightBlue,
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 24,
@@ -158,32 +150,27 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   selectedFish: {
-    borderBottomColor: '#fff',
+    borderBottomColor: '#000000',
     borderBottomWidth: 2,
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.custom.lightBlue,
     borderRadius: 8,
     padding: 10,
-    color: '#fff',
     width: '80%',
     marginBottom: 20,
   },
   saveButton: {
-    backgroundColor: Colors.custom.lightBlue,
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 8,
     marginBottom: 20,
   },
   saveButtonText: {
-    color: Colors.custom.background,
     fontWeight: '600',
   },
   fishNameText: {
     fontSize: 18,
-    color: '#fff',
     marginBottom: 20,
     height: 36,
   }

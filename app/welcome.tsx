@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, Alert, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Button, Alert, StyleSheet, ImageBackground, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { useProfile } from '@/context/ProfileContext';
@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { Logo } from '@/components/Nav/Logo';
 import Colors from '@/constants/Colors';
+import { Text } from '@/components/Themed';
 
 const slides = [
   {

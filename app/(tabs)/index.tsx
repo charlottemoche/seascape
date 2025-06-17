@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
-import { ActivityIndicator } from 'react-native';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
-import Colors from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useStreaks } from '@/context/StreakContext';
+import { Text } from '@/components/Themed';
+import { Loader } from '@/components/Loader';
+import Colors from '@/constants/Colors';
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
@@ -24,9 +25,7 @@ export default function HomeScreen() {
 
   if (loading || profileLoading || streaksLoading || !user || !profile) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-      </View>
+      <Loader />
     );
   }
 
@@ -45,7 +44,7 @@ export default function HomeScreen() {
   const { total_minutes } = profile;
 
   return (
-    <SafeAreaView style={styles.backgroundColor}>
+    <SafeAreaView>
       <ScrollView contentContainerStyle={styles.background}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
@@ -121,15 +120,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   background: {
     flexGrow: 1,
-    backgroundColor: Colors.custom.background,
     padding: 20,
   },
-  backgroundColor: {
-    flex: 1,
-    backgroundColor: Colors.custom.background,
-  },
   loading: {
-    backgroundColor: Colors.custom.background,
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -138,14 +131,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    color: '#fff',
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: 600,
   },
   subtitle: {
     fontSize: 16,
-    color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -156,45 +147,40 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   darkCard: {
-    backgroundColor: 'rgba(207, 233, 241, 0.1)'
+    backgroundColor: 'rgba(207, 233, 241, 0.1)',
+    borderWidth: 1,
+    borderColor: '#7bb6d4',
   },
   cardTitle: {
     fontSize: 16,
-    color: '#fff',
     fontWeight: '600',
   },
   cardSubtitle: {
     fontSize: 16,
-    color: Colors.custom.lightBlue,
   },
   cardData: {
     fontSize: 16,
-    color: Colors.custom.lightBlue,
   },
   streakTitle: {
     fontSize: 16,
-    color: '#fff',
     fontWeight: '600',
     marginBottom: 6,
     textAlign: 'center',
   },
   streakSubtitle: {
     fontSize: 14,
-    color: Colors.custom.lightBlue,
     marginTop: 2,
     borderBottomWidth: 0.5,
-    borderBottomColor: Colors.custom.lightBlue,
+    borderBottomColor: '#ccc',
     paddingBottom: 2,
   },
   cardDataStreaks: {
     fontSize: 16,
-    color: Colors.custom.lightBlue,
     paddingTop: 4,
     marginTop: 8,
   },
   cardLink: {
     fontSize: 16,
-    color: Colors.custom.lightBlue,
     textDecorationLine: 'underline',
   },
   streakRow: {

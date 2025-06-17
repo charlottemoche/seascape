@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
   TextInput,
   Pressable,
   StyleSheet,
@@ -18,6 +17,8 @@ import { useStreaks } from '@/context/StreakContext';
 import Colors from '@/constants/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { updateStreak } from '@/lib/streakService';
+import { Button, Text } from '@/components/Themed';
+import { Loader } from '@/components/Loader';
 
 const emotions = {
   positive: {
@@ -167,9 +168,7 @@ export default function JournalScreen() {
 
   if (authLoading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-      </View>
+      <Loader />
     );
   }
 
@@ -194,7 +193,7 @@ export default function JournalScreen() {
         >
           <Text style={styles.title}>Journal</Text>
           <Text style={styles.subtitle}>How are you feeling?</Text>
-          <View style={styles.categoryContainer}>
+          <View>
             {Object.entries(emotions).map(([categoryKey, category]) => (
               <View key={categoryKey} style={styles.categorySection}>
                 <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
@@ -244,21 +243,16 @@ export default function JournalScreen() {
             numberOfLines={5}
             style={styles.textArea}
             placeholder="Write your thoughts here..."
-            placeholderTextColor="rgba(0, 31, 51, 0.7)"
+            placeholderTextColor='#808080'
           />
 
-          <Pressable
+          <Button
             testID="journal-submit-button"
             onPress={handleSubmit}
             disabled={!selectedFeelings.length && !entry}
-            style={({ pressed }) => [
-              styles.submitButton,
-              (!selectedFeelings.length && !entry) && styles.disabledButton,
-              pressed && styles.pressedButton,
-            ]}
+            title={'Save Entry'}
           >
-            <Text style={styles.submitText}>Save Entry</Text>
-          </Pressable>
+          </Button>
 
 
           {journalEntries.length > 0 &&
@@ -290,12 +284,10 @@ export default function JournalScreen() {
 
               {loading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
+                  <ActivityIndicator size="large" color={Colors.custom.blue} />
                 </View>
               ) : hasMore ? (
-                <Pressable onPress={handleLoadMore} style={styles.loadMoreButton}>
-                  <Text style={styles.loadMoreText}>Load More</Text>
-                </Pressable>
+                <Button onPress={handleLoadMore} title="Load More" />
               ) : null}
             </>
           }
@@ -308,12 +300,10 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: Colors.custom.background,
     padding: 20,
   },
   backgroundColor: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
   },
   loadingContainer: {
     flex: 1,
@@ -323,31 +313,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    color: '#fff',
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: 600,
   },
   subtitle: {
     fontSize: 16,
-    color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
-  },
-  categoryContainer: {
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    width: '100%',
-    marginBottom: 20,
-    backgroundColor: 'rgba(207, 233, 241, 0.1)'
   },
   categorySection: {
     marginBottom: 20,
   },
   categoryTitle: {
     fontSize: 18,
-    color: Colors.custom.lightBlue,
     marginBottom: 10,
   },
   feelingsContainer: {
@@ -366,58 +345,42 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   selectedFeelingButton: {
-    backgroundColor: 'rgba(207, 233, 241, 0.8)',
-    borderColor: '#fff',
+    backgroundColor: 'rgba(207, 233, 241, 0.6)',
+    borderColor: '#7bb6d4',
+    borderWidth: 1,
   },
   feelingText: {
-    color: '#fff',
-    fontWeight: '500',
+    fontWeight: 400,
   },
   selectedFeelingText: {
-    color: Colors.custom.background,
-    fontWeight: '600',
+    fontWeight: 500,
+    color: '#000000',
   },
   prompt: {
-    color: '#fff',
     fontSize: 16,
     marginBottom: 8,
     marginTop: 20,
   },
   textArea: {
-    backgroundColor: 'rgba(207, 233, 241, 0.7)',
+    backgroundColor: 'rgba(207, 233, 241, 0.2)',
+    borderColor: '#ccc',
+    borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     height: 120,
     textAlignVertical: 'top',
     marginBottom: 16,
   },
-  submitButton: {
-    backgroundColor: Colors.custom.lightBlue,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  pressedButton: {
-    opacity: 0.8,
-  },
-  submitText: {
-    color: Colors.custom.background,
-    fontWeight: '600',
-    fontSize: 16,
-  },
   entriesTitle: {
     fontSize: 18,
-    color: '#fff',
     marginTop: 40,
     marginBottom: 10,
     textAlign: 'center',
   },
   entryCard: {
     backgroundColor: 'rgba(207, 233, 241, 0.2)',
+    borderWidth: 1,
+    borderColor: '#ccc',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
@@ -426,36 +389,21 @@ const styles = StyleSheet.create({
   entryTitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: Colors.custom.lightBlue,
   },
   entryText: {
     fontSize: 14,
-    color: '#fff',
     marginTop: 8,
   },
   entryDate: {
     marginTop: 8,
     fontSize: 12,
-    color: '#ccc',
+    color: '#808080',
   },
   noEntries: {
     fontSize: 16,
     color: '#ccc',
     textAlign: 'center',
     marginTop: 20,
-  },
-  loadMoreButton: {
-    marginTop: 20,
-    backgroundColor: Colors.custom.lightBlue,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  loadMoreText: {
-    color: Colors.custom.background,
-    fontWeight: '600',
-    fontSize: 16,
   },
   entryHeader: {
     flexDirection: 'row',
@@ -466,7 +414,6 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   loading: {
-    backgroundColor: Colors.custom.background,
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',

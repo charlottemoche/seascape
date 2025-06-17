@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import {
   View,
-  Text,
-  TextInput,
   StyleSheet,
   Pressable,
   Alert,
@@ -10,10 +8,14 @@ import {
   Image,
   Keyboard,
   TouchableWithoutFeedback,
+  useColorScheme
 } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
+import { Button, Input } from '@/components/Themed';
+import { Text } from '@/components/Themed';
+
 // import {
 //   GoogleSignin,
 //   GoogleSigninButton,
@@ -37,7 +39,14 @@ export default function LoginScreen() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const colorScheme = useColorScheme();
+
   const router = useRouter();
+
+  const logoImage =
+    colorScheme === 'dark'
+      ? require('@/assets/images/logo-light.png')
+      : require('@/assets/images/logo-dark.png');
 
   const handleAuth = async () => {
     setLoading(true);
@@ -230,11 +239,10 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <View style={styles.logoContainer}>
-          <Image source={require('@/assets/images/logo-light.png')} style={styles.logo} />
+          <Image source={logoImage} style={styles.logo} />
         </View>
 
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Email"
           placeholderTextColor="#888"
           autoCapitalize="none"
@@ -244,8 +252,7 @@ export default function LoginScreen() {
           onChangeText={setEmail}
           value={email}
         />
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Password"
           placeholderTextColor="#888"
           secureTextEntry
@@ -255,15 +262,12 @@ export default function LoginScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Pressable onPress={handleAuth} style={[isSignUp ? styles.signUpButton : styles.logInButton, styles.button]} disabled={loading}>
-          <Text style={styles.buttonText}>
-            {loading
-              ? 'Please wait...'
-              : isSignUp
-                ? 'Sign Up'
-                : 'Log In'}
-          </Text>
-        </Pressable>
+        <Button
+          onPress={handleAuth}
+          title={isSignUp ? 'Sign Up' : 'Log In'}
+          loading={loading}
+          disabled={loading}
+        />
 
         <Pressable onPress={() => {
           setIsSignUp(!isSignUp)
@@ -296,7 +300,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -307,34 +310,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: Colors.custom.lightBlue,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    color: '#fff',
-    width: 280,
-  },
-  button: {
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 8,
-    width: 280,
-  },
-  logInButton: {
-    backgroundColor: Colors.custom.lightBlue,
-  },
-  signUpButton: {
-    backgroundColor: Colors.custom.blue,
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: Colors.custom.background,
-    fontWeight: 'bold',
-  },
   switchText: {
-    color: Colors.custom.lightBlue,
     textAlign: 'center',
     marginTop: 20,
   },
@@ -373,9 +349,7 @@ const styles = StyleSheet.create({
   },
   separatorText: {
     marginHorizontal: 12,
-    color: Colors.custom.lightBlue,
     fontWeight: '600',
     fontSize: 14,
   },
-
 })

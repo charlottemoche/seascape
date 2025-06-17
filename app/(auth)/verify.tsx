@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  TextInput,
-  Pressable,
-  Text,
   Alert,
   StyleSheet,
   Keyboard,
@@ -11,7 +8,8 @@ import {
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import Colors from '@/constants/Colors';
+import { Button, Input } from '@/components/Themed';
+import { Text } from '@/components/Themed';
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
@@ -49,8 +47,7 @@ export default function VerifyEmailScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <Text style={styles.header}>Please check your email for verfication code</Text>
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Email"
           placeholderTextColor="#888"
           keyboardType="email-address"
@@ -61,8 +58,7 @@ export default function VerifyEmailScreen() {
           onChangeText={setEmail}
         />
 
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="6-digit code"
           placeholderTextColor="#888"
           keyboardType="number-pad"
@@ -71,15 +67,12 @@ export default function VerifyEmailScreen() {
           onChangeText={setCode}
         />
 
-        <Pressable
-          style={[styles.button, loading && { opacity: 0.7 }]}
+        <Button
+          loading={loading}
           onPress={handleVerify}
           disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Verifying...' : 'Verify Email'}
-          </Text>
-        </Pressable>
+          title={loading ? 'Verifying...' : 'Verify Email'}
+        />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -88,35 +81,12 @@ export default function VerifyEmailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
-    color: Colors.custom.lightBlue,
     fontSize: 16,
     paddingBottom: 24,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: Colors.custom.lightBlue,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    color: '#fff',
-    width: 280,
-  },
-  button: {
-    backgroundColor: Colors.custom.lightBlue,
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 8,
-    width: 280,
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: Colors.custom.background,
-    fontWeight: 'bold',
   },
 });

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
+import { View, Animated, Easing, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
+import { Text } from '@/components/Themed';
 
 export default function BreatheCircle({ sessionComplete }: { sessionComplete: boolean }) {
   const [phase, setPhase] = useState<'Inhale' | 'Exhale'>('Inhale');

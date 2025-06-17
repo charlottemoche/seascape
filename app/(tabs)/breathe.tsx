@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ImageBackground } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
-import { supabase } from '@/lib/supabase';
-import Colors from '@/constants/Colors';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
 import { useAudioPlayer } from 'expo-audio';
 import { updateStreak } from '@/lib/streakService';
+import { Text } from '@/components/Themed';
+import { Loader } from '@/components/Loader';
+import { supabase } from '@/lib/supabase';
+import Colors from '@/constants/Colors';
 
 export default function BreatheScreen() {
   const { user, loading } = useRequireAuth();
@@ -20,9 +22,7 @@ export default function BreatheScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={Colors.custom.lightBlue} />
-      </View>
+      <Loader />
     );
   }
 
@@ -120,13 +120,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 28,
     paddingHorizontal: 40,
-  },
-  loading: {
-    backgroundColor: Colors.custom.background,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
   },
 });
