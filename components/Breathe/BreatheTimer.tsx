@@ -88,14 +88,13 @@ export default function BreatheTimer({
               onPress={() => setDuration(min)}
               style={[
                 styles.durationBtn,
-                duration === min && { backgroundColor: Colors.custom.lightBlue },
-                { opacity: 0.6 },
+                duration === min && { backgroundColor: Colors.custom.blue, opacity: 0.5 },
               ]}
             >
               <Text
                 style={[
                   styles.durationText,
-                  duration === min && { color: Colors.custom.background, fontWeight: 'bold' },
+                  duration === min && { color: Colors.custom.dark, fontWeight: 'bold' },
                 ]}
               >
                 {min} min

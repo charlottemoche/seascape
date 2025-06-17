@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
@@ -6,7 +6,7 @@ import { useProfile } from '@/context/ProfileContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useStreaks } from '@/context/StreakContext';
-import { Text } from '@/components/Themed';
+import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import Colors from '@/constants/Colors';
 
@@ -16,6 +16,11 @@ export default function HomeScreen() {
   const { breathStreak, journalStreak, streaksLoading } = useStreaks();
 
   const router = useRouter();
+
+  const colorScheme = useColorScheme();
+  
+  const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
+  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
 
   useFocusEffect(
     useCallback(() => {
@@ -44,8 +49,8 @@ export default function HomeScreen() {
   const { total_minutes } = profile;
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={styles.background}>
+    <SafeAreaView style={[styles.container, { backgroundColor: containerColor }]}>
+      <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
         <View style={[styles.card, styles.darkCard]}>
@@ -118,6 +123,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   background: {
     flexGrow: 1,
     padding: 20,
@@ -147,9 +155,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   darkCard: {
-    backgroundColor: 'rgba(207, 233, 241, 0.1)',
     borderWidth: 1,
-    borderColor: '#7bb6d4',
+    borderColor: 'rgba(123, 182, 212, 0.5)',
   },
   cardTitle: {
     fontSize: 16,

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View,
   TextInput,
   Pressable,
   StyleSheet,
@@ -8,7 +7,8 @@ import {
   Alert,
   ActivityIndicator,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  useColorScheme
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
@@ -17,7 +17,7 @@ import { useStreaks } from '@/context/StreakContext';
 import Colors from '@/constants/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { updateStreak } from '@/lib/streakService';
-import { Button, Text } from '@/components/Themed';
+import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 
 const emotions = {
@@ -41,6 +41,13 @@ const emotions = {
 const pageSize = 10;
 
 export default function JournalScreen() {
+  const colorScheme = useColorScheme();
+
+  const containerColor = colorScheme === 'dark' ? '#161618' : Colors.custom.white;
+  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
+  const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
+  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+
   const { user, loading: authLoading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
 
@@ -181,7 +188,7 @@ export default function JournalScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.backgroundColor}>
+    <SafeAreaView style={{ backgroundColor: backgroundColor, flex: 1 }}>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAwareScrollView
@@ -193,7 +200,7 @@ export default function JournalScreen() {
         >
           <Text style={styles.title}>Journal</Text>
           <Text style={styles.subtitle}>How are you feeling?</Text>
-          <View>
+          <View style={[{ backgroundColor: cardColor }, colorScheme === 'dark' ? styles.darkCard : styles.lightCard]}>
             {Object.entries(emotions).map(([categoryKey, category]) => (
               <View key={categoryKey} style={styles.categorySection}>
                 <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
@@ -241,7 +248,7 @@ export default function JournalScreen() {
             onChangeText={setEntry}
             multiline
             numberOfLines={5}
-            style={styles.textArea}
+            style={[styles.textArea, { backgroundColor: containerColor, borderColor: greyBorder }]}
             placeholder="Write your thoughts here..."
             placeholderTextColor='#808080'
           />
@@ -259,7 +266,7 @@ export default function JournalScreen() {
             <>
               <Text style={styles.entriesTitle}>Your Journal Entries</Text>
               {journalEntries.map((entry, index) => (
-                <View key={entry.id ?? index} style={styles.entryCard}>
+                <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
                   <View style={styles.entryHeader}>
                     <Text style={styles.entryTitle}>
                       {Array.isArray(entry.feeling) ? entry.feeling.join(', ') : entry.feeling ?? 'Entry'}
@@ -303,9 +310,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  backgroundColor: {
-    flex: 1,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -322,6 +326,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
+  },
+  darkCard: {
+    borderColor: '#000000',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    borderWidth: 1,
+  },
+  lightCard: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 182, 212, 0.5)',
   },
   categorySection: {
     marginBottom: 20,
@@ -363,8 +381,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   textArea: {
-    backgroundColor: 'rgba(207, 233, 241, 0.2)',
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
@@ -379,9 +395,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   entryCard: {
-    backgroundColor: 'rgba(207, 233, 241, 0.2)',
     borderWidth: 1,
-    borderColor: '#ccc',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
@@ -413,6 +427,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     paddingBottom: 6,
+    backgroundColor: 'transparent',
   },
   loading: {
     padding: 20,

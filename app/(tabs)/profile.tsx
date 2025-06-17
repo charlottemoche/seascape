@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import preyImg from '@/assets/images/prey.png';
 import { View, Text } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const { user } = useRequireAuth();

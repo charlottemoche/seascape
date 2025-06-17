@@ -8,20 +8,24 @@ export default {
     tint: tintColorLight,
     button: '#7bb6d4',
     tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-    buttonText: '#121212'
+    tabIconSelected: tintColorDark,
+    buttonText: '#121212',
+    transparent: 'transparent'
   },
   dark: {
     text: '#fff',
-    background: '#121212',
+    background: '#161618',
     tint: tintColorDark,
     button: '#7bb6d4',
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
-    buttonText: '#121212'
+    buttonText: '#121212',
+    transparent: 'transparent'
   },
   custom: {
-    background: '#121212',
+    transparent: 'transparent',
+    grey: '#e4e3e3',
+    background: 'transparent',
     lightBlue: '#cfe9f1',
     red: '#ce6548',
     green: '#4b9032',
