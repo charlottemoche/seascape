@@ -1,46 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
   Pressable,
-  Alert,
-  AppState,
-  Image,
   Keyboard,
   TouchableWithoutFeedback,
-  useColorScheme
-} from 'react-native'
-import { supabase } from '@/lib/supabase'
-import Colors from '@/constants/Colors';
+  useColorScheme,
+  Image,
+} from 'react-native';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@/components/Themed';
-import { Text } from '@/components/Themed';
-
-// import {
-//   GoogleSignin,
-//   GoogleSigninButton,
-//   statusCodes,
-// } from '@react-native-google-signin/google-signin';
-// import { useEffect } from 'react';
-// import Constants from 'expo-constants';
-
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+import { Button, Input, Text } from '@/components/Themed';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const colorScheme = useColorScheme();
-
   const router = useRouter();
 
   const logoImage =
@@ -54,7 +33,6 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        // Attempt to sign up
         const { data: { session } = {}, error } = await supabase.auth.signUp({
           email,
           password,
@@ -73,45 +51,17 @@ export default function LoginScreen() {
         }
 
         if (session) {
-          // User signed up & logged in
-          const user = session.user;
-
-          // Check and insert profile if missing
-          const { data: existingProfile, error: profileQueryError } = await supabase
-            .from('profiles')
-            .select('user_id')
-            .eq('user_id', user.id)
-            .single();
-
-          if (profileQueryError && profileQueryError.code !== 'PGRST116') {
-            console.error('Profile query error:', profileQueryError);
-          }
-
-          if (!existingProfile) {
-            const { error: insertError } = await supabase.from('profiles').insert([
-              {
-                user_id: user.id,
-                email: user.email,
-                onboarding_completed: false,
-              },
-            ]);
-            if (insertError) {
-              console.error('Profile insert error:', insertError.message);
-            }
-          }
-
           router.replace('/');
           setLoading(false);
           return;
         } else {
-          // No session returned, try logging in to check user status
+          // No session returned, fallback login
           const { error: loginError } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
 
           if (!loginError) {
-            // Login succeeded, user confirmed
             router.replace('/');
             setLoading(false);
             return;
@@ -119,7 +69,6 @@ export default function LoginScreen() {
             loginError.message.includes('Email not confirmed') ||
             loginError.message.includes('email not verified')
           ) {
-            // User exists but not verified
             router.push({ pathname: '/verify', params: { email } });
             setLoading(false);
             return;
@@ -157,31 +106,6 @@ export default function LoginScreen() {
           return;
         }
 
-        // After successful login, create profile if missing
-        const user = loginData.user;
-
-        const { data: profile, error: profileQueryError } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('user_id', user.id)
-          .single();
-
-        if (profileQueryError && profileQueryError.code !== 'PGRST116') {
-          console.error('Profile query error:', profileQueryError);
-        }
-
-        if (!profile) {
-          const { error: insertError } = await supabase.from('profiles').insert([
-            {
-              user_id: user.id,
-              onboarding_completed: false,
-            },
-          ]);
-          if (insertError) {
-            console.error('Profile insert error:', insertError.message);
-          }
-        }
-
         router.replace('/');
       }
     } catch (err) {
@@ -191,49 +115,6 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
-
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices();
-  //     const userInfo = await GoogleSignin.signIn();
-
-  //     const tokens = await GoogleSignin.getTokens();
-
-  //     if (tokens.idToken) {
-  //       const { data, error } = await supabase.auth.signInWithIdToken({
-  //         provider: 'google',
-  //         token: tokens.idToken,
-  //       });
-
-  //       if (error) {
-  //         console.error('Supabase login error:', error.message);
-  //         Alert.alert('Google login failed');
-  //       } else {
-  //         router.replace('/');
-  //       }
-  //     } else {
-  //       throw new Error('No ID token found');
-  //     }
-  //   } catch (error: any) {
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       // user cancelled
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       // already signing in
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       Alert.alert('Google Play Services not available');
-  //     } else {
-  //       console.error('Google sign-in error:', error);
-  //       Alert.alert('Google Sign-In failed', error.message);
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   GoogleSignin.configure({
-  //     iosClientId: Constants.expoConfig?.extra?.googleIosClientId!,
-  //     scopes: ['profile', 'email'],
-  //   });
-  // }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -269,32 +150,19 @@ export default function LoginScreen() {
           disabled={loading}
         />
 
-        <Pressable onPress={() => {
-          setIsSignUp(!isSignUp)
-          setError('')
-        }}>
+        <Pressable
+          onPress={() => {
+            setIsSignUp(!isSignUp);
+            setError('');
+          }}
+        >
           <Text style={styles.switchText}>
-            {isSignUp
-              ? 'Already have an account? Log in'
-              : 'No account? Sign up'}
+            {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
           </Text>
         </Pressable>
-
-        {/* <View style={styles.separatorContainer}>
-          <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>or</Text>
-          <View style={styles.separatorLine} />
-        </View>
-
-        <GoogleSigninButton
-          style={styles.googleButton}
-          size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Dark}
-          onPress={handleGoogleLogin}
-        /> */}
       </View>
     </TouchableWithoutFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -303,12 +171,6 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    color: '#cfe9f1',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   switchText: {
     textAlign: 'center',
@@ -332,24 +194,4 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     resizeMode: 'contain',
   },
-  googleButton: {
-    borderRadius: 20,
-    width: 280,
-  },
-  separatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-    width: 160,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.custom.lightBlue,
-  },
-  separatorText: {
-    marginHorizontal: 12,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-})
+});

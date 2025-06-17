@@ -93,10 +93,14 @@ export default function JournalScreen() {
     Alert.alert('Journal entry saved!');
 
     try {
-      await updateStreak(user.id, 'journal', userTimezone);
-      await refreshStreaks();
+      const result = await updateStreak(user.id, 'journal', userTimezone);
+      if (result.success) {
+        await refreshStreaks();
+      } else {
+        console.warn('Streak update failed, skipping refresh');
+      }
     } catch (e) {
-      console.error('Failed to update streak:', e);
+      console.error('Error updating journal streak:', e);
     }
 
     setSubmitLoading(false);

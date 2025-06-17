@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const colorScheme = useColorScheme();
-  
+
   const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
 
@@ -60,9 +60,9 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>Your personal stats</Text>
         <View style={styles.colorOptions}>
           {availableColors.map((color) => (
-              <Image source={fishImages[color]} key={color} style={styles.smallFish} />
+            <Image source={fishImages[color]} key={color} style={styles.smallFish} />
           ))}
-      </View>
+        </View>
         <View style={[styles.card, styles.darkCard]}>
           <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
           <View style={styles.streakRow}>
@@ -71,7 +71,7 @@ export default function HomeScreen() {
                 <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
               </View>
               <Text style={styles.streakSubtitle}>Journaling</Text>
-              <Text testID="journal-streak"style={styles.cardDataStreaks}>
+              <Text testID="journal-streak" style={styles.cardDataStreaks}>
                 {typeof journalStreak === 'number'
                   ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
                   : 'No data'}
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-   colorOptions: {
+  colorOptions: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,

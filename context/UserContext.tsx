@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState, useContext, ReactNode, useMemo } from 'react';
+import { AppState } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
@@ -15,28 +16,34 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserAndStreaks = async (currentUser: User | null) => {
-      if (!currentUser) {
-        setUser(null);
-        setLoading(false);
-        return;
+    // Start token auto-refresh
+    supabase.auth.startAutoRefresh();
+
+    // Listen for app state changes to start/stop token refresh
+    const appStateSubscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        supabase.auth.startAutoRefresh();
+      } else {
+        supabase.auth.stopAutoRefresh();
       }
-
-      setUser(currentUser);
-      setLoading(true);
-      setLoading(false);
-    };
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      fetchUserAndStreaks(session?.user ?? null);
     });
 
+    // Initial session fetch
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth state changes (login, logout, token refresh)
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      fetchUserAndStreaks(session?.user ?? null);
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => {
       listener.subscription.unsubscribe();
+      supabase.auth.stopAutoRefresh();
+      appStateSubscription.remove();
     };
   }, []);
 

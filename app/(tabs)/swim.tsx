@@ -17,7 +17,6 @@ import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '@/lib/supabase';
-import { useStreaks } from '@/context/StreakContext';
 import { resetPlayCount } from '@/lib/playCount';
 import { Button } from '@/components/Themed';
 import { Text } from '@/components/Themed';
@@ -26,7 +25,7 @@ import { Loader } from '@/components/Loader';
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, refreshProfile } = useProfile();
-  const { breathStreak, journalStreak } = useStreaks();
+
   const {
     canPlay,
     loading: canPlayLoading,
@@ -64,11 +63,7 @@ export default function SwimScreen() {
     onPlayCountChange: setPlayCount,
   });
 
-  const isReady =
-    !loading &&
-    breathStreak !== null &&
-    journalStreak !== null &&
-    playCountLoaded;
+  const isReady = !loading && playCountLoaded;
 
   const handlePressIn = () => {
     if (!canPlay || !gameStarted) return;

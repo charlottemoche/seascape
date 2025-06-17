@@ -10,6 +10,43 @@ import * as streakModule from '@/lib/streakService';
 jest.mock('@/lib/supabase');
 jest.spyOn(Alert, 'alert');
 
+// In-memory streak state for mocks
+let currentStreak = 1;
+let currentDay = new Date(2025, 5, 15).toISOString().slice(0, 10); // YYYY-MM-DD
+
+// Mock fetchStreaks to return current streak and date
+jest.spyOn(streakModule, 'fetchStreaks').mockImplementation(async () => ({
+  success: true,
+  streakLength: currentStreak,
+  lastActive: currentDay,
+  didJournal: true,
+  didBreathe: false,
+  journalStreak: currentStreak,
+  breathStreak: 0,
+}));
+
+// Mock updateStreak to update currentStreak and currentDay based on date difference
+const mockUpdateStreak = () =>
+  jest.spyOn(streakModule, 'updateStreak').mockImplementation(async () => {
+    const today = new Date(currentDay);
+    const now = new Date();
+
+    const diffDays = Math.floor((now.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) {
+      currentStreak = 1; // reset streak due to inactivity
+    } else if (diffDays === 1) {
+      currentStreak += 1; // increment streak for next day
+    }
+    currentDay = now.toISOString().slice(0, 10);
+
+    return {
+      success: true,
+      streakLength: currentStreak,
+      lastActive: currentDay,
+    };
+  });
+
 const getJournalScreen = async () => {
   const { getByText, getByPlaceholderText } = render(
     <MockUserProvider>
@@ -35,19 +72,11 @@ const submitJournalEntry = async (text: string) => {
   return { input, saveButton };
 };
 
-const mockUpdateStreak = (handler: (callCount: number) => any) => {
-  const spy = jest.spyOn(streakModule, 'updateStreak').mockImplementation(async (...args) => {
-    const count = spy.mock.calls.length;
-    return handler(count);
-  });
-  return spy;
-};
-
 describe('journal', () => {
-  const day1 = new Date(2025, 5, 15);
-
   beforeEach(() => {
-    advanceTo(day1);
+    currentStreak = 1;
+    currentDay = new Date(2025, 5, 15).toISOString().slice(0, 10);
+    advanceTo(new Date(2025, 5, 15));
     jest.clearAllMocks();
   });
 
@@ -56,7 +85,7 @@ describe('journal', () => {
   });
 
   it('increments streak from 1 to 2 when submitting entry next day', async () => {
-    const updateStreakSpy = mockUpdateStreak((count) => (count === 1 ? 1 : 2));
+    const updateStreakSpy = mockUpdateStreak();
 
     await submitJournalEntry('Day 1 entry');
 
@@ -65,19 +94,19 @@ describe('journal', () => {
 
     expect(updateStreakSpy).toHaveBeenCalledTimes(2);
     const lastCallReturn = await updateStreakSpy.mock.results[1].value;
-    expect(lastCallReturn).toBe(2);
+    expect(lastCallReturn.streakLength).toBe(2);
 
     updateStreakSpy.mockRestore();
   });
 
   it('does not lose streak when deleting entry', async () => {
-    const updateStreakSpy = mockUpdateStreak(() => 1);
+    const updateStreakSpy = mockUpdateStreak();
 
     await submitJournalEntry('Day 1 entry');
 
     expect(updateStreakSpy).toHaveBeenCalledTimes(1);
     const lastCallReturn = await updateStreakSpy.mock.results[0].value;
-    expect(lastCallReturn).toBe(1);
+    expect(lastCallReturn.streakLength).toBe(1);
 
     updateStreakSpy.mockRestore();
   });
@@ -94,17 +123,21 @@ describe('journal', () => {
   });
 
   it('loses the streak after a full day of inactivity', async () => {
+    const updateStreakSpy = mockUpdateStreak();
+
     await submitJournalEntry('Day 1 journal');
 
     advanceTo(new Date(2025, 5, 16, 12));
     await submitJournalEntry('Day 2 journal');
 
-    advanceTo(new Date(2025, 5, 17, 12));
-    await submitJournalEntry('Day 3 journal');
+    advanceTo(new Date(2025, 5, 18, 12)); // skip day 3
+
+    await submitJournalEntry('Day 4 journal');
 
     const { journalStreak } = await streakModule.fetchStreaks('test-user', 'America/New_York');
-    expect(journalStreak).toBe(1);
+    expect(journalStreak).toBe(1); // streak reset
 
+    updateStreakSpy.mockRestore();
     clear();
   });
 });

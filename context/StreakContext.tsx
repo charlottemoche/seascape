@@ -1,11 +1,21 @@
-import React, { ReactNode, createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, {
+  ReactNode,
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
 import { fetchStreaks } from '@/lib/streakService';
 
 type StreakContextType = {
-  breathStreak: number;
+  streakLength: number;
+  lastActive?: string | null;
+  didJournal: boolean;
+  didBreathe: boolean;
   journalStreak: number;
-  breathStreakDate?: string | null;
-  journalStreakDate?: string | null;
+  breathStreak: number;
   refreshStreaks: () => Promise<void>;
   streaksLoading: boolean;
 };
@@ -16,50 +26,81 @@ type StreakProviderProps = {
 };
 
 const StreakContext = createContext<StreakContextType>({
-  breathStreak: 0,
+  streakLength: 0,
+  lastActive: null,
+  didJournal: false,
+  didBreathe: false,
   journalStreak: 0,
-  breathStreakDate: null,
-  journalStreakDate: null,
+  breathStreak: 0,
   refreshStreaks: async () => {},
   streaksLoading: true,
 });
 
 export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
-  const [breathStreak, setBreathStreak] = useState(0);
+  const [streakLength, setStreakLength] = useState(0);
+  const [lastActive, setLastActive] = useState<string | null>(null);
+  const [didJournal, setDidJournal] = useState(false);
+  const [didBreathe, setDidBreathe] = useState(false);
   const [journalStreak, setJournalStreak] = useState(0);
-  const [breathStreakDate, setBreathStreakDate] = useState<string | null>(null);
-  const [journalStreakDate, setJournalStreakDate] = useState<string | null>(null);
+  const [breathStreak, setBreathStreak] = useState(0);
   const [streaksLoading, setStreaksLoading] = useState(true);
 
   const refreshStreaks = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setStreaksLoading(false);
+      return;
+    }
+
     setStreaksLoading(true);
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const {
-      breathStreak,
-      breathStreakDate,
-      journalStreak,
-      journalStreakDate,
-    } = await fetchStreaks(userId, userTimezone);
-    setBreathStreak(breathStreak);
-    setBreathStreakDate(breathStreakDate);
-    setJournalStreak(journalStreak);
-    setJournalStreakDate(journalStreakDate);
-    setStreaksLoading(false);
+
+    try {
+      const result = await fetchStreaks(userId, userTimezone);
+
+      if (!result.success) {
+        console.error('Streak fetch failed');
+        return;
+      }
+
+      setStreakLength(result.streakLength);
+      setLastActive(result.lastActive);
+      setDidJournal(result.didJournal);
+      setDidBreathe(result.didBreathe);
+      setJournalStreak(result.journalStreak);
+      setBreathStreak(result.breathStreak);
+    } catch (e) {
+      console.error('Unexpected error refreshing streaks:', e);
+    } finally {
+      setStreaksLoading(false);
+    }
   }, [userId]);
-  
+
   useEffect(() => {
     refreshStreaks();
   }, [refreshStreaks]);
 
-  const contextValue = useMemo(() => ({
-    breathStreak,
-    journalStreak,
-    breathStreakDate,
-    journalStreakDate,
-    refreshStreaks,
-    streaksLoading,
-  }), [breathStreak, journalStreak, breathStreakDate, journalStreakDate, refreshStreaks]);
+  const contextValue = useMemo(
+    () => ({
+      streakLength,
+      lastActive,
+      didJournal,
+      didBreathe,
+      journalStreak,
+      breathStreak,
+      refreshStreaks,
+      streaksLoading,
+    }),
+    [
+      streakLength,
+      lastActive,
+      didJournal,
+      didBreathe,
+      journalStreak,
+      breathStreak,
+      refreshStreaks,
+      streaksLoading,
+    ]
+  );
 
   return (
     <StreakContext.Provider value={contextValue}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ImageBackground } from 'react-native';
+import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
@@ -48,9 +48,19 @@ export default function BreatheScreen() {
     if (error) {
       alert('Error saving session');
       console.error(error);
-    } else {
-      await updateStreak(user.id, 'breath', userTimezone);
-      await refreshStreaks();
+      return;
+    }
+
+    try {
+      const result = await updateStreak(user.id, 'breath', userTimezone, duration);
+      if (result.success) {
+        Alert.alert('Success','Breathing session saved.');
+        await refreshStreaks();
+      } else {
+        console.warn('Breath streak update failed, skipping refresh');
+      }
+    } catch (e) {
+      console.error('Unexpected error updating breath streak:', e);
     }
 
     setSessionComplete(false);
