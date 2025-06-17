@@ -85,5 +85,7 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app requires microphone access to enable audio recording during breathing exercises.</string>
   </dict>
 </plist>
