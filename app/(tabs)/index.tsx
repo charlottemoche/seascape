@@ -96,7 +96,7 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/journal')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={18} />
+              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={16} />
               <Text style={styles.cardTitle}>How are you feeling?</Text>
             </View>
             <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
@@ -106,7 +106,7 @@ export default function HomeScreen() {
         <View style={[styles.card, styles.actionCard]}>
           <Pressable onPress={() => router.push('/breathe')}>
             <View style={styles.actionHeader}>
-              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={20} />
+              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={18} />
               <Text style={styles.cardTitle}>Need a moment?</Text>
             </View>
             <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>

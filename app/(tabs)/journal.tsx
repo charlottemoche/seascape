@@ -270,6 +270,7 @@ export default function JournalScreen() {
                         name="delete"
                         color={Colors.custom.red}
                         size={16}
+                        style={{ marginBottom: 2 }}
                       />
                     </Pressable>
                   </View>

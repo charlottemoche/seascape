@@ -9,6 +9,7 @@ type FontAwesomeIconProps = {
     name: React.ComponentProps<typeof FontAwesome>['name'];
     color: string;
     size?: number;
+    style?: any;
 };
 
 type EntypoIconProps = {
@@ -16,6 +17,7 @@ type EntypoIconProps = {
     name: React.ComponentProps<typeof Entypo>['name'];
     color: string;
     size?: number;
+    style?: any;
 };
 
 type AntDesignIconProps = {
@@ -23,6 +25,7 @@ type AntDesignIconProps = {
     name: React.ComponentProps<typeof AntDesign>['name'];
     color: string;
     size?: number;
+    style?: any;
 };
 
 type IoniconsIconProps = {
@@ -30,6 +33,7 @@ type IoniconsIconProps = {
     name: React.ComponentProps<typeof Ionicons>['name'];
     color: string;
     size?: number;
+    style?: any;
 };
 
 type SimpleLineIconsIconProps = {
@@ -37,6 +41,7 @@ type SimpleLineIconsIconProps = {
     name: React.ComponentProps<typeof SimpleLineIcons>['name'];
     color: string;
     size?: number;
+    style?: any;
 };
 
 type TabBarIconProps =
@@ -49,7 +54,7 @@ type TabBarIconProps =
 
 export function TabBarIcon(props: TabBarIconProps) {
     const { color, size = 20 } = props;
-    const style = { marginBottom: -3 };
+    const style = props.style;
 
     switch (props.type) {
         case 'Entypo':
