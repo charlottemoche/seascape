@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
@@ -9,6 +9,7 @@ import { updateStreak } from '@/lib/streakService';
 import { Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { supabase } from '@/lib/supabase';
+import { Vibration } from 'react-native';
 import Colors from '@/constants/Colors';
 
 export default function BreatheScreen() {
@@ -28,14 +29,23 @@ export default function BreatheScreen() {
 
   if (!user) return null;
 
+  useEffect(() => {
+    Alert.alert(
+      'Check mute switch',
+      'Make sure your phone is not on silent to hear the session end.'
+    );
+  }, []);
+
   const handleBreathComplete = () => {
     setSessionComplete(true);
     setIsRunning(false);
     player.loop = true;
     player.play();
+    Vibration.vibrate([0, 500, 300, 500], true);
   };
 
   const handleSessionEnd = async (duration: number) => {
+    Vibration.cancel();
     player.pause();
     player.seekTo(0);
     player.loop = false;
@@ -54,7 +64,7 @@ export default function BreatheScreen() {
     try {
       const result = await updateStreak(user.id, 'breath', userTimezone, duration);
       if (result.success) {
-        Alert.alert('Success','Breathing session saved.');
+        Alert.alert('Success', 'Breathing session saved.');
         await refreshStreaks();
       } else {
         console.warn('Breath streak update failed, skipping refresh');
