@@ -1,5 +1,4 @@
 import { StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
-import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
@@ -10,8 +9,8 @@ import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { FishColor } from '@/constants/fishMap';
 import fishImages from '@/constants/fishMap';
+import FeelingsSummary from '@/components/FeelingsSummary';
 import Colors from '@/constants/Colors';
-
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
@@ -19,8 +18,6 @@ export default function HomeScreen() {
   const { breathStreak, journalStreak, streaksLoading } = useStreaks();
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
-
-  const router = useRouter();
 
   const colorScheme = useColorScheme();
 
@@ -107,25 +104,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={[styles.card, styles.actionCard]}>
-          <Pressable onPress={() => router.push('/journal')}>
-            <View style={styles.actionHeader}>
-              <TabBarIcon type="SimpleLineIcons" name="pencil" color={Colors.custom.red} size={16} />
-              <Text style={styles.cardTitle}>How are you feeling?</Text>
-            </View>
-            <Text style={styles.cardSubtitle}>Choose an emotion or write a journal entry.</Text>
-          </Pressable>
-        </View>
-
-        <View style={[styles.card, styles.actionCard]}>
-          <Pressable onPress={() => router.push('/breathe')}>
-            <View style={styles.actionHeader}>
-              <TabBarIcon type="Ionicons" name="leaf-outline" color={Colors.custom.green} size={18} />
-              <Text style={styles.cardTitle}>Need a moment?</Text>
-            </View>
-            <Text style={styles.cardSubtitle}>Try a quick breathing meditation to relax.</Text>
-          </Pressable>
-        </View>
+        <FeelingsSummary userId={user.id} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,7 +116,7 @@ const styles = StyleSheet.create({
   },
   background: {
     flexGrow: 1,
-    padding: 20,
+    padding: 30,
   },
   colorOptions: {
     flexDirection: 'row',
@@ -221,19 +200,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconWrapper: {
-    marginBottom: 8,
-  },
-  actionCard: {
-    borderLeftWidth: 5,
-    borderTopWidth: 0.5,
-    borderBottomWidth: 0.5,
-    borderRightWidth: 0.5,
-    borderColor: '#7bb6d4',
-  },
-  actionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
     marginBottom: 8,
   },
 });

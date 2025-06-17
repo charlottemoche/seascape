@@ -14,11 +14,12 @@ import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
-import Colors from '@/constants/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import Colors from '@/constants/Colors';
+import CryptoJS from 'crypto-js';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 const emotions = {
@@ -40,6 +41,26 @@ const emotions = {
 };
 
 const pageSize = 10;
+
+function getEncryptionKey(userId: string): string {
+  return CryptoJS.SHA256(userId).toString();
+}
+
+function encryptText(text: string, userId: string): string {
+  const key = getEncryptionKey(userId);
+  return CryptoJS.AES.encrypt(text, key).toString();
+}
+
+function decryptText(ciphertext: string, userId: string): string {
+  const key = getEncryptionKey(userId);
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  } catch (err) {
+    console.error('Decryption failed:', err);
+    return '';
+  }
+}
 
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
@@ -72,12 +93,14 @@ export default function JournalScreen() {
 
     setSubmitLoading(true);
 
+    const encryptedEntry = encryptText(entry, user.id);
+
     const { data, error } = await supabase
       .from('journal_entries')
       .insert({
         user_id: user.id,
         feeling: selectedFeelings,
-        entry,
+        entry: encryptedEntry,
       })
       .select()
       .single();
@@ -129,7 +152,11 @@ export default function JournalScreen() {
       // Merge new data without duplicates
       const mergedMap = new Map();
       [...journalEntries, ...data].forEach((entry) => {
-        mergedMap.set(entry.id, entry); // last one wins
+        const decrypted = {
+          ...entry,
+          entry: decryptText(entry.entry, user.id),
+        };
+        mergedMap.set(decrypted.id, decrypted);
       });
       setJournalEntries(Array.from(mergedMap.values()));
 
