@@ -9,24 +9,38 @@ import Constants from 'expo-constants';
 // bytes, an AES-256 key is generated and stored in SecureStore, while
 // it is used to encrypt/decrypt values stored in AsyncStorage.
 class LargeSecureStore {
-  private async _encrypt(key: string, value: string) {
-    const encryptionKey = crypto.getRandomValues(new Uint8Array(256 / 8));
+  private encryptionKeyPromise: Promise<Uint8Array> | null = null;
+
+  private async getEncryptionKey(): Promise<Uint8Array> {
+    if (this.encryptionKeyPromise) return this.encryptionKeyPromise;
+
+    this.encryptionKeyPromise = (async () => {
+      const savedKeyHex = await SecureStore.getItemAsync('supabase_encryption_key');
+      if (savedKeyHex) {
+        return aesjs.utils.hex.toBytes(savedKeyHex);
+      } else {
+        const newKey = crypto.getRandomValues(new Uint8Array(256 / 8));
+        await SecureStore.setItemAsync('supabase_encryption_key', aesjs.utils.hex.fromBytes(newKey));
+        return newKey;
+      }
+    })();
+
+    return this.encryptionKeyPromise;
+  }
+
+  private async _encrypt(_key: string, value: string) {
+    const encryptionKey = await this.getEncryptionKey();
 
     const cipher = new aesjs.ModeOfOperation.ctr(encryptionKey, new aesjs.Counter(1));
     const encryptedBytes = cipher.encrypt(aesjs.utils.utf8.toBytes(value));
 
-    await SecureStore.setItemAsync(key, aesjs.utils.hex.fromBytes(encryptionKey));
-
     return aesjs.utils.hex.fromBytes(encryptedBytes);
   }
 
-  private async _decrypt(key: string, value: string) {
-    const encryptionKeyHex = await SecureStore.getItemAsync(key);
-    if (!encryptionKeyHex) {
-      return encryptionKeyHex;
-    }
+  private async _decrypt(_key: string, value: string) {
+    const encryptionKey = await this.getEncryptionKey();
 
-    const cipher = new aesjs.ModeOfOperation.ctr(aesjs.utils.hex.toBytes(encryptionKeyHex), new aesjs.Counter(1));
+    const cipher = new aesjs.ModeOfOperation.ctr(encryptionKey, new aesjs.Counter(1));
     const decryptedBytes = cipher.decrypt(aesjs.utils.hex.toBytes(value));
 
     return aesjs.utils.utf8.fromBytes(decryptedBytes);
@@ -41,12 +55,11 @@ class LargeSecureStore {
 
   async removeItem(key: string) {
     await AsyncStorage.removeItem(key);
-    await SecureStore.deleteItemAsync(key);
+    // don't delete the encryption key here! Keep it persistent.
   }
 
   async setItem(key: string, value: string) {
     const encrypted = await this._encrypt(key, value);
-
     await AsyncStorage.setItem(key, encrypted);
   }
 }

@@ -24,7 +24,6 @@ export default function HomeScreen() {
 
   const colorScheme = useColorScheme();
 
-  const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
 
   useFocusEffect(
@@ -54,7 +53,7 @@ export default function HomeScreen() {
   const { total_minutes } = profile;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: containerColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: backgroundColor }]}>
       <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
