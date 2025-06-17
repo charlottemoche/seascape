@@ -42,7 +42,8 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.20.0",
     "uri-scheme": "^1.4.7",
-    "expo-audio": "~0.4.6"
+    "expo-audio": "~0.4.6",
+    "expo-local-authentication": "~16.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

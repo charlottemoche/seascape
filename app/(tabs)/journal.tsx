@@ -19,6 +19,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 const emotions = {
   positive: {
@@ -58,6 +59,7 @@ export default function JournalScreen() {
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [entriesUnlocked, setEntriesUnlocked] = useState(false);
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -177,6 +179,28 @@ export default function JournalScreen() {
     }
   }, [page, user, authLoading]);
 
+  const handleUnlock = async () => {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+    if (!hasHardware || !isEnrolled) {
+      Alert.alert('Not available', 'Enable Face ID or passcode to unlock.');
+      return;
+    }
+
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Unlock Journal',
+      fallbackLabel: 'Use Passcode',
+      cancelLabel: 'Cancel',
+    });
+
+    if (result.success) {
+      setEntriesUnlocked(true);
+    } else {
+      Alert.alert('Authentication failed', 'Unable to unlock journal.');
+    }
+  };
+
   if (authLoading) {
     return (
       <Loader />
@@ -266,43 +290,56 @@ export default function JournalScreen() {
           </Button>
 
 
-          {journalEntries.length > 0 &&
-            <>
-              <Text style={styles.entriesTitle}>Your Journal Entries</Text>
-              {journalEntries.map((entry, index) => (
-                <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
-                  <View style={styles.entryHeader}>
-                    <Text style={styles.entryTitle}>
-                      {Array.isArray(entry.feeling) ? entry.feeling.join(', ') : entry.feeling ?? 'Entry'}
-                    </Text>
-                    <Pressable onPress={() => handleDeleteEntry(entry.id)}>
-                      <TabBarIcon
-                        type="AntDesign"
-                        name="delete"
-                        color={Colors.custom.red}
-                        size={16}
-                        style={{ marginBottom: 2 }}
-                      />
-                    </Pressable>
+          {journalEntries.length > 0 ? (
+            entriesUnlocked ? (
+              <>
+                <Text style={styles.entriesTitle}>Your Journal Entries</Text>
+                {journalEntries.map((entry, index) => (
+                  <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
+                    <View style={styles.entryHeader}>
+                      <Text style={styles.entryTitle}>
+                        {Array.isArray(entry.feeling) ? entry.feeling.join(', ') : entry.feeling ?? 'Entry'}
+                      </Text>
+                      <Pressable onPress={() => handleDeleteEntry(entry.id)}>
+                        <TabBarIcon
+                          type="AntDesign"
+                          name="delete"
+                          color={Colors.custom.red}
+                          size={16}
+                          style={{ marginBottom: 2 }}
+                        />
+                      </Pressable>
+                    </View>
+
+                    {entry.entry ? (
+                      <Text style={styles.entryText}>{entry.entry}</Text>
+                    ) : null}
+
+                    <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
                   </View>
+                ))}
 
-                  {entry.entry ? (
-                    <Text style={styles.entryText}>{entry.entry}</Text>
-                  ) : null}
-
-                  <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
-                </View>
-              ))}
-
-              {loading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={Colors.custom.blue} />
-                </View>
-              ) : hasMore ? (
-                <Button onPress={handleLoadMore} title="Load More" />
-              ) : null}
-            </>
-          }
+                {loading ? (
+                  <View style={styles.entriesContainer}>
+                    <ActivityIndicator size="large" color={Colors.custom.blue} />
+                  </View>
+                ) : hasMore ? (
+                  <Button onPress={handleLoadMore} title="Load More" />
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.entriesContainer}>
+                <Text style={styles.noEntries}>Your journal is locked.</Text>
+                <Button onPress={handleUnlock} title="Unlock Journal" />
+              </View>
+            )
+          ) : (
+            <View style={styles.entriesContainer}>
+              <Text style={styles.noEntries}>
+                You have no journal entries.
+              </Text>
+            </View>
+          )}
         </KeyboardAwareScrollView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -314,7 +351,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  loadingContainer: {
+  entriesContainer: {
+    backgroundColor: 'transparent',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -420,7 +458,7 @@ const styles = StyleSheet.create({
   },
   noEntries: {
     fontSize: 16,
-    color: '#ccc',
+    color: '#808080',
     textAlign: 'center',
     marginTop: 20,
   },

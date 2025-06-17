@@ -7,6 +7,9 @@ import {
   TouchableWithoutFeedback,
   useColorScheme,
   Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
@@ -86,7 +89,7 @@ export default function LoginScreen() {
           return;
         }
 
-        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -118,49 +121,54 @@ export default function LoginScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.logoContainer}>
-          <Image source={logoImage} style={styles.logo} />
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <View style={styles.container}>
+          <View style={styles.logoContainer}>
+            <Image source={logoImage} style={styles.logo} />
+          </View>
 
-        <Input
-          placeholder="Email"
-          placeholderTextColor="#888"
-          autoCapitalize="none"
-          autoCorrect={false}
-          spellCheck={false}
-          keyboardType="email-address"
-          onChangeText={setEmail}
-          value={email}
-        />
-        <Input
-          placeholder="Password"
-          placeholderTextColor="#888"
-          secureTextEntry
-          onChangeText={setPassword}
-          value={password}
-        />
+          <Input
+            placeholder="Email"
+            placeholderTextColor="#888"
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            value={email}
+          />
+          <Input
+            placeholder="Password"
+            placeholderTextColor="#888"
+            secureTextEntry
+            onChangeText={setPassword}
+            value={password}
+          />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Button
-          onPress={handleAuth}
-          title={isSignUp ? 'Sign Up' : 'Log In'}
-          loading={loading}
-          disabled={loading}
-        />
+          <Button
+            onPress={handleAuth}
+            title={isSignUp ? 'Sign Up' : 'Log In'}
+            loading={loading}
+            disabled={loading}
+          />
 
         <Pressable
-          onPress={() => {
-            setIsSignUp(!isSignUp);
-            setError('');
-          }}
+            onPress={() => {
+              setIsSignUp(!isSignUp);
+              setError('');
+            }}
         >
           <Text style={styles.switchText}>
             {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
           </Text>
         </Pressable>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
@@ -171,6 +179,10 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   switchText: {
     textAlign: 'center',

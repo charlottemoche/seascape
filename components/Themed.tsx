@@ -68,7 +68,7 @@ export function Button({ title, onPress, style, disabled, loading, lightColor, d
           backgroundColor,
           opacity: pressed ? 0.7 : 1,
         },
-        disabled && { opacity: 0.5 },
+        disabled && { opacity: 0.4 },
         style
       ]}
       disabled={disabled || loading}

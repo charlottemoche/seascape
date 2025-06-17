@@ -42,7 +42,7 @@ export default function SwimScreen() {
   const fishColor = React.useMemo(() => {
     return (rawColor in fishImages ? rawColor : 'blue') as FishColor;
   }, [rawColor]);
-  const fishImage = fishImages[fishColor];
+  const fishImage = React.useMemo(() => fishImages[fishColor], [fishColor]);
   const tabBarHeight = useBottomTabBarHeight();
 
   const {
