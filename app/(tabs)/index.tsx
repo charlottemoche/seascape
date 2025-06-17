@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme } from 'react-native';
+import { StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
@@ -8,12 +8,17 @@ import { useCallback } from 'react';
 import { useStreaks } from '@/context/StreakContext';
 import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import { FishColor } from '@/constants/fishMap';
+import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
+
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading, refreshProfile } = useProfile();
   const { breathStreak, journalStreak, streaksLoading } = useStreaks();
+
+  const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
   const router = useRouter();
 
@@ -53,12 +58,17 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
+        <View style={styles.colorOptions}>
+          {availableColors.map((color) => (
+              <Image source={fishImages[color]} key={color} style={styles.smallFish} />
+          ))}
+      </View>
         <View style={[styles.card, styles.darkCard]}>
           <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
           <View style={styles.streakRow}>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={20} />
+                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
               </View>
               <Text style={styles.streakSubtitle}>Journaling</Text>
               <Text testID="journal-streak"style={styles.cardDataStreaks}>
@@ -69,7 +79,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.streakItem}>
               <View style={styles.iconWrapper}>
-                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
+                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={18} />
               </View>
               <Text style={styles.streakSubtitle}>Breathing</Text>
               <Text testID="breathing-streak" style={styles.cardDataStreaks}>
@@ -130,6 +140,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
+   colorOptions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 24,
+    backgroundColor: 'transparent',
+  },
+  smallFish: {
+    width: 30,
+    height: 30,
+  },
   loading: {
     padding: 20,
     alignItems: 'center',
@@ -152,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   darkCard: {
     borderWidth: 1,

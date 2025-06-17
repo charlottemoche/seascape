@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   darkCard: {
-    borderColor: '#000000',
+    borderColor: '#292828',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingTop: 14,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   prompt: {
     fontSize: 16,
     marginBottom: 8,
-    marginTop: 20,
+    marginTop: 40,
   },
   textArea: {
     borderWidth: 1,

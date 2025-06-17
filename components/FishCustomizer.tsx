@@ -70,29 +70,26 @@ export function FishCustomizer() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Customize Your Fish</Text>
-
       <View style={styles.colorOptions}>
-        <View style={styles.colorOptions}>
-          {availableColors.map((color) => (
-            <Pressable
-              key={color}
-              onPress={() => {
-                if (color !== fishColor) {
-                  setFishColor(color);
-                  setEditing(true);
-                }
-              }}
-            >
-              <Image
-                source={fishImages[color]}
-                style={[
-                  styles.smallFish,
-                  fishColor === color && editing && styles.selectedFish,
-                ]}
-              />
-            </Pressable>
-          ))}
-        </View>
+        {availableColors.map((color) => (
+          <Pressable
+            key={color}
+            onPress={() => {
+              if (color !== fishColor) {
+                setFishColor(color);
+                setEditing(true);
+              }
+            }}
+          >
+            <Image
+              source={fishImages[color]}
+              style={[
+                styles.smallFish,
+                fishColor === color && editing && styles.selectedFish,
+              ]}
+            />
+          </Pressable>
+        ))}
       </View>
 
       <Image source={fishImages[fishColor]} style={styles.bigFish} />
