@@ -330,7 +330,7 @@ export default function JournalScreen() {
                         />
                       </Pressable>
                     </View>
-                    
+
                     {(() => {
                       const decrypted = decryptText(entry.entry, user.id);
                       return decrypted ? (
@@ -352,8 +352,8 @@ export default function JournalScreen() {
               </>
             ) : (
               <View style={styles.entriesContainer}>
-                <Text style={styles.noEntries}>Your journal is locked.</Text>
-                <Button onPress={handleUnlock} title="Unlock Journal" />
+                <Text style={styles.lockedText}>Your journal is locked.</Text>
+                <Button onPress={handleUnlock} title="Unlock" lightColor={Colors.custom.grey} darkColor='#808080' textColor='#000' />
               </View>
             )
           ) : (
@@ -484,6 +484,13 @@ const styles = StyleSheet.create({
     color: '#808080',
     textAlign: 'center',
     marginTop: 20,
+  },
+  lockedText: {
+    fontSize: 16,
+    color: '#808080',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 10,
   },
   entryHeader: {
     flexDirection: 'row',

@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,8 +21,8 @@ export default function VerifyEmailScreen() {
     typeof params.email === 'string'
       ? params.email
       : Array.isArray(params.email)
-      ? params.email[0]
-      : '';
+        ? params.email[0]
+        : '';
 
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
@@ -45,35 +47,39 @@ export default function VerifyEmailScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <Text style={styles.header}>Please check your email for verfication code</Text>
-        <Input
-          placeholder="Email"
-          placeholderTextColor="#888"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          spellCheck={false}
-          value={email}
-          onChangeText={setEmail}
-        />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.header}>Please check your email for verfication code</Text>
+          <Input
+            placeholder="Email"
+            placeholderTextColor="#888"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
+            value={email}
+            onChangeText={setEmail}
+          />
 
-        <Input
-          placeholder="6-digit code"
-          placeholderTextColor="#888"
-          keyboardType="number-pad"
-          maxLength={6}
-          value={code}
-          onChangeText={setCode}
-        />
+          <Input
+            placeholder="6-digit code"
+            placeholderTextColor="#888"
+            keyboardType="number-pad"
+            maxLength={6}
+            value={code}
+            onChangeText={setCode}
+          />
 
-        <Button
-          loading={loading}
-          onPress={handleVerify}
-          disabled={loading}
-          title={loading ? 'Verifying...' : 'Verify Email'}
-        />
-      </View>
+          <Button
+            loading={loading}
+            onPress={handleVerify}
+            disabled={loading}
+            title={loading ? 'Verifying...' : 'Verify Email'}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }

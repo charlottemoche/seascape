@@ -87,7 +87,7 @@ export default function OnboardingScreen() {
             <Text style={styles.header}>Welcome to Seascape</Text>
           )}
           {slides[page].key === 'customize' ? (
-            <FishCustomizer />
+            <FishCustomizer transparentBackground />
           ) : (
             <Text style={styles.text}>{slides[page].content}</Text>
           )}

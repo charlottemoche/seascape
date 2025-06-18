@@ -55,9 +55,19 @@ export function View(props: ViewProps) {
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
 
-export function Button({ title, onPress, style, disabled, loading, lightColor, darkColor }: ButtonProps) {
+export function Button({
+  title,
+  onPress,
+  style,
+  disabled,
+  loading,
+  lightColor,
+  darkColor,
+  textColor,
+}: ButtonProps & { textColor?: string }) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'button');
-  const textColor = useThemeColor({ light: darkColor, dark: darkColor }, 'buttonText');
+  const resolvedTextColor =
+    textColor ?? useThemeColor({ light: darkColor, dark: darkColor }, 'buttonText');
 
   return (
     <Pressable
@@ -69,11 +79,13 @@ export function Button({ title, onPress, style, disabled, loading, lightColor, d
           opacity: pressed ? 0.7 : 1,
         },
         disabled && { opacity: 0.4 },
-        style
+        style,
       ]}
       disabled={disabled || loading}
     >
-      <Text style={[styles.text, { color: textColor }]}>{loading ? 'Loading...' : title}</Text>
+      <Text style={[styles.text, { color: resolvedTextColor }]}>
+        {loading ? 'Loading...' : title}
+      </Text>
     </Pressable>
   );
 }

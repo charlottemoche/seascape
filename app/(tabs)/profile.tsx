@@ -4,7 +4,9 @@ import {
   Alert,
   Image,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -13,7 +15,6 @@ import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import preyImg from '@/assets/images/prey.png';
 import { View, Text } from '@/components/Themed';
-import Colors from '@/constants/Colors';
 
 export default function ProfileScreen() {
   const { user } = useRequireAuth();
@@ -34,30 +35,34 @@ export default function ProfileScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.wrapper}>
-        <View style={styles.loggedInWrapper}>
-          <Text>
-            Logged in as: {user?.email ?? 'No email'}
-          </Text>
-          <View style={styles.highScoreWrapper}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}>
+        <View style={styles.wrapper}>
+          <View style={styles.loggedInWrapper}>
             <Text>
-              High Score: {highScore}
+              Logged in as: {user?.email ?? 'No email'}
             </Text>
-            <Image
-              source={preyImg}
-              style={styles.fishImage}
-            />
+            <View style={styles.highScoreWrapper}>
+              <Text>
+                High Score: {highScore}
+              </Text>
+              <Image
+                source={preyImg}
+                style={styles.fishImage}
+              />
+            </View>
           </View>
-        </View>
 
-        <FishCustomizer />
+          <FishCustomizer />
 
-        <View style={styles.logoutWrapper}>
+          <View style={styles.logoutWrapper}>
             <Pressable onPress={handleLogout} style={styles.logoutButton}>
               <Text style={styles.logoutText}>Log out</Text>
             </Pressable>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }

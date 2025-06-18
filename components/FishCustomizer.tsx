@@ -13,9 +13,12 @@ import { FishColor } from '@/constants/fishMap';
 import { Button, Input } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
 
+type FishCustomizerProps = {
+  transparentBackground?: boolean;
+};
 const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-export function FishCustomizer() {
+export function FishCustomizer({ transparentBackground }: FishCustomizerProps) {
   const { user } = useUser();
   const { profile } = useProfile();
 
@@ -68,8 +71,8 @@ export function FishCustomizer() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Customize Your Fish</Text>
+    <View style={[styles.container, transparentBackground && { backgroundColor: 'transparent' }]}>
+      <Text style={[styles.title, transparentBackground && { color: '#fff' }]}>Customize Your Fish</Text>
       <View style={styles.colorOptions}>
         {availableColors.map((color) => (
           <Pressable
@@ -103,7 +106,7 @@ export function FishCustomizer() {
           style={styles.input}
         />
       ) : (
-        <Text style={styles.fishNameText}>{fishName || 'Name your fish'}</Text>
+        <Text style={[styles.fishNameText, transparentBackground && { color: '#fff' }]}>{fishName || 'Name your fish'}</Text>
       )}
 
       <Button
@@ -136,6 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     marginBottom: 24,
+    backgroundColor: 'transparent',
   },
   smallFish: {
     width: 40,
@@ -147,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   selectedFish: {
-    borderBottomColor: '#000000',
+    borderBottomColor: '#808080',
     borderBottomWidth: 2,
   },
   input: {
