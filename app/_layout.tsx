@@ -80,15 +80,14 @@ export default function RootLayout() {
 
 function useHandleRecovery() {
   const router = useRouter();
+  const [handled, setHandled] = useState(false);
 
   useEffect(() => {
     const handleUrl = async (url: string | null) => {
-      if (!url) return;
+      if (!url || handled) return;
 
       try {
         const parsed = new URL(url);
-
-        // Grab tokens from the fragment
         const fragmentParams = new URLSearchParams(parsed.hash.slice(1));
         const access_token = fragmentParams.get('access_token');
         const refresh_token = fragmentParams.get('refresh_token');
@@ -100,6 +99,7 @@ function useHandleRecovery() {
           if (error) {
             console.error('❌ setSession failed:', error.message);
           } else {
+            setHandled(true); // ✅ Mark as handled
             router.replace('/password');
           }
         } else {
@@ -110,13 +110,14 @@ function useHandleRecovery() {
       }
     };
 
-    // Cold start
     Linking.getInitialURL().then(handleUrl);
 
-    // App already open
-    const sub = Linking.addEventListener('url', (event: { url: string | null; }) => handleUrl(event.url));
+    const sub = Linking.addEventListener('url', (event: { url: string | null }) => {
+      handleUrl(event.url);
+    });
+
     return () => sub.remove();
-  }, []);
+  }, [handled]);
 }
 
 function RootLayoutNav() {
