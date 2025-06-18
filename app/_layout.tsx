@@ -11,7 +11,6 @@ import { StreakProvider } from '@/context/StreakContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUser } from '@/context/UserContext';
 import { Asset } from 'expo-asset';
-import { usePathname } from 'expo-router';
 
 const imagesToCache = [
   require('../assets/images/fish-yellow.png'),
@@ -48,12 +47,6 @@ export default function RootLayout() {
   });
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-
-  const pathname = usePathname();
-
-  useEffect(() => {
-    console.log('🌍 Current path:', pathname);
-  }, [pathname]);
 
   useEffect(() => {
     async function cacheImages() {
