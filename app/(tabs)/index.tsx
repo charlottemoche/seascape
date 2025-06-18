@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   background: {
     flexGrow: 1,
-    padding: 30,
+    padding: 20,
   },
   colorOptions: {
     flexDirection: 'row',

@@ -15,7 +15,7 @@ type JournalEntry = {
 };
 
 export default function FeelingsSummary({ userId }: { userId: string }) {
-  const [range, setRange] = useState<'1W' | '1M' | '3M' | '6M'>('1M');
+  const [range, setRange] = useState<'1W' | '1M' | '3M' | '6M'>('1W');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [mostCommonFeeling, setMostCommonFeeling] = useState('');
