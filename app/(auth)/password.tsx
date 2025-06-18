@@ -17,35 +17,52 @@ export default function PasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    const restoreSession = async () => {
-      const url = await Linking.getInitialURL();
-      console.log('🔗 URL received:', url);
-      if (!url) return;
+    const restore = async (incomingUrl: string | null) => {
+      console.log('🔗 Incoming URL:', incomingUrl);
+      if (!incomingUrl) return;
 
-      const parsed = new URL(url);
-      const type = parsed.searchParams.get('type');
-      const token_hash = parsed.searchParams.get('token_hash');
+      try {
+        const parsed = new URL(incomingUrl);
+        const type = parsed.searchParams.get('type');
+        const token_hash = parsed.searchParams.get('token_hash');
+        const email = parsed.searchParams.get('email');
 
-      if (type === 'recovery' && token_hash) {
-        const { error } = await supabase.auth.verifyOtp({
-          type: 'recovery',
-          token_hash,
-        });
+        if (type === 'recovery' && token_hash && email) {
+          console.log('🔐 Verifying recovery token...');
+          const { error } = await supabase.auth.verifyOtp({
+            type: 'recovery',
+            token: token_hash,
+            email,
+          });
 
-        if (error) {
-          Alert.alert('Session error', error.message);
-          return;
+          if (error) {
+            console.error('❌ OTP verification failed:', error.message);
+            Alert.alert('Session error', error.message);
+          } else {
+            console.log('✅ OTP verified, session restored!');
+            setSessionReady(true);
+          }
+        } else {
+          console.warn('⚠️ Missing recovery params in URL');
         }
+      } catch (err) {
+        console.error('💥 Failed to parse incoming URL:', err);
       }
     };
 
-    restoreSession();
+    Linking.getInitialURL().then(restore);
+    const sub = Linking.addEventListener('url', (event) => restore(event.url));
+
+    return () => {
+      sub.remove();
+    };
   }, []);
 
   const handleReset = async () => {
@@ -69,6 +86,14 @@ export default function PasswordScreen() {
 
     setLoading(false);
   };
+
+  if (!sessionReady) {
+    return (
+      <View style={styles.loading}>
+        <Text>Restoring session...</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -147,5 +172,12 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loading: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
 });
