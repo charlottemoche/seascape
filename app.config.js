@@ -9,6 +9,7 @@ export default {
     orientation: 'portrait',
     icon: './assets/images/fish.png',
     scheme: 'seascape',
+    deepLinks: ['password'],
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {

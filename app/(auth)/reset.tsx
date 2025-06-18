@@ -35,6 +35,8 @@ export default function ResetRequestScreen() {
         placeholder="you@example.com"
         autoCapitalize="none"
         keyboardType="email-address"
+        autoCorrect={false}
+        spellCheck={false}
         style={styles.input}
       />
       <Button

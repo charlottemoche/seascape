@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Alert,
@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button, Text, Input } from '@/components/Themed';
 import { Eye, EyeOff } from 'lucide-react-native';
+import * as Linking from 'expo-linking';
 
 export default function PasswordScreen() {
   const [password, setPassword] = useState('');
@@ -20,6 +21,28 @@ export default function PasswordScreen() {
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      const url = await Linking.getInitialURL();
+      if (!url) return;
+
+      const hashIndex = url.indexOf('#');
+      if (hashIndex === -1) return;
+
+      const hash = url.slice(hashIndex + 1);
+      const params = new URLSearchParams(hash);
+
+      const access_token = params.get('access_token');
+      const refresh_token = params.get('refresh_token');
+
+      if (access_token && refresh_token) {
+        await supabase.auth.setSession({ access_token, refresh_token });
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   const handleReset = async () => {
     if (!password || !confirm) {
