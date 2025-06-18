@@ -25,19 +25,23 @@ export default function PasswordScreen() {
   useEffect(() => {
     const restoreSession = async () => {
       const url = await Linking.getInitialURL();
+      console.log('🔗 URL received:', url);
       if (!url) return;
 
-      const hashIndex = url.indexOf('#');
-      if (hashIndex === -1) return;
+      const parsed = new URL(url);
+      const type = parsed.searchParams.get('type');
+      const token_hash = parsed.searchParams.get('token_hash');
 
-      const hash = url.slice(hashIndex + 1);
-      const params = new URLSearchParams(hash);
+      if (type === 'recovery' && token_hash) {
+        const { error } = await supabase.auth.verifyOtp({
+          type: 'recovery',
+          token_hash,
+        });
 
-      const access_token = params.get('access_token');
-      const refresh_token = params.get('refresh_token');
-
-      if (access_token && refresh_token) {
-        await supabase.auth.setSession({ access_token, refresh_token });
+        if (error) {
+          Alert.alert('Session error', error.message);
+          return;
+        }
       }
     };
 
