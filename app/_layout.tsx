@@ -22,6 +22,9 @@ const imagesToCache = [
   require('../assets/images/predator.png'),
   require('../assets/images/prey.png'),
   require('../assets/images/wave.png'),
+  require('../assets/images/sun-2.png'),
+  require('../assets/images/moon-2.png'),
+  require('../assets/images/rain-2.png'),
 ];
 
 export {

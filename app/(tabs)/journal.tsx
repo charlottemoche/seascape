@@ -149,18 +149,11 @@ export default function JournalScreen() {
       console.error('Error fetching journal entries:', error);
       Alert.alert('Something went wrong while fetching your journal entries.');
     } else {
-      // Merge new data without duplicates
       const mergedMap = new Map();
       [...journalEntries, ...data].forEach((entry) => {
-        const decrypted = {
-          ...entry,
-          entry: decryptText(entry.entry, user.id),
-        };
-        mergedMap.set(decrypted.id, decrypted);
+        mergedMap.set(entry.id, entry);
       });
       setJournalEntries(Array.from(mergedMap.values()));
-
-      // Update "hasMore"
       setHasMore(data.length === pageSize);
     }
     setLoading(false);
@@ -337,10 +330,13 @@ export default function JournalScreen() {
                         />
                       </Pressable>
                     </View>
-
-                    {entry.entry ? (
-                      <Text style={styles.entryText}>{entry.entry}</Text>
-                    ) : null}
+                    
+                    {(() => {
+                      const decrypted = decryptText(entry.entry, user.id);
+                      return decrypted ? (
+                        <Text style={styles.entryText}>{decrypted}</Text>
+                      ) : null;
+                    })()}
 
                     <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
                   </View>

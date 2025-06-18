@@ -109,7 +109,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         <View style={[styles.summaryBox, { backgroundColor }]}>
           {entries.length === 0 ? (
             <Text style={[styles.noEntries, { color: textColor }]}>
-              Log some entries to track your mood.
+              Log some journal entries to track your mood.
             </Text>
           ) : (
             <>
