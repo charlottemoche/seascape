@@ -97,6 +97,7 @@ export default function ProfileScreen() {
       }
 
       setUser(null);
+      Alert.alert('Success', 'You have been logged out.');
     } catch (err) {
       console.warn('Forcing logout due to unexpected error:', err);
       setUser(null);
