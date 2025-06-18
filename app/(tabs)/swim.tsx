@@ -140,7 +140,7 @@ export default function SwimScreen() {
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameSubtext}>
-            You must complete both a journal and a meditation session today to play.
+            You must complete a journal entry or a meditation session today to play.
           </Text>
         </View>
       );
