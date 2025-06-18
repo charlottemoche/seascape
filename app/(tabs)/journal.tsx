@@ -69,6 +69,7 @@ export default function JournalScreen() {
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
   const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const textColor = colorScheme === 'dark' ? '#cecece' : '#444';
 
   const { user, loading: authLoading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
@@ -296,7 +297,7 @@ export default function JournalScreen() {
             onChangeText={setEntry}
             multiline
             numberOfLines={5}
-            style={[styles.textArea, { backgroundColor: containerColor, borderColor: greyBorder }]}
+            style={[styles.textArea, { backgroundColor: containerColor, borderColor: greyBorder, color: textColor }]}
             placeholder="Write your thoughts here..."
             placeholderTextColor='#808080'
           />

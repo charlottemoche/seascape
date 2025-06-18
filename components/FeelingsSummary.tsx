@@ -23,7 +23,8 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
-  const textColor = colorScheme === 'dark' ? '#cecece' : '#444';
+  const textColor = colorScheme === 'dark' ? '#fff' : '#444';
+  const greyTextColor = colorScheme === 'dark' ? '#cecece' : '#444';
 
   useEffect(() => {
     async function load() {
@@ -91,7 +92,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
             <Text style={{
               fontWeight: range === r ? 'bold' : 'normal',
-              color: colorScheme === 'dark' ? '#fff' : '#000',
+              color: range === r ? '#000' : colorScheme === 'dark' ? '#fff' : '#000',
             }}>{r}</Text>
           </Pressable>
         ))}
@@ -119,7 +120,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
               <Text style={styles.mood}>
                 {capitalize(dominantMood)}
               </Text>
-              <Text style={[styles.common, { color: textColor }]}>
+              <Text style={[styles.common, { color: greyTextColor }]}>
                 Most frequent feeling: {mostCommonFeeling}
               </Text>
             </>
