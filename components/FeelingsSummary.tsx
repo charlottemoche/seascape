@@ -91,7 +91,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
             <Text style={{
               fontWeight: range === r ? 'bold' : 'normal',
-              color: range === r ? colorScheme === 'dark' ? '#000' : '#fff' : '#000',
+              color: colorScheme === 'dark' ? '#fff' : '#000',
             }}>{r}</Text>
           </Pressable>
         ))}
