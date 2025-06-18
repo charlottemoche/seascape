@@ -28,7 +28,7 @@ export default {
             CFBundleURLSchemes: ['seascape', 'com.cbm.seascape'],
           },
           {
-            CFBundleURLSchemes: ['exp+seascape'],
+            CFBundleURLSchemes: ['seascape'],
           },
         ],
       }
