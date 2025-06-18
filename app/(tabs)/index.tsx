@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';

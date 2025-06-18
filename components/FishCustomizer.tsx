@@ -3,7 +3,11 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-  Image
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -71,51 +75,60 @@ export function FishCustomizer({ transparentBackground }: FishCustomizerProps) {
   };
 
   return (
-    <View style={[styles.container, transparentBackground && { backgroundColor: 'transparent' }]}>
-      <Text style={[styles.title, transparentBackground && { color: '#fff' }]}>Customize Your Fish</Text>
-      <View style={styles.colorOptions}>
-        {availableColors.map((color) => (
-          <Pressable
-            key={color}
-            onPress={() => {
-              if (color !== fishColor) {
-                setFishColor(color);
-                setEditing(true);
-              }
-            }}
-          >
-            <Image
-              source={fishImages[color]}
-              style={[
-                styles.smallFish,
-                fishColor === color && editing && styles.selectedFish,
-              ]}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={80}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={[styles.container, transparentBackground && { backgroundColor: 'transparent' }]}>
+          <Text style={[styles.title, transparentBackground && { color: '#fff' }]}>Customize Your Fish</Text>
+
+          <View style={styles.colorOptions}>
+            {availableColors.map((color) => (
+              <Pressable
+                key={color}
+                onPress={() => {
+                  if (color !== fishColor) {
+                    setFishColor(color);
+                    setEditing(true);
+                  }
+                }}
+              >
+                <Image
+                  source={fishImages[color]}
+                  style={[
+                    styles.smallFish,
+                    fishColor === color && editing && styles.selectedFish,
+                  ]}
+                />
+              </Pressable>
+            ))}
+          </View>
+
+          <Image source={fishImages[fishColor]} style={styles.bigFish} />
+
+          {editing ? (
+            <Input
+              value={fishName}
+              onChangeText={setFishName}
+              placeholder="Name your fish"
+              placeholderTextColor="#888"
+              style={styles.input}
             />
-          </Pressable>
-        ))}
-      </View>
+          ) : (
+            <Text style={[styles.fishNameText, transparentBackground && { color: '#fff' }]}>{fishName || 'Name your fish'}</Text>
+          )}
 
-      <Image source={fishImages[fishColor]} style={styles.bigFish} />
-
-      {editing ? (
-        <Input
-          value={fishName}
-          onChangeText={setFishName}
-          placeholder="Name your fish"
-          placeholderTextColor="#888"
-          style={styles.input}
-        />
-      ) : (
-        <Text style={[styles.fishNameText, transparentBackground && { color: '#fff' }]}>{fishName || 'Name your fish'}</Text>
-      )}
-
-      <Button
-        onPress={handleSave}
-        disabled={saving}
-        loading={saving}
-        title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
-      />
-    </View>
+          <Button
+            onPress={handleSave}
+            disabled={saving}
+            loading={saving}
+            title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
+          />
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -137,17 +150,17 @@ const styles = StyleSheet.create({
   colorOptions: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
+    gap: 16,
     marginBottom: 24,
     backgroundColor: 'transparent',
   },
   smallFish: {
-    width: 40,
-    height: 40,
+    width: 32,
+    height: 32,
   },
   bigFish: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     marginBottom: 24,
   },
   selectedFish: {

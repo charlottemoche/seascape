@@ -7,13 +7,14 @@ import {
   TouchableWithoutFeedback,
   useColorScheme,
   Image,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { Button, Input, Text } from '@/components/Themed';
+import { useLocalSearchParams } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -25,10 +26,14 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const router = useRouter();
 
+  const { verified } = useLocalSearchParams();
+
   const logoImage =
     colorScheme === 'dark'
       ? require('@/assets/images/logo-light.png')
       : require('@/assets/images/logo-dark.png');
+
+  const verifiedMessageColor = colorScheme === 'dark' ? Colors.custom.mediumBlue : Colors.custom.darkBlue;
 
   const handleAuth = async () => {
     setLoading(true);
@@ -130,6 +135,12 @@ export default function LoginScreen() {
             <Image source={logoImage} style={styles.logo} />
           </View>
 
+          {verified === 'true' && (
+            <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
+              Email verified. Please log in.
+            </Text>
+          )}
+
           <Input
             placeholder="Email"
             placeholderTextColor="#888"
@@ -157,16 +168,16 @@ export default function LoginScreen() {
             disabled={loading}
           />
 
-        <Pressable
+          <Pressable
             onPress={() => {
               setIsSignUp(!isSignUp);
               setError('');
             }}
-        >
-          <Text style={styles.switchText}>
-            {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
-          </Text>
-        </Pressable>
+          >
+            <Text style={styles.switchText}>
+              {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+            </Text>
+          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -205,5 +216,14 @@ const styles = StyleSheet.create({
     width: 200,
     marginBottom: 60,
     resizeMode: 'contain',
+  },
+  verifiedMessage: {
+    fontSize: 16,
+    marginBottom: 40,
+    textAlign: 'center',
+    color: 'white',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
 });

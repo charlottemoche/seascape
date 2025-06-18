@@ -6,15 +6,25 @@ import { StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
 import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import { supabase } from '@/lib/supabase';
+import { useEffect } from 'react';
 
 export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { user, loading: userLoading } = useUser();
 
+  useEffect(() => {
+    if (!user) {
+      supabase.auth.signOut();
+    }
+  }, [user]);
+
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
+
   if (userLoading || profileLoading) {
-    return (
-      <Loader />
-    );
+    return <Loader />;
   }
 
   if (profileError) {
@@ -23,10 +33,6 @@ export default function ProtectedTabLayout() {
         <Text>We're having trouble loading your profile.</Text>
       </View>
     );
-  }
-
-  if (!user) {
-    return <Redirect href="/login" />;
   }
 
   if (!profile) {

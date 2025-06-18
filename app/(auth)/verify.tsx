@@ -38,9 +38,12 @@ export default function VerifyEmailScreen() {
 
     if (error) {
       Alert.alert('Verification failed', error.message);
-    } else {
-      Alert.alert('Success', 'Email verified. Please log in.');
       router.replace('/login');
+    } else {
+      router.replace({
+        pathname: '/login',
+        params: { verified: 'true' },
+      });
     }
     setLoading(false);
   };

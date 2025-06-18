@@ -42,26 +42,6 @@ const emotions = {
 
 const pageSize = 10;
 
-function getEncryptionKey(userId: string): string {
-  return CryptoJS.SHA256(userId).toString();
-}
-
-function encryptText(text: string, userId: string): string {
-  const key = getEncryptionKey(userId);
-  return CryptoJS.AES.encrypt(text, key).toString();
-}
-
-function decryptText(ciphertext: string, userId: string): string {
-  const key = getEncryptionKey(userId);
-  try {
-    const bytes = CryptoJS.AES.decrypt(ciphertext, key);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  } catch (err) {
-    console.error('Decryption failed:', err);
-    return '';
-  }
-}
-
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
 
@@ -84,6 +64,26 @@ export default function JournalScreen() {
   const [entriesUnlocked, setEntriesUnlocked] = useState(false);
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  function getEncryptionKey(userId: string): string {
+    return CryptoJS.SHA256(userId).toString();
+  }
+
+  function encryptText(text: string, userId: string): string {
+    const key = getEncryptionKey(userId);
+    return CryptoJS.AES.encrypt(text, key).toString();
+  }
+
+  function decryptText(ciphertext: string, userId: string): string {
+    const key = getEncryptionKey(userId);
+    try {
+      const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (err) {
+      console.error('Decryption failed:', err);
+      return '';
+    }
+  }
 
   const handleSubmit = async () => {
     if (!user) {

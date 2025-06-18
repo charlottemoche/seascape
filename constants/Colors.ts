@@ -30,6 +30,8 @@ export default {
     red: '#ce6548',
     green: '#4b9032',
     blue: '#7bb6d4',
+    mediumBlue: '#5591ad',
+    darkBlue: '#023c69',
     white: '#ffffff',
     dark: '#111111',
   }

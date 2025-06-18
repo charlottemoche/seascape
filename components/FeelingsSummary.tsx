@@ -19,7 +19,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [mostCommonFeeling, setMostCommonFeeling] = useState('');
-  const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('positive');
+  const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
 
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
