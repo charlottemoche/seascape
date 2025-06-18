@@ -13,7 +13,7 @@ export default function ResetRequestScreen() {
   const handleResetRequest = async () => {
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'seascape://auth/password',
+      redirectTo: 'seascape://password',
     });
 
     if (error) {
