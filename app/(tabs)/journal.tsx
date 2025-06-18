@@ -242,7 +242,7 @@ export default function JournalScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAwareScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={styles.container}
+          contentContainerStyle={{ flexGrow: 1, padding: 20 }}
           enableOnAndroid
           extraScrollHeight={100}
           keyboardShouldPersistTaps="handled"
@@ -372,7 +372,7 @@ export default function JournalScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     padding: 20,
   },
   entriesContainer: {

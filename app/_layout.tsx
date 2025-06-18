@@ -10,6 +10,9 @@ import { ProfileProvider } from '@/context/ProfileContext';
 import { StreakProvider } from '@/context/StreakContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUser } from '@/context/UserContext';
+import { supabase } from '@/lib/supabase';
+import * as Linking from 'expo-linking/';
+import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 
 const imagesToCache = [
@@ -28,16 +31,13 @@ const imagesToCache = [
 ];
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -63,16 +63,9 @@ export default function RootLayout() {
     }
   }, [loaded, assetsLoaded]);
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
 
   if (!loaded || !assetsLoaded) {
     return null;
@@ -85,7 +78,50 @@ export default function RootLayout() {
   );
 }
 
+function useHandleRecovery() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleUrl = async (url: string | null) => {
+      if (!url) return;
+
+      try {
+        const parsed = new URL(url);
+
+        // Grab tokens from the fragment
+        const fragmentParams = new URLSearchParams(parsed.hash.slice(1));
+        const access_token = fragmentParams.get('access_token');
+        const refresh_token = fragmentParams.get('refresh_token');
+        const type = fragmentParams.get('type');
+
+        if (type === 'recovery' && access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+
+          if (error) {
+            console.error('❌ setSession failed:', error.message);
+          } else {
+            router.replace('/password');
+          }
+        } else {
+          console.warn('⚠️ Missing required params');
+        }
+      } catch (err) {
+        console.error('💥 Error parsing URL:', err);
+      }
+    };
+
+    // Cold start
+    Linking.getInitialURL().then(handleUrl);
+
+    // App already open
+    const sub = Linking.addEventListener('url', (event: { url: string | null; }) => handleUrl(event.url));
+    return () => sub.remove();
+  }, []);
+}
+
 function RootLayoutNav() {
+  useHandleRecovery();
+
   const colorScheme = useColorScheme();
   const { user } = useUser();
 

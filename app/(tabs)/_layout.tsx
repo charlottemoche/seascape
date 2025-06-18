@@ -11,12 +11,12 @@ export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { user, loading: userLoading } = useUser();
 
-  if (!user) {
-    return <Redirect href="/login" />;
-  }
-
   if (userLoading || profileLoading) {
     return <Loader />;
+  }
+  
+  if (!user) {
+    return <Redirect href="/login" />;
   }
 
   if (profileError) {

@@ -11,59 +11,15 @@ import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button, Text, Input } from '@/components/Themed';
 import { Eye, EyeOff } from 'lucide-react-native';
-import * as Linking from 'expo-linking';
 
 export default function PasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sessionReady, setSessionReady] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const restore = async (incomingUrl: string | null) => {
-      console.log('🔗 Incoming URL:', incomingUrl);
-      if (!incomingUrl) return;
-
-      try {
-        const parsed = new URL(incomingUrl);
-        const type = parsed.searchParams.get('type');
-        const token_hash = parsed.searchParams.get('token_hash');
-        const email = parsed.searchParams.get('email');
-
-        if (type === 'recovery' && token_hash && email) {
-          console.log('🔐 Verifying recovery token...');
-          const { error } = await supabase.auth.verifyOtp({
-            type: 'recovery',
-            token: token_hash,
-            email,
-          });
-
-          if (error) {
-            console.error('❌ OTP verification failed:', error.message);
-            Alert.alert('Session error', error.message);
-          } else {
-            console.log('✅ OTP verified, session restored!');
-            setSessionReady(true);
-          }
-        } else {
-          console.warn('⚠️ Missing recovery params in URL');
-        }
-      } catch (err) {
-        console.error('💥 Failed to parse incoming URL:', err);
-      }
-    };
-
-    Linking.getInitialURL().then(restore);
-    const sub = Linking.addEventListener('url', (event) => restore(event.url));
-
-    return () => {
-      sub.remove();
-    };
-  }, []);
 
   const handleReset = async () => {
     if (!password || !confirm) {
@@ -86,14 +42,6 @@ export default function PasswordScreen() {
 
     setLoading(false);
   };
-
-  if (!sessionReady) {
-    return (
-      <View style={styles.loading}>
-        <Text>Restoring session...</Text>
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView

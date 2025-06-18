@@ -206,11 +206,11 @@ export default function LoginScreen() {
             </Text>
           </Pressable>
 
-          {/* <Pressable onPress={() => router.push('/reset')}>
+          <Pressable onPress={() => router.push('/reset')}>
             <Text style={styles.switchText}>
               Forgot password?
             </Text>
-          </Pressable> */}
+          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
