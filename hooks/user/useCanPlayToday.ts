@@ -59,9 +59,9 @@ export function useCanPlay(userId?: string | null) {
   }, [userId]);
 
   const canPlay = useMemo(() => {
-    const didBothToday = isToday(lastActive) && didBreathe && didJournal;
+    const didOneToday = isToday(lastActive) && (didBreathe || didJournal);
     const hasPlaysLeft = playCount !== null && playCount < 3;
-    return didBothToday && hasPlaysLeft;
+    return didOneToday && hasPlaysLeft;
   }, [lastActive, didBreathe, didJournal, playCount]);
 
   return { canPlay, loading, playCount, playCountLoaded, setPlayCount };
