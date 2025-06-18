@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  useColorScheme,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -18,13 +19,18 @@ import { Button, Input } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
 
 type FishCustomizerProps = {
-  transparentBackground?: boolean;
+  lightText?: boolean;
 };
+
 const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-export function FishCustomizer({ transparentBackground }: FishCustomizerProps) {
+export function FishCustomizer({ lightText }: FishCustomizerProps) {
   const { user } = useUser();
   const { profile } = useProfile();
+
+  const colorScheme = useColorScheme();
+  
+  const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(
@@ -81,8 +87,8 @@ export function FishCustomizer({ transparentBackground }: FishCustomizerProps) {
       keyboardVerticalOffset={80}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={[styles.container, transparentBackground && { backgroundColor: 'transparent' }]}>
-          <Text style={[styles.title, transparentBackground && { color: '#fff' }]}>Customize Your Fish</Text>
+        <View style={styles.container}>
+          <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
 
           <View style={styles.colorOptions}>
             {availableColors.map((color) => (
@@ -114,10 +120,10 @@ export function FishCustomizer({ transparentBackground }: FishCustomizerProps) {
               onChangeText={setFishName}
               placeholder="Name your fish"
               placeholderTextColor="#888"
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
             />
           ) : (
-            <Text style={[styles.fishNameText, transparentBackground && { color: '#fff' }]}>{fishName || 'Name your fish'}</Text>
+            <Text style={[styles.fishNameText, { color: textColor }]}>{fishName || 'Name your fish'}</Text>
           )}
 
           <Button
@@ -141,6 +147,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: 22,

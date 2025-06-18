@@ -156,7 +156,7 @@ export default function SwimScreen() {
               resizeMode="contain"
             />
           </View>
-          <Button onPress={startNewGame} title="Play Again" style={styles.playButtonContainer} />
+          <Button onPress={startNewGame} title="Play again" style={styles.playButtonContainer} />
         </View>
       );
     } else if (!gameStarted) {

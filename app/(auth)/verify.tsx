@@ -38,7 +38,6 @@ export default function VerifyEmailScreen() {
 
     if (error) {
       Alert.alert('Verification failed', error.message);
-      router.replace('/login');
     } else {
       router.replace({
         pathname: '/login',
@@ -79,7 +78,7 @@ export default function VerifyEmailScreen() {
             loading={loading}
             onPress={handleVerify}
             disabled={loading}
-            title={loading ? 'Verifying...' : 'Verify Email'}
+            title={loading ? 'Verifying...' : 'Verify email'}
           />
         </View>
       </KeyboardAvoidingView>

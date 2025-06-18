@@ -306,7 +306,7 @@ export default function JournalScreen() {
             testID="journal-submit-button"
             onPress={handleSubmit}
             disabled={!selectedFeelings.length && !entry}
-            title={'Save Entry'}
+            title={'Save entry'}
           >
           </Button>
 
@@ -348,7 +348,7 @@ export default function JournalScreen() {
                     <ActivityIndicator size="large" color={Colors.custom.blue} />
                   </View>
                 ) : hasMore ? (
-                  <Button onPress={handleLoadMore} title="Load More" />
+                  <Button onPress={handleLoadMore} title="Load more" />
                 ) : null}
               </>
             ) : (

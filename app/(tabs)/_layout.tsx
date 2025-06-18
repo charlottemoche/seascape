@@ -6,18 +6,10 @@ import { StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
 import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
-import { supabase } from '@/lib/supabase';
-import { useEffect } from 'react';
 
 export default function ProtectedTabLayout() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { user, loading: userLoading } = useUser();
-
-  useEffect(() => {
-    if (!user) {
-      supabase.auth.signOut();
-    }
-  }, [user]);
 
   if (!user) {
     return <Redirect href="/login" />;
@@ -45,8 +37,8 @@ export default function ProtectedTabLayout() {
 
   return <TabLayout />;
 
-  // uncomment to test onboarding
-  // return <Redirect href="/welcome" />;
+  // // uncomment to test screens
+  // return <Redirect href="/(auth)/password" />;
 }
 
 const styles = StyleSheet.create({

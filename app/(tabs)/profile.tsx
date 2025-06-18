@@ -15,11 +15,13 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
-import preyImg from '@/assets/images/prey.png';
 import { Text } from '@/components/Themed';
+import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import preyImg from '@/assets/images/prey.png';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { user } = useRequireAuth();
   const { setUser } = useUser();
   const { profile } = useProfile();
@@ -80,10 +82,9 @@ export default function ProfileScreen() {
       return;
     }
 
-    Alert.alert('Success', 'Your account has been deleted.');
-
     await supabase.auth.signOut();
     setUser(null);
+    router.replace('/login?deleted=true');
   };
 
   const handleLogout = async () => {
@@ -126,14 +127,14 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            <FishCustomizer transparentBackground/>
+            <FishCustomizer />
 
             <View style={styles.logoutWrapper}>
               <Pressable onPress={handleLogout} style={styles.logoutButton}>
                 <Text style={styles.logoutText}>Log out</Text>
               </Pressable>
               <Pressable onPress={handleDeleteAccount} style={styles.deleteButton}>
-                <Text style={styles.deleteText}>Delete Account</Text>
+                <Text style={styles.deleteText}>Delete account</Text>
               </Pressable>
             </View>
           </View>

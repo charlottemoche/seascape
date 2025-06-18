@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { Button, Input, Text } from '@/components/Themed';
 import { useLocalSearchParams } from 'expo-router';
+import { Eye, EyeOff } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 export default function LoginScreen() {
@@ -22,11 +23,12 @@ export default function LoginScreen() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const colorScheme = useColorScheme();
   const router = useRouter();
 
-  const { verified } = useLocalSearchParams();
+  const { verified, reset, deleted } = useLocalSearchParams();
 
   const logoImage =
     colorScheme === 'dark'
@@ -141,29 +143,54 @@ export default function LoginScreen() {
             </Text>
           )}
 
+          {reset === 'true' && (
+            <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
+              Password reset. Please log in.
+            </Text>
+          )}
+
+          {
+            deleted === 'true' && (
+              <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
+                Your account has been deleted.
+              </Text>
+            )
+          }
+
           <Input
-            placeholder="Email"
-            placeholderTextColor="#888"
-            autoCapitalize="none"
+            placeholder='Email'
+            placeholderTextColor='#888'
+            autoComplete='email'
+            autoCapitalize='none'
             autoCorrect={false}
             spellCheck={false}
-            keyboardType="email-address"
+            keyboardType='email-address'
             onChangeText={setEmail}
             value={email}
           />
-          <Input
-            placeholder="Password"
-            placeholderTextColor="#888"
-            secureTextEntry
-            onChangeText={setPassword}
-            value={password}
-          />
+          <View style={{ width: '100%', position: 'relative' }}>
+            <Input
+              placeholder='Password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={!showPassword}
+              onChangeText={setPassword}
+              value={password}
+              style={{ paddingRight: 40 }}
+            />
+            <Pressable
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={styles.eye}
+            >
+              {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+            </Pressable>
+          </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Button
             onPress={handleAuth}
-            title={isSignUp ? 'Sign Up' : 'Log In'}
+            title={isSignUp ? 'Sign up' : 'Log in'}
             loading={loading}
             disabled={loading}
           />
@@ -176,6 +203,12 @@ export default function LoginScreen() {
           >
             <Text style={styles.switchText}>
               {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+            </Text>
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/reset')}>
+            <Text style={styles.switchText}>
+              Forgot password?
             </Text>
           </Pressable>
         </View>
@@ -225,5 +258,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
+  },
+  eye: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
