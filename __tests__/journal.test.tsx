@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import JournalScreen from '@/app/(tabs)/journal';
-import { MockUserProvider } from '@/__mocks__/authMocks';
+import { MockUserProvider, ProfileProvider } from '@/__mocks__/authMocks';
 import { Alert } from 'react-native';
 import { StreakProvider } from '@/context/StreakContext';
 import { advanceTo, clear } from 'jest-date-mock';
@@ -50,14 +50,16 @@ const mockUpdateStreak = () =>
 const getJournalScreen = async () => {
   const { getByText, getByPlaceholderText } = render(
     <MockUserProvider>
-      <StreakProvider userId="test-user">
-        <JournalScreen />
-      </StreakProvider>
+      <ProfileProvider>
+        <StreakProvider>
+          <JournalScreen />
+        </StreakProvider>
+      </ProfileProvider>
     </MockUserProvider>
   );
 
   const input = await waitFor(() => getByPlaceholderText('Write your thoughts here...'));
-  const saveButton = getByText('Save Entry');
+  const saveButton = getByText('Save entry');
 
   return { input, saveButton };
 };

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
-import BreatheCircle from '@/components/Breathe/BreatheCircle';
-import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
+import { useProfile } from '@/context/ProfileContext';
 import { useAudioPlayer } from 'expo-audio';
 import { updateStreak } from '@/lib/streakService';
 import { Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { supabase } from '@/lib/supabase';
 import { Vibration } from 'react-native';
+import BreatheCircle from '@/components/Breathe/BreatheCircle';
+import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import Colors from '@/constants/Colors';
 
 export default function BreatheScreen() {
@@ -18,6 +19,7 @@ export default function BreatheScreen() {
   const [sessionComplete, setSessionComplete] = useState(false);
   const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
   const { refreshStreaks } = useStreaks();
+  const { refreshProfile } = useProfile();
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -65,7 +67,7 @@ export default function BreatheScreen() {
       const result = await updateStreak(user.id, 'breath', userTimezone, duration);
       if (result.success) {
         Alert.alert('Success', 'Breathing session saved.');
-        await refreshStreaks();
+        Promise.all([refreshStreaks(), refreshProfile({ silent: true })]);
       } else {
         console.warn('Breath streak update failed, skipping refresh');
       }

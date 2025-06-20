@@ -29,7 +29,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
   const { profile } = useProfile();
 
   const colorScheme = useColorScheme();
-  
+
   const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
@@ -81,12 +81,12 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1 }}
-      keyboardVerticalOffset={80}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={80}
+      >
         <View style={styles.container}>
           <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
 
@@ -133,8 +133,8 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
             title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
           />
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 

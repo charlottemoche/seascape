@@ -104,7 +104,7 @@ export default function SwimScreen() {
       if (error) {
         console.error('Failed to update high score:', error);
       } else {
-        await refreshProfile();
+        await refreshProfile({ silent: true });
       }
     };
 

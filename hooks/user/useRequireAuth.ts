@@ -2,17 +2,19 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/context/UserContext';
 import { useHasMounted } from '@/hooks/user/useHasMounted';
+import { supabase } from '@/lib/supabase';
 
-export function useRequireAuth() {  
+export function useRequireAuth() {
   const router = useRouter();
-  const { user, loading } = useUser();
+  const { user, loading, sessionChecked } = useUser();
   const hasMounted = useHasMounted();
 
   useEffect(() => {
-    if (hasMounted && !user && !loading) {
+    if (hasMounted && sessionChecked && !user) {
+      supabase.auth.signOut();
       router.replace('/login');
     }
-  }, [user, loading, hasMounted, router]);
+  }, [user, sessionChecked, hasMounted, router]);
 
   return { user, loading };
 }

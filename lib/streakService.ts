@@ -19,7 +19,7 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
 
   const { data: todayRow, error: todayError } = await supabase
     .from('streaks')
-    .select('*')
+    .select('streak_length, last_active, did_journal, did_breathe, journal_streak, breath_streak')
     .eq('user_id', userId)
     .eq('date', localDate)
     .single();
@@ -37,60 +37,23 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
     };
   }
 
-  const { data: historyRows, error: historyError } = await supabase
-    .from('streaks')
-    .select('date, did_journal, did_breathe')
-    .eq('user_id', userId)
-    .order('date', { ascending: false })
-
-  if (historyError) {
-    console.error('[fetchStreaks] history error:', historyError);
-  }
-
-  function calculateStreak(rows: any[], key: 'did_journal' | 'did_breathe') {
-    let streak = 0;
-    let currentDate = new Date(localDate);
-
-    for (const row of rows) {
-      const rowDate = new Date(row.date);
-      const isSameDay = rowDate.toDateString() === currentDate.toDateString();
-
-      if (isSameDay && row[key]) {
-        streak++;
-        currentDate.setDate(currentDate.getDate() - 1);
-      } else if (!isSameDay) {
-        // handle if the streak skips a day
-        const expectedDate = new Date(currentDate);
-        expectedDate.setDate(expectedDate.getDate() - 1);
-        if (rowDate.toDateString() === expectedDate.toDateString() && row[key]) {
-          streak++;
-          currentDate = expectedDate;
-        } else {
-          break;
-        }
-      } else {
-        break;
-      }
-    }
-
-    return streak;
-  }
-
-  const journalStreak = calculateStreak(historyRows ?? [], 'did_journal');
-  const breathStreak = calculateStreak(historyRows ?? [], 'did_breathe');
-
   return {
     success: true,
     streakLength: todayRow?.streak_length ?? 0,
     lastActive: todayRow?.last_active ?? null,
     didJournal: todayRow?.did_journal ?? false,
     didBreathe: todayRow?.did_breathe ?? false,
-    journalStreak,
-    breathStreak,
+    journalStreak: todayRow?.journal_streak ?? 0,
+    breathStreak: todayRow?.breath_streak ?? 0,
   };
 }
 
-export async function updateStreak(userId: string, type: 'journal' | 'breath', userTimezone: string, newMinutes: number = 0) {
+export async function updateStreak(
+  userId: string,
+  type: 'journal' | 'breath',
+  userTimezone: string,
+  newMinutes: number = 0
+) {
   const { data, error } = await supabase.rpc('update_streak', {
     uid: userId,
     type,

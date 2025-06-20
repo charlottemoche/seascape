@@ -9,6 +9,8 @@ export const supabase = {
       range: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      eq: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockReturnThis(),
     };
 
     if (table === 'streaks') {
@@ -65,28 +67,22 @@ export const supabase = {
     if (table === 'journal_entries') {
       return {
         ...base,
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn(() =>
-              Promise.resolve({ data: { id: entryIdCounter++ }, error: null })
-            ),
-          })),
-        })),
         select: jest.fn(() => ({
           eq: jest.fn(() => ({
-            order: jest.fn(() => ({
-              range: jest.fn(() =>
-                Promise.resolve({
-                  data: [],
-                  error: null,
-                })
-              ),
-            })),
+            gte: jest.fn(() =>
+              Promise.resolve({
+                data: [
+                  { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
+                  { created_at: '2025-06-02', feeling: ['Sad'] },
+                ],
+                error: null,
+              })
+            ),
           })),
         })),
       };
     }
-
+    
     return base;
   }),
 

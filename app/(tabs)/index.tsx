@@ -2,8 +2,6 @@ import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'rea
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 import { useStreaks } from '@/context/StreakContext';
 import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
@@ -14,7 +12,7 @@ import Colors from '@/constants/Colors';
 
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
-  const { profile, loading: profileLoading, refreshProfile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { breathStreak, journalStreak, streaksLoading } = useStreaks();
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
@@ -22,12 +20,6 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshProfile({ silent: true });
-    }, [])
-  );
 
   if (loading || profileLoading || streaksLoading || !user || !profile) {
     return (

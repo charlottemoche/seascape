@@ -26,17 +26,17 @@ const emotions = {
   positive: {
     label: 'Positive',
     color: Colors.custom.blue,
-    options: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful'],
+    options: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
   },
   neutral: {
     label: 'Neutral',
     color: Colors.custom.green,
-    options: ['Content', 'Calm', 'Indifferent'],
+    options: ['Calm', 'Indifferent', 'Tired'],
   },
   negative: {
     label: 'Negative',
     color: Colors.custom.red,
-    options: ['Sad', 'Frustrated', 'Anxious', 'Tired', 'Angry', 'Stressed'],
+    options: ['Sad', 'Frustrated', 'Anxious', 'Angry', 'Stressed', 'Lonely'],
   },
 };
 
@@ -237,16 +237,15 @@ export default function JournalScreen() {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: backgroundColor, flex: 1 }}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAwareScrollView
+        style={styles.container}
+        enableOnAndroid
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+      >
+        <SafeAreaView style={styles.container}>
 
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAwareScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, padding: 20 }}
-          enableOnAndroid
-          extraScrollHeight={100}
-          keyboardShouldPersistTaps="handled"
-        >
           <Text style={styles.title}>Journal</Text>
           <Text style={styles.subtitle}>How are you feeling?</Text>
           <View style={[{ backgroundColor: cardColor }, colorScheme === 'dark' ? styles.darkCard : styles.lightCard]}>
@@ -364,9 +363,9 @@ export default function JournalScreen() {
               </Text>
             </View>
           )}
-        </KeyboardAwareScrollView>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+        </SafeAreaView>
+      </KeyboardAwareScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginVertical: 20,
   },
   title: {
     fontSize: 20,

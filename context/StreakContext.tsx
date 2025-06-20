@@ -8,6 +8,7 @@ import React, {
   useMemo,
 } from 'react';
 import { fetchStreaks } from '@/lib/streakService';
+import { useUser } from './UserContext';
 
 type StreakContextType = {
   streakLength: number;
@@ -20,11 +21,6 @@ type StreakContextType = {
   streaksLoading: boolean;
 };
 
-type StreakProviderProps = {
-  userId?: string;
-  children: ReactNode;
-};
-
 const StreakContext = createContext<StreakContextType>({
   streakLength: 0,
   lastActive: null,
@@ -32,11 +28,14 @@ const StreakContext = createContext<StreakContextType>({
   didBreathe: false,
   journalStreak: 0,
   breathStreak: 0,
-  refreshStreaks: async () => {},
+  refreshStreaks: async () => { },
   streaksLoading: true,
 });
 
-export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
+export const StreakProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useUser();
+  const userId = user?.id;
+
   const [streakLength, setStreakLength] = useState(0);
   const [lastActive, setLastActive] = useState<string | null>(null);
   const [didJournal, setDidJournal] = useState(false);
@@ -45,8 +44,10 @@ export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
   const [breathStreak, setBreathStreak] = useState(0);
   const [streaksLoading, setStreaksLoading] = useState(true);
 
+
   const refreshStreaks = useCallback(async () => {
     if (!userId) {
+      console.warn('[refreshStreaks] No user ID');
       setStreaksLoading(false);
       return;
     }
@@ -68,16 +69,18 @@ export const StreakProvider = ({ userId, children }: StreakProviderProps) => {
       setDidBreathe(result.didBreathe);
       setJournalStreak(result.journalStreak);
       setBreathStreak(result.breathStreak);
+
     } catch (e) {
-      console.error('Unexpected error refreshing streaks:', e);
+      console.error('[refreshStreaks] Unexpected error:', e);
     } finally {
       setStreaksLoading(false);
     }
   }, [userId]);
 
   useEffect(() => {
+    if (!userId) return;
     refreshStreaks();
-  }, [refreshStreaks]);
+  }, [refreshStreaks, userId]);
 
   const contextValue = useMemo(
     () => ({

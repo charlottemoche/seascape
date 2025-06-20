@@ -3,6 +3,8 @@ import {
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
   Platform,
   Pressable,
   View,
@@ -44,54 +46,57 @@ export default function PasswordScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <View style={styles.container}>
-        <Text style={styles.label}>Enter your new password</Text>
-        <View>
-          <Input
-            placeholder='Password'
-            autoComplete='password'
-            placeholderTextColor='#888'
-            secureTextEntry={!showPassword}
-            onChangeText={setPassword}
-            value={password}
-            style={{ paddingRight: 40 }}
-          />
-          <Pressable
-            onPress={() => setShowPassword((prev) => !prev)}
-            style={styles.eye}
-          >
-            {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
-          </Pressable>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+
+        <View style={styles.container}>
+          <Text style={styles.label}>Enter your new password</Text>
+          <View>
+            <Input
+              placeholder='Password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={!showPassword}
+              onChangeText={setPassword}
+              value={password}
+              style={{ paddingRight: 40 }}
+            />
+            <Pressable
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={styles.eye}
+            >
+              {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+            </Pressable>
+          </View>
+          <View>
+            <Input
+              placeholder='Confirm password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={!showConfirmedPassword}
+              onChangeText={setConfirm}
+              value={confirm}
+              style={{ paddingRight: 40 }}
+            />
+            <Pressable
+              onPress={() => setShowConfirmedPassword((prev) => !prev)}
+              style={styles.eye}
+            >
+              {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+            </Pressable>
+            <Button
+              title="Reset Password"
+              onPress={handleReset}
+              disabled={loading}
+              loading={loading}
+            />
+          </View>
         </View>
-        <View>
-          <Input
-            placeholder='Confirm password'
-            autoComplete='password'
-            placeholderTextColor='#888'
-            secureTextEntry={!showConfirmedPassword}
-            onChangeText={setConfirm}
-            value={confirm}
-            style={{ paddingRight: 40 }}
-          />
-          <Pressable
-            onPress={() => setShowConfirmedPassword((prev) => !prev)}
-            style={styles.eye}
-          >
-            {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
-          </Pressable>
-          <Button
-            title="Reset Password"
-            onPress={handleReset}
-            disabled={loading}
-            loading={loading}
-          />
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 

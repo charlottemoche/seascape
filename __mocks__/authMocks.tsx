@@ -1,10 +1,11 @@
 import React, { createContext, ReactNode, useMemo } from 'react';
+import { UserContext } from '@/context/UserContext';
 
 // Mock user and profile data
 export const mockUser = {
   id: 'test-user',
   email: 'test@example.com',
-};
+} as any;
 
 export const mockProfile = {
   total_minutes: 120,
@@ -12,19 +13,13 @@ export const mockProfile = {
   breath_streak: 0,
 };
 
-// Define the shape of user context value
-const UserContext = createContext({
-  user: mockUser,
-  setUser: () => {},
-  loading: false,
-});
-
 // Mock UserProvider that provides user context synchronously
 export const MockUserProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = useMemo(() => ({
     user: mockUser,
     setUser: () => {},
     loading: false,
+    sessionChecked: true,
   }), []);
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

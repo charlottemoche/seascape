@@ -7,13 +7,15 @@ type UserContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   loading: boolean;
+  sessionChecked: boolean;
 };
 
-const UserContext = createContext<UserContextType | null>(null);
+export const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
     // Start token auto-refresh
@@ -29,9 +31,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // Initial session fetch
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.warn('[UserProvider] Failed to get session:', error.message);
+      }
+
       setUser(session?.user ?? null);
       setLoading(false);
+      setSessionChecked(true);
     });
 
     // Listen for auth state changes (login, logout, token refresh)
@@ -51,6 +58,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     user,
     setUser,
     loading,
+    sessionChecked,
   }), [user, loading]);
 
   return (

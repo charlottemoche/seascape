@@ -97,16 +97,16 @@ function useHandleRecovery() {
           const { error } = await supabase.auth.setSession({ access_token, refresh_token });
 
           if (error) {
-            console.error('❌ setSession failed:', error.message);
+            console.error('setSession failed:', error.message);
           } else {
-            setHandled(true); // ✅ Mark as handled
+            setHandled(true);
             router.replace('/password');
           }
-        } else {
-          console.warn('⚠️ Missing required params');
+        } else if (type === 'recovery') {
+          console.warn('Incomplete recovery params', { type, access_token, refresh_token });
         }
       } catch (err) {
-        console.error('💥 Error parsing URL:', err);
+        console.error('Error parsing URL:', err);
       }
     };
 
@@ -124,11 +124,10 @@ function RootLayoutNav() {
   useHandleRecovery();
 
   const colorScheme = useColorScheme();
-  const { user } = useUser();
 
   return (
-    <ProfileProvider>
-      <StreakProvider userId={user?.id}>
+     <ProfileProvider>
+      <StreakProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

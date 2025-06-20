@@ -8,18 +8,23 @@ import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 
 export default function ProtectedTabLayout() {
-  const { profile, loading: profileLoading, error: profileError } = useProfile();
-  const { user, loading: userLoading } = useUser();
+  const { user, loading: userLoading, sessionChecked } = useUser();
+  const { profile, error: profileError } = useProfile();
 
-  if (userLoading || profileLoading) {
+  const isProfileLoaded = !!profile;
+  const shouldRedirectToLogin = sessionChecked && !user;
+  const hasProfileError = !!profileError;
+  const shouldRedirectToWelcome = profile && profile.onboarding_completed === false;
+
+  if (!sessionChecked || userLoading) {
     return <Loader />;
   }
-  
-  if (!user) {
+
+  if (shouldRedirectToLogin) {
     return <Redirect href="/login" />;
   }
 
-  if (profileError) {
+  if (hasProfileError) {
     return (
       <View style={styles.container}>
         <Text>We're having trouble loading your profile.</Text>
@@ -27,18 +32,11 @@ export default function ProtectedTabLayout() {
     );
   }
 
-  if (!profile) {
-    return <Redirect href="/welcome" />;
-  }
-
-  if (profile.onboarding_completed === false) {
+  if (shouldRedirectToWelcome) {
     return <Redirect href="/welcome" />;
   }
 
   return <TabLayout />;
-
-  // // uncomment to test screens
-  // return <Redirect href="/(auth)/password" />;
 }
 
 const styles = StyleSheet.create({

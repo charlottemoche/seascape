@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
+import Colors from '@/constants/Colors';
 
 const feelingCategories = {
-  positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful'],
-  neutral: ['Content', 'Calm', 'Indifferent'],
-  negative: ['Sad', 'Frustrated', 'Anxious', 'Tired', 'Angry', 'Stressed'],
+  positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
+  neutral: ['Calm', 'Indifferent', 'Tired'],
+  negative: ['Sad', 'Frustrated', 'Anxious', 'Angry', 'Stressed', 'Lonely'],
 };
 
 type JournalEntry = {
@@ -25,6 +26,8 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const backgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
   const greyTextColor = colorScheme === 'dark' ? '#cecece' : '#444';
+
+  const percent = (value: number) => Math.round((value / (totals.positive + totals.neutral + totals.negative)) * 100);
 
   useEffect(() => {
     async function load() {
@@ -58,11 +61,27 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
       }, {} as Record<string, number>);
 
       const topFeeling = Object.entries(frequency).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-      let dominant: 'positive' | 'neutral' | 'negative' = 'neutral'; // default
-      for (const category in feelingCategories) {
-        if (feelingCategories[category as keyof typeof feelingCategories].includes(topFeeling)) {
-          dominant = category as 'positive' | 'neutral' | 'negative';
-          break;
+
+      let dominant: 'positive' | 'neutral' | 'negative' = 'neutral';
+
+      if (totalCounts.positive > totalCounts.negative && totalCounts.positive > totalCounts.neutral) {
+        dominant = 'positive';
+      } else if (totalCounts.negative > totalCounts.positive && totalCounts.negative > totalCounts.neutral) {
+        dominant = 'negative';
+      } else if (totalCounts.positive === totalCounts.negative && totalCounts.positive !== 0) {
+        dominant = 'neutral';
+      } else if (totalCounts.positive === totalCounts.neutral && totalCounts.positive !== 0) {
+        dominant = 'positive';
+      } else if (totalCounts.negative === totalCounts.neutral && totalCounts.negative !== 0) {
+        dominant = 'negative';
+      }
+
+      if (topFeeling) {
+        for (const category in feelingCategories) {
+          if (feelingCategories[category as keyof typeof feelingCategories].includes(topFeeling)) {
+            dominant = category as 'positive' | 'neutral' | 'negative';
+            break;
+          }
         }
       }
 
@@ -86,48 +105,81 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.ranges}>
-        {(['1W', '1M', '3M', '6M'] as const).map((r) => (
-          <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
-            <Text style={{
-              fontWeight: range === r ? 'bold' : 'normal',
-              color: range === r ? '#000' : colorScheme === 'dark' ? '#fff' : '#000',
-            }}>{r}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <View style={styles.wrapper}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={imageForMood(dominantMood)}
-            style={styles.image}
-            resizeMode="cover"
-          />
+    <View style={styles.containerWrapper}>
+      <View style={styles.container}>
+        <View style={styles.ranges}>
+          {(['1W', '1M', '3M', '6M'] as const).map((r) => (
+            <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
+              <Text style={{
+                fontWeight: range === r ? 'bold' : 'normal',
+                color: range === r ? '#000' : colorScheme === 'dark' ? '#fff' : '#000',
+              }}>{r}</Text>
+            </Pressable>
+          ))}
         </View>
 
-        <View style={[styles.summaryBox, { backgroundColor }]}>
-          {entries.length === 0 ? (
-            <Text style={[styles.noEntries, { color: textColor }]}>
-              Log some journal entries to track your mood.
+        <View style={styles.wrapper}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={imageForMood(dominantMood)}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          </View>
+
+          <View style={[styles.summaryBox, { backgroundColor }]}>
+            {entries.length === 0 ? (
+              <Text style={[styles.noEntries, { color: textColor }]}>
+                Log some journal entries to track your mood.
+              </Text>
+            ) : (
+              <>
+                <Text style={styles.label}>
+                  This {range === '1W' ? 'week' : 'period'}, your overall mood was
+                </Text>
+                <Text style={styles.mood}>
+                  {capitalize(dominantMood)}
+                </Text>
+                <Text style={[styles.common, { color: greyTextColor }]}>
+                  Most frequent feeling: {mostCommonFeeling}
+                </Text>
+              </>
+            )}
+          </View>
+        </View>
+
+      </View>
+
+      <View style={[styles.container, { marginTop: 16 }]}>
+        <View style={styles.bar}>
+          <View style={{ flex: totals.positive, backgroundColor: Colors.custom.blue }} />
+          <View style={{ flex: totals.neutral, backgroundColor: Colors.custom.green }} />
+          <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
+        </View>
+
+        <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
+          <View style={styles.keyContainer}>
+            <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
+            <Text style={styles.common}>
+              Positive ({percent(totals.positive)}%)
             </Text>
-          ) : (
-            <>
-              <Text style={styles.label}>
-                This {range === '1W' ? 'week' : 'period'}, your overall mood was
-              </Text>
-              <Text style={styles.mood}>
-                {capitalize(dominantMood)}
-              </Text>
-              <Text style={[styles.common, { color: greyTextColor }]}>
-                Most frequent feeling: {mostCommonFeeling}
-              </Text>
-            </>
-          )}
+          </View>
+          <View style={styles.keyContainer}>
+            <View style={[styles.keyDot, { backgroundColor: Colors.custom.green }]} />
+            <Text style={styles.common}>
+              Neutral ({percent(totals.neutral)}%)
+            </Text>
+          </View>
+          <View style={styles.keyContainer}>
+            <View style={[styles.keyDot, { backgroundColor: Colors.custom.red }]} />
+            <Text style={styles.common}>
+              Negative ({percent(totals.negative)}%)
+            </Text>
+          </View>
         </View>
       </View>
     </View>
+
   );
 }
 
@@ -137,6 +189,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderColor: 'rgba(123, 182, 212, 0.5)',
     borderWidth: 1,
+    backgroundColor: 'transparent',
+  },
+  containerWrapper: {
+    flex: 1,
     backgroundColor: 'transparent',
   },
   ranges: {
@@ -204,5 +260,29 @@ const styles = StyleSheet.create({
   noEntries: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  bar: {
+    height: 8,
+    width: '90%',
+    borderRadius: 4,
+    overflow: 'hidden',
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+  keyDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 2,
+    marginBottom: 4,
+  },
+  keysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 16,
+  },
+  keyContainer: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
 });
