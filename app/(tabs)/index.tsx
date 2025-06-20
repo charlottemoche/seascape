@@ -1,4 +1,5 @@
-import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image, RefreshControl } from 'react-native';
+import React, { useState, useCallback, useRef } from 'react';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
@@ -6,20 +7,45 @@ import { useStreaks } from '@/context/StreakContext';
 import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { FishColor } from '@/constants/fishMap';
+import { useFocusEffect } from '@react-navigation/native';
 import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/FeelingsSummary';
 import Colors from '@/constants/Colors';
 
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+
 export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading } = useProfile();
-  const { breathStreak, journalStreak, streaksLoading } = useStreaks();
+  const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
+    
+  const [refreshing, setRefreshing] = useState(false);
+  
+  const lastRefresh = useRef(0);
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
+
+  const loaderColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshStreaks();
+    setRefreshing(false);
+  }, [refreshStreaks]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const now = Date.now();
+      if (now - lastRefresh.current > REFRESH_INTERVAL_MS) {
+        refreshStreaks();
+        lastRefresh.current = now;
+      }
+    }, [refreshStreaks])
+  );
 
   if (loading || profileLoading || streaksLoading || !user || !profile) {
     return (
@@ -43,7 +69,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: backgroundColor }]}>
-      <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
+      <ScrollView
+        contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[loaderColor]}
+            tintColor={loaderColor}
+          />
+        }>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
         <View style={styles.colorOptions}>

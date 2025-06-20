@@ -42,7 +42,7 @@ const renderWithContext = (incrementFn: () => Promise<void>, refreshSignal: bool
   render(
     <MockUserProvider>
       <ProfileProvider>
-        <StreakProvider userId="test-user">
+        <StreakProvider>
           <NavigationContainer>
             <TestWrapper incrementFn={incrementFn} refreshSignal={refreshSignal} />
           </NavigationContainer>
@@ -95,7 +95,7 @@ describe('HomeScreen streak updates', () => {
       rendered.rerender(
         <MockUserProvider>
           <ProfileProvider>
-            <StreakProvider userId="test-user">
+            <StreakProvider>
               <NavigationContainer>
                 <TestWrapper incrementFn={incrementJournalStreak} refreshSignal={refreshSignal} />
               </NavigationContainer>

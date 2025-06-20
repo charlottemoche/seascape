@@ -8,9 +8,11 @@ export const supabase = {
       delete: jest.fn().mockReturnThis(),
       range: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
       eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
+      then: jest.fn(),  // support Promise chaining for then()
     };
 
     if (table === 'streaks') {
@@ -42,7 +44,6 @@ export const supabase = {
                       date: '2025-06-16',
                       did_journal: true,
                       did_breathe: false,
-                      streak_length: 2,
                       journal_streak: 2,
                       breath_streak: 0,
                       last_active: '2025-06-16',
@@ -80,9 +81,19 @@ export const supabase = {
             ),
           })),
         })),
+        insert: jest.fn(() => ({
+          select: jest.fn(() => ({
+            single: jest.fn(() =>
+              Promise.resolve({
+                data: { id: entryIdCounter++, user_id: 'test-user' },
+                error: null,
+              })
+            ),
+          })),
+        })),
       };
     }
-    
+
     return base;
   }),
 
@@ -91,7 +102,6 @@ export const supabase = {
       return Promise.resolve({
         data: [
           {
-            streak_length: 2,
             journal_streak: 2,
             breath_streak: 0,
             last_active: '2025-06-16',

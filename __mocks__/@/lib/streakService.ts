@@ -36,7 +36,6 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
 
   return {
     success: true,
-    streakLength: Math.min(journalStreak, breathStreak),
     lastActive: todayStr,
     didJournal: journalStreak > 0,
     didBreathe: breathStreak > 0,
@@ -54,7 +53,6 @@ export async function updateStreak(
   // Simulate successful update; real logic is in your sets
   return {
     success: true,
-    streakLength: Math.min(calculateStreak(journalDates), calculateStreak(breathDates)),
     lastActive: new Date().toISOString().split('T')[0],
   };
 }

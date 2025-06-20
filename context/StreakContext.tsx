@@ -11,7 +11,6 @@ import { fetchStreaks } from '@/lib/streakService';
 import { useUser } from './UserContext';
 
 type StreakContextType = {
-  streakLength: number;
   lastActive?: string | null;
   didJournal: boolean;
   didBreathe: boolean;
@@ -22,7 +21,6 @@ type StreakContextType = {
 };
 
 const StreakContext = createContext<StreakContextType>({
-  streakLength: 0,
   lastActive: null,
   didJournal: false,
   didBreathe: false,
@@ -36,7 +34,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const userId = user?.id;
 
-  const [streakLength, setStreakLength] = useState(0);
   const [lastActive, setLastActive] = useState<string | null>(null);
   const [didJournal, setDidJournal] = useState(false);
   const [didBreathe, setDidBreathe] = useState(false);
@@ -63,7 +60,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      setStreakLength(result.streakLength);
       setLastActive(result.lastActive);
       setDidJournal(result.didJournal);
       setDidBreathe(result.didBreathe);
@@ -84,7 +80,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
 
   const contextValue = useMemo(
     () => ({
-      streakLength,
       lastActive,
       didJournal,
       didBreathe,
@@ -94,7 +89,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
       streaksLoading,
     }),
     [
-      streakLength,
       lastActive,
       didJournal,
       didBreathe,

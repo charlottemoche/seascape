@@ -4,7 +4,6 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
   if (!userId) {
     return {
       success: false,
-      streakLength: 0,
       lastActive: null,
       didJournal: false,
       didBreathe: false,
@@ -19,7 +18,7 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
 
   const { data: todayRow, error: todayError } = await supabase
     .from('streaks')
-    .select('streak_length, last_active, did_journal, did_breathe, journal_streak, breath_streak')
+    .select('last_active, did_journal, did_breathe, journal_streak, breath_streak')
     .eq('user_id', userId)
     .eq('date', localDate)
     .single();
@@ -28,7 +27,6 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
     console.error('[fetchStreaks] error:', todayError);
     return {
       success: false,
-      streakLength: 0,
       lastActive: null,
       didJournal: false,
       didBreathe: false,
@@ -39,7 +37,6 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
 
   return {
     success: true,
-    streakLength: todayRow?.streak_length ?? 0,
     lastActive: todayRow?.last_active ?? null,
     didJournal: todayRow?.did_journal ?? false,
     didBreathe: todayRow?.did_breathe ?? false,
@@ -68,7 +65,6 @@ export async function updateStreak(
 
   return {
     success: true,
-    streakLength: data?.[0]?.streak_length ?? 0,
     lastActive: data?.[0]?.last_active ?? null,
   };
 }

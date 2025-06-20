@@ -17,7 +17,6 @@ let currentDay = new Date(2025, 5, 15).toISOString().slice(0, 10); // YYYY-MM-DD
 // Mock fetchStreaks to return current streak and date
 jest.spyOn(streakModule, 'fetchStreaks').mockImplementation(async () => ({
   success: true,
-  streakLength: currentStreak,
   lastActive: currentDay,
   didJournal: true,
   didBreathe: false,
@@ -42,7 +41,6 @@ const mockUpdateStreak = () =>
 
     return {
       success: true,
-      streakLength: currentStreak,
       lastActive: currentDay,
     };
   });
@@ -95,8 +93,6 @@ describe('journal', () => {
     await submitJournalEntry('Day 2 entry');
 
     expect(updateStreakSpy).toHaveBeenCalledTimes(2);
-    const lastCallReturn = await updateStreakSpy.mock.results[1].value;
-    expect(lastCallReturn.streakLength).toBe(2);
 
     updateStreakSpy.mockRestore();
   });
@@ -107,8 +103,6 @@ describe('journal', () => {
     await submitJournalEntry('Day 1 entry');
 
     expect(updateStreakSpy).toHaveBeenCalledTimes(1);
-    const lastCallReturn = await updateStreakSpy.mock.results[0].value;
-    expect(lastCallReturn.streakLength).toBe(1);
 
     updateStreakSpy.mockRestore();
   });
