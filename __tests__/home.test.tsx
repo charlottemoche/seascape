@@ -10,6 +10,18 @@ import {
   incrementJournalStreak,
   incrementBreathStreak,
 } from '@/__mocks__/mockBackend';
+import * as feelingsService from '@/lib/feelingsService';
+
+jest.mock('@/lib/feelingsService', () => ({
+  fetchFeelings: jest.fn(),
+}));
+
+beforeEach(() => {
+  (feelingsService.fetchFeelings as jest.Mock).mockResolvedValue([
+    { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
+    { created_at: '2025-06-02', feeling: ['Sad'] },
+  ]);
+});
 
 jest.mock('@/lib/supabase');
 

@@ -12,7 +12,7 @@ export const supabase = {
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
       eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
-      then: jest.fn(),  // support Promise chaining for then()
+      then: jest.fn(),
     };
 
     if (table === 'streaks') {
@@ -23,7 +23,7 @@ export const supabase = {
             return {
               eq: jest.fn().mockReturnThis(),
               order: jest.fn().mockReturnThis(),
-              then: (resolve: (result: { data: any[]; error: null }) => void) => {
+              then: (resolve: (value: { data: { date: string; did_journal: boolean; did_breathe: boolean; }[]; error: null }) => void) => {
                 resolve({
                   data: [
                     { date: '2025-06-16', did_journal: true, did_breathe: false },
@@ -34,7 +34,6 @@ export const supabase = {
               },
             };
           }
-
           return {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
@@ -68,27 +67,42 @@ export const supabase = {
     if (table === 'journal_entries') {
       return {
         ...base,
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            gte: jest.fn(() =>
+        insert: jest.fn(() => ({
+          select: jest.fn(() => ({
+            single: jest.fn(() =>
               Promise.resolve({
-                data: [
-                  { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
-                  { created_at: '2025-06-02', feeling: ['Sad'] },
-                ],
+                data: [{ id: entryIdCounter++, entry: 'mocked entry' }],
                 error: null,
               })
             ),
           })),
         })),
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn(() =>
-              Promise.resolve({
-                data: { id: entryIdCounter++, user_id: 'test-user' },
-                error: null,
-              })
-            ),
+        select: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            gte: jest.fn(() => ({
+              order: jest.fn(() => ({
+                range: jest.fn(() =>
+                  Promise.resolve({
+                    data: [
+                      { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
+                      { created_at: '2025-06-02', feeling: ['Sad'] },
+                    ],
+                    error: null,
+                  })
+                ),
+              })),
+            })),
+            order: jest.fn(() => ({
+              range: jest.fn(() =>
+                Promise.resolve({
+                  data: [
+                    { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
+                    { created_at: '2025-06-02', feeling: ['Sad'] },
+                  ],
+                  error: null,
+                })
+              ),
+            })),
           })),
         })),
       };
@@ -110,7 +124,6 @@ export const supabase = {
         error: null,
       });
     }
-
     return Promise.resolve({ data: null, error: null });
   }),
 
