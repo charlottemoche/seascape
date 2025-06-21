@@ -22,6 +22,8 @@ const imagesToCache = [
   require('../assets/images/fish-red.png'),
   require('../assets/images/fish.png'),
   require('../assets/images/swim-background.png'),
+  require('../assets/images/coral-reef.png'),
+  require('../assets/images/kelp-forest.png'),
   require('../assets/images/predator.png'),
   require('../assets/images/prey.png'),
   require('../assets/images/wave.png'),

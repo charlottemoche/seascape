@@ -26,6 +26,34 @@ type UseSwimGameParams = {
   onPlayCountChange?: (newCount: number) => void;
 };
 
+type Environment = {
+  name: string;
+  backgroundImage: any;
+  spawnInterval: number;
+  obstacleSpeed: number;
+};
+
+export const environments: Environment[] = [
+  {
+    name: 'Deep Sea',
+    backgroundImage: require('@/assets/images/swim-background.png'),
+    spawnInterval: 100,
+    obstacleSpeed: 3500,
+  },
+  {
+    name: 'Coral Reef',
+    backgroundImage: require('@/assets/images/coral-reef.png'),
+    spawnInterval: 150,
+    obstacleSpeed: 3000,
+  },
+  {
+    name: 'Kelp Forest',
+    backgroundImage: require('@/assets/images/kelp-forest.png'),
+    spawnInterval: 130,
+    obstacleSpeed: 2500,
+  },
+];
+
 export function useSwimGame({
   userId,
   canPlayToday,
@@ -40,6 +68,8 @@ export function useSwimGame({
   const [currentSessionStarted, setCurrentSessionStarted] = useState(false);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [preyEaten, setPreyEaten] = useState(0);
+  const [environmentIndex, setEnvironmentIndex] = useState(0);
+  const [invincible, setInvincible] = useState(false);
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -56,12 +86,16 @@ export function useSwimGame({
     setObstacles([]);
     setPreyEaten(0);
     collidedPreyIds.current.clear();
+    setEnvironmentIndex(0);
+    setInvincible(false);
   }, [position]);
 
   const endGame = useCallback(() => {
     setGameOver(true);
     setObstacles([]);
     setGameStarted(false);
+    setInvincible(false);
+    setEnvironmentIndex(0);
 
     if (player.playing) {
       player.pause();
@@ -79,6 +113,14 @@ export function useSwimGame({
       });
     }
   }, [currentSessionStarted, userId, onPlayCountChange]);
+
+  useEffect(() => {
+    if (preyEaten > 0 && preyEaten % 10 === 0) {
+      setEnvironmentIndex((prev) =>
+        prev < environments.length - 1 ? prev + 1 : prev
+      );
+    }
+  }, [preyEaten]);
 
   useEffect(() => {
     if (!gameStarted || gameOver) return;
@@ -106,7 +148,6 @@ export function useSwimGame({
         useNativeDriver: false,
       }).start();
 
-      // Collision detection
       const fishX = 100;
       const fishY = positionY.current;
 
@@ -119,12 +160,19 @@ export function useSwimGame({
 
         if (isXAligned && isYAligned) {
           if (obstacle.type === 'predator') {
-            endGame();
+            if (!invincible) {
+              endGame();
+            }
           } else {
             if (!collidedPreyIds.current.has(obstacle.id)) {
               collidedPreyIds.current.add(obstacle.id);
               setObstacles((prev) => prev.filter((ob) => ob.id !== obstacle.id));
               setPreyEaten((count) => count + 1);
+
+              if ((preyEaten + 1) % 10 === 5) {
+                setInvincible(true);
+                setTimeout(() => setInvincible(false), 5000);
+              }
 
               if (player.playing) {
                 player.pause();
@@ -135,8 +183,6 @@ export function useSwimGame({
 
               player.replace(require('@/assets/sounds/chomp.wav'));
               player.play();
-
-              velocity.current = jumpForce * 1.2;
             }
           }
         }
@@ -153,50 +199,48 @@ export function useSwimGame({
     if (!gameStarted) return;
 
     const listeners: { [obstacleId: string]: string } = {};
+    const env = environments[environmentIndex];
 
     const spawnInterval = setInterval(() => {
-      const spawnCount = 2;
+      const id = Math.random().toString(36).slice(2);
+      const isPrey = Math.random() > 0.3;
+      const type = isPrey ? 'prey' : 'predator';
 
-      for (let i = 0; i < spawnCount; i++) {
-        const id = Math.random().toString(36).slice(2);
-        const type = Math.random() > 0.5 ? 'predator' : 'prey';
+      const baseY =
+        type === 'predator'
+          ? Math.random() * (height - 150)
+          : 100 + Math.random() * (height / 2 - 150);
+      const y = baseY;
 
-        const baseY =
-          type === 'predator'
-            ? Math.random() * (height - 150)
-            : 100 + Math.random() * (height / 2 - 150);
-        const y = baseY + i * 60;
+      const x = new Animated.Value(width);
+      const newObstacle: Obstacle = {
+        id,
+        x,
+        xValue: width,
+        y,
+        type,
+        width: 50,
+      };
 
-        const x = new Animated.Value(width);
-        const newObstacle: Obstacle = {
-          id,
-          x,
-          xValue: width,
-          y,
-          type,
-          width: 50,
-        };
+      const listenerId = x.addListener(({ value }) => {
+        setObstacles((prev) =>
+          prev.map((ob) => (ob.id === id ? { ...ob, xValue: value } : ob))
+        );
+      });
+      listeners[id] = listenerId;
 
-        const listenerId = x.addListener(({ value }) => {
-          setObstacles((prev) =>
-            prev.map((ob) => (ob.id === id ? { ...ob, xValue: value } : ob))
-          );
-        });
-        listeners[id] = listenerId;
+      setObstacles((prev) => [...prev, newObstacle]);
 
-        setObstacles((prev) => [...prev, newObstacle]);
-
-        Animated.timing(x, {
-          toValue: -100,
-          duration: 3000,
-          delay: i * 300 + Math.random() * 300,
-          useNativeDriver: false,
-        }).start(() => {
-          setObstacles((prev) => prev.filter((ob) => ob.id !== id));
-          x.removeListener(listenerId);
-        });
-      }
-    }, 400);
+      Animated.timing(x, {
+        toValue: -100,
+        duration: env.obstacleSpeed,
+        delay: Math.random() * 300,
+        useNativeDriver: false,
+      }).start(() => {
+        setObstacles((prev) => prev.filter((ob) => ob.id !== id));
+        x.removeListener(listenerId);
+      });
+    }, env.spawnInterval);
 
     return () => {
       clearInterval(spawnInterval);
@@ -205,7 +249,7 @@ export function useSwimGame({
         if (obs) obs.x.removeListener(listenerId);
       });
     };
-  }, [gameStarted, obstacles]);
+  }, [gameStarted, obstacles, environmentIndex]);
 
   const startNewGame = useCallback(() => {
     if (loading || !canPlayToday || playCountLoaded === false || playCount >= 3)
@@ -233,5 +277,7 @@ export function useSwimGame({
     resetGame,
     obstacles,
     preyEaten,
+    environmentIndex,
+    invincible,
   };
 }
