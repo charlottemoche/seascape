@@ -14,26 +14,30 @@ export function getOverlayMode(params: {
   gameOver: boolean;
   waitingForPlayCountUpdate?: boolean;
   isReady?: boolean;
-}) : OverlayMode {
+}): OverlayMode {
   const { loading, canPlay, playCount, gameStarted, gameOver, waitingForPlayCountUpdate, isReady } = params;
-  
-  if (!isReady) return 'loading';
 
-  if (loading) return 'loading';
-
-  if (waitingForPlayCountUpdate) return 'loading';
-
-  if (waitingForPlayCountUpdate) return 'loading';
+  if (!isReady || loading || waitingForPlayCountUpdate) {
+    return 'loading';
+  }
 
   const playsLeft = 3 - (playCount ?? 0);
 
-  if (playsLeft <= 0) return 'noPlaysLeft';
+  if (playsLeft <= 0) {
+    return 'noPlaysLeft';
+  }
 
-  if (!canPlay) return 'mustComplete';
+  if (!canPlay) {
+    return 'mustComplete';
+  }
 
-  if (gameOver && playsLeft > 0) return 'gameOver';
+  if (gameOver && playsLeft > 0) {
+    return 'gameOver';
+  }
 
-  if (!gameStarted) return 'welcome';
+  if (!gameStarted) {
+    return 'welcome';
+  }
 
   return 'none';
 }
