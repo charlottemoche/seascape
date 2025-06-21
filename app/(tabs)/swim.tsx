@@ -118,13 +118,13 @@ export default function SwimScreen() {
   };
 
   useEffect(() => {
-    if (!gameStarted || gameOver) return;
-    if (environmentIndex === 0) return;
+    if (!gameStarted || gameOver || environmentIndex === 0) {
+      setEnvMessage(null);
+      return;
+    }
 
     const envName = environments[environmentIndex].name;
-    const envMessage = `Entering ${envName}`;
-
-    setEnvMessage(envMessage);
+    setEnvMessage(`Entering ${envName}`);
 
     const timeout = setTimeout(() => {
       setEnvMessage(null);
