@@ -55,9 +55,13 @@ export default function SwimScreen() {
     position,
     gameOver,
     gameStarted,
+    setGameStarted,
+    setGameOver,
     swimUp,
     startNewGame,
+    resetGame,
     obstacles,
+    waitingForPlayCountUpdate,
     preyEaten,
     environmentIndex,
     invincible,
@@ -78,8 +82,10 @@ export default function SwimScreen() {
       playCount,
       gameStarted,
       gameOver,
+      waitingForPlayCountUpdate,
+      isReady: !loading && playCountLoaded,
     });
-  }, [loading, canPlay, playCount, gameStarted, gameOver]);
+  }, [loading, canPlay, playCount, gameStarted, gameOver, waitingForPlayCountUpdate, playCountLoaded]);
 
   const handlePressIn = () => {
     if (!canPlay || !gameStarted) return;
@@ -100,6 +106,9 @@ export default function SwimScreen() {
     try {
       await resetPlayCount(user.id);
       setPlayCount(0);
+      resetGame();
+      setGameStarted(false);
+      setGameOver(false);
     } catch (err) {
       console.error('Reset play count failed:', err);
       Alert.alert('Error', 'Failed to reset play count.');
@@ -194,6 +203,8 @@ export default function SwimScreen() {
               isAdmin={!!profile?.admin}
               onResetPlayCount={handleResetPlayCount}
               onStartNewGame={startNewGame}
+              waitingForPlayCountUpdate={waitingForPlayCountUpdate}
+              isReady={!loading && playCountLoaded}
             />
 
             {gameStarted && (

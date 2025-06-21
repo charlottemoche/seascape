@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMemo } from 'react';
 import { View, Text, Image } from 'react-native';
 import { Button } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
@@ -18,6 +17,8 @@ type SwimGameOverlayProps = {
   overlayMode: OverlayMode;
   highScore: number | null;
   isAdmin: boolean;
+  waitingForPlayCountUpdate?: boolean;
+  isReady?: boolean;
   onResetPlayCount: () => void;
   onStartNewGame: () => void;
 };
@@ -31,7 +32,11 @@ export function SwimGameOverlay({
 }: SwimGameOverlayProps) {
   switch (overlayMode) {
     case 'loading':
-      return <Loader />;
+      return (
+        <View style={styles.gameMessageOverlay}>
+          <Loader />
+        </View>
+      )
 
     case 'noPlaysLeft':
       return (

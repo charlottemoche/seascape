@@ -70,6 +70,7 @@ export function useSwimGame({
   const [preyEaten, setPreyEaten] = useState(0);
   const [environmentIndex, setEnvironmentIndex] = useState(0);
   const [invincible, setInvincible] = useState(false);
+  const [waitingForPlayCountUpdate, setWaitingForPlayCountUpdate] = useState(false); 
 
   const position = useRef(new Animated.Value(height / 2)).current;
   const positionY = useRef(height / 2);
@@ -92,11 +93,13 @@ export function useSwimGame({
 
   const endGame = useCallback(() => {
     setGameOver(true);
+    setWaitingForPlayCountUpdate(true);  // Set waiting flag here
     setObstacles([]);
     setGameStarted(false);
     setInvincible(false);
     setEnvironmentIndex(0);
 
+    // Audio logic (unchanged)
     if (player.playing) {
       player.pause();
       player.seekTo(0);
@@ -110,7 +113,10 @@ export function useSwimGame({
     if (currentSessionStarted && userId && onPlayCountChange) {
       incrementPlayCount(userId).then((newCount) => {
         onPlayCountChange(newCount);
+        setWaitingForPlayCountUpdate(false);
       });
+    } else {
+      setWaitingForPlayCountUpdate(false);
     }
   }, [currentSessionStarted, userId, onPlayCountChange]);
 
@@ -270,8 +276,11 @@ export function useSwimGame({
     position,
     gameOver,
     gameStarted,
+    setGameStarted,
+    setGameOver,
     playCount,
     playCountLoaded,
+    waitingForPlayCountUpdate,
     swimUp,
     startNewGame,
     resetGame,
