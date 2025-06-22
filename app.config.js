@@ -21,7 +21,7 @@ export default {
       supportsTablet: true,
       bundleIdentifier: 'com.cbm.seascape',
       infoPlist: {
-        ITSAppUsesNonExemptEncryption: false,
+        ITSAppUsesNonExemptEncryption: true,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
         CFBundleURLTypes: [
           {
