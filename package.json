@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@hcaptcha/react-hcaptcha": "^1.12.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-google-signin/google-signin": "^14.0.1",
     "@react-navigation/native": "^7.1.6",
@@ -37,7 +38,7 @@
     "lucide-react-native": "^0.517.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-native": "0.79.3",
+    "react-native": "0.79.4",
     "react-native-get-random-values": "^1.11.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-reanimated": "~3.17.4",
@@ -46,6 +47,7 @@
     "react-native-svg": "^15.12.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.20.0",
+    "react-native-webview": "^13.6.4",
     "uri-scheme": "^1.4.7"
   },
   "devDependencies": {

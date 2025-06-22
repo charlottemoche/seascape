@@ -30,6 +30,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="seascape"/>
         <data android:scheme="seascape"/>
+        <data android:scheme="exp+seascape"/>
       </intent-filter>
     </activity>
   </application>

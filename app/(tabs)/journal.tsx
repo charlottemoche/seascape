@@ -61,6 +61,7 @@ export default function JournalScreen() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [entriesUnlocked, setEntriesUnlocked] = useState(false);
+  const [hasAnyEntries, setHasAnyEntries] = useState(false);
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -83,6 +84,23 @@ export default function JournalScreen() {
       return '';
     }
   }
+
+  const checkHasEntries = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .select('id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (error) {
+      console.error('Error checking for entries:', error);
+      setHasAnyEntries(false);
+    } else {
+      setHasAnyEntries(data.length > 0);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -131,7 +149,7 @@ export default function JournalScreen() {
     setSubmitLoading(false);
   };
 
-  const handleGetEntries = useCallback(async () => {
+  const handleGetEntries = useCallback(async (page = 0) => {
     if (!user) return;
     setLoading(true);
 
@@ -149,15 +167,20 @@ export default function JournalScreen() {
       console.error('Error fetching journal entries:', error);
       Alert.alert('Something went wrong while fetching your journal entries.');
     } else {
-      const mergedMap = new Map();
-      [...journalEntries, ...data].forEach((entry) => {
-        mergedMap.set(entry.id, entry);
+      setJournalEntries(prevEntries => {
+        if (page === 0) {
+          // On first page, replace entries
+          return data;
+        }
+        // On subsequent pages, merge
+        const mergedMap = new Map();
+        [...prevEntries, ...data].forEach(entry => mergedMap.set(entry.id, entry));
+        return Array.from(mergedMap.values());
       });
-      setJournalEntries(Array.from(mergedMap.values()));
       setHasMore(data.length === pageSize);
     }
     setLoading(false);
-  }, [page, user, journalEntries]);
+  }, [user]);
 
   const handleDeleteEntry = (id: number) => {
     Alert.alert(
@@ -193,12 +216,6 @@ export default function JournalScreen() {
     setPage((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      handleGetEntries();
-    }
-  }, [page, user, authLoading]);
-
   const handleUnlock = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
@@ -216,6 +233,7 @@ export default function JournalScreen() {
 
     if (result.success) {
       setEntriesUnlocked(true);
+      setPage(0);
     } else {
       Alert.alert('Authentication failed', 'Unable to unlock journal.');
     }
@@ -223,7 +241,21 @@ export default function JournalScreen() {
 
   const handleLock = () => {
     setEntriesUnlocked(false);
+    setJournalEntries([]);
+    setPage(0);
   };
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      checkHasEntries();
+    }
+  }, [user, authLoading]);
+
+  useEffect(() => {
+    if (entriesUnlocked) {
+      handleGetEntries(page);
+    }
+  }, [page, entriesUnlocked, handleGetEntries]);
 
   if (authLoading) {
     return (
@@ -313,7 +345,7 @@ export default function JournalScreen() {
           </Button>
 
 
-          {journalEntries.length > 0 ? (
+          {journalEntries.length > 0 || hasAnyEntries ? (
             entriesUnlocked ? (
               <>
                 <Text style={styles.entriesTitle}>Your Journal Entries</Text>
