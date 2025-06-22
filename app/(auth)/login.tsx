@@ -20,10 +20,12 @@ import Colors from '@/constants/Colors';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmedPassword, setConfirmedPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const colorScheme = useColorScheme();
   const router = useRouter();
@@ -43,6 +45,13 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
+
+        if (password !== confirmedPassword) {
+          setError("Passwords do not match.");
+          setLoading(false);
+          return;
+        }
+
         const { data: { session } = {}, error } = await supabase.auth.signUp({
           email,
           password,
@@ -168,7 +177,8 @@ export default function LoginScreen() {
             onChangeText={setEmail}
             value={email}
           />
-          <View style={{ width: '100%', position: 'relative' }}>
+
+          <View>
             <Input
               placeholder='Password'
               autoComplete='password'
@@ -186,7 +196,37 @@ export default function LoginScreen() {
             </Pressable>
           </View>
 
+          {isSignUp && (
+            <View>
+              <Input
+                placeholder='Confirm password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={!showConfirmedPassword}
+                onChangeText={setConfirmedPassword}
+                value={confirmedPassword}
+                style={{ paddingRight: 40 }}
+              />
+              <Pressable
+                onPress={() => setShowConfirmedPassword((prev) => !prev)}
+                style={styles.eye}
+              >
+                {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+              </Pressable>
+            </View>
+          )}
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {!isSignUp && (
+            <View style={styles.forgotPasswordContainer}>
+            <Pressable onPress={() => router.push('/reset')}>
+              <Text style={styles.forgotPasswordText}>
+                Forgot password?
+              </Text>
+            </Pressable>
+            </View>
+          )}
 
           <Button
             onPress={handleAuth}
@@ -206,11 +246,6 @@ export default function LoginScreen() {
             </Text>
           </Pressable>
 
-          <Pressable onPress={() => router.push('/reset')}>
-            <Text style={styles.switchText}>
-              Forgot password?
-            </Text>
-          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -230,7 +265,15 @@ const styles = StyleSheet.create({
   },
   switchText: {
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 30,
+  },
+  forgotPasswordContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '90%',
+  },
+  forgotPasswordText: {
+    marginBottom: 30,
   },
   error: {
     color: 'red',
@@ -242,7 +285,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    width: '90%',
   },
   logo: {
     height: 90,

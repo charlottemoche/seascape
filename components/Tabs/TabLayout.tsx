@@ -33,7 +33,7 @@ export function TabLayout() {
         <Tabs.Screen
           name="swim"
           options={{
-            title: 'Swim',
+            title: 'Play',
             tabBarIcon: ({ color }) =>
               TabBarIcon({ name: 'water-outline', color, type: 'Ionicons' }),
           }}

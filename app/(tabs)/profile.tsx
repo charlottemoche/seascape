@@ -89,6 +89,24 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log out',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
 
