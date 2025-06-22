@@ -29,6 +29,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
+  const highScore = profile?.high_score ?? 0;
 
   const handleDeleteAccount = async () => {
     Alert.alert(
@@ -104,8 +105,6 @@ export default function ProfileScreen() {
       setUser(null);
     }
   };
-
-  const highScore = profile?.high_score ?? 0;
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>

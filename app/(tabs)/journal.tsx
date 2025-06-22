@@ -40,13 +40,12 @@ const emotions = {
   },
 };
 
-const pageSize = 10;
+const pageSize = 6;
 
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
 
   const containerColor = colorScheme === 'dark' ? '#161618' : Colors.custom.white;
-  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
   const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#cecece' : '#444';
@@ -222,6 +221,10 @@ export default function JournalScreen() {
     }
   };
 
+  const handleLock = () => {
+    setEntriesUnlocked(false);
+  };
+
   if (authLoading) {
     return (
       <Loader />
@@ -349,6 +352,9 @@ export default function JournalScreen() {
                 ) : hasMore ? (
                   <Button onPress={handleLoadMore} title="Load more" />
                 ) : null}
+                <View style={styles.entriesContainer}>
+                  <Button onPress={handleLock} title="Lock" lightColor={Colors.custom.grey} darkColor='#808080' textColor='#000' />
+                </View>
               </>
             ) : (
               <View style={styles.entriesContainer}>
