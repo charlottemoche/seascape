@@ -112,12 +112,13 @@ export default function JournalScreen() {
     setSubmitLoading(true);
 
     const encryptedEntry = encryptText(entry, user.id);
+    const encryptedFeelings = encryptText(JSON.stringify(selectedFeelings), user.id);
 
     const { data, error } = await supabase
       .from('journal_entries')
       .insert({
         user_id: user.id,
-        feeling: selectedFeelings,
+        feeling: encryptedFeelings,
         entry: encryptedEntry,
       })
       .select()
@@ -352,9 +353,24 @@ export default function JournalScreen() {
                 {journalEntries.map((entry, index) => (
                   <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
                     <View style={styles.entryHeader}>
-                      <Text style={styles.entryTitle}>
-                        {Array.isArray(entry.feeling) ? entry.feeling.join(', ') : entry.feeling ?? 'Entry'}
-                      </Text>
+                      {(() => {
+                        let decryptedFeelings = [];
+                        if (typeof entry.feeling === 'string') {
+                          try {
+                            const decryptedStr = decryptText(entry.feeling, user.id);
+                            decryptedFeelings = JSON.parse(decryptedStr);
+                          } catch {
+                            decryptedFeelings = [];
+                          }
+                        }
+                        return (
+                          <Text style={styles.entryTitle}>
+                            {Array.isArray(decryptedFeelings) && decryptedFeelings.length > 0
+                              ? decryptedFeelings.join(', ')
+                              : 'Entry'}
+                          </Text>
+                        );
+                      })()}
                       <Pressable onPress={() => handleDeleteEntry(entry.id)}>
                         <TabBarIcon
                           type="AntDesign"
