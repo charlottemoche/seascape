@@ -79,13 +79,24 @@ export const supabase = {
         })),
         select: jest.fn(() => ({
           eq: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              then: jest.fn(() =>
+                Promise.resolve({
+                  data: [
+                    { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
+                    { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
+                  ],
+                  error: null,
+                })
+              ),
+            })),
             gte: jest.fn(() => ({
               order: jest.fn(() => ({
                 range: jest.fn(() =>
                   Promise.resolve({
                     data: [
-                      { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
-                      { created_at: '2025-06-02', feeling: ['Sad'] },
+                      { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
+                      { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
                     ],
                     error: null,
                   })
@@ -96,8 +107,8 @@ export const supabase = {
               range: jest.fn(() =>
                 Promise.resolve({
                   data: [
-                    { created_at: '2025-06-01', feeling: ['Happy', 'Calm'] },
-                    { created_at: '2025-06-02', feeling: ['Sad'] },
+                    { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
+                    { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
                   ],
                   error: null,
                 })

@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
+import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
 import Colors from '@/constants/Colors';
+import CryptoJS from 'crypto-js';
 
 const feelingCategories = {
   positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
@@ -10,14 +12,9 @@ const feelingCategories = {
   negative: ['Sad', 'Frustrated', 'Anxious', 'Angry', 'Stressed', 'Lonely'],
 };
 
-type JournalEntry = {
-  created_at: string;
-  feeling: string[];
-};
-
 export default function FeelingsSummary({ userId }: { userId: string }) {
   const [range, setRange] = useState<'1W' | '1M' | '3M' | '6M'>('1W');
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [entries, setEntries] = useState<JournalEntryDecrypted[]>([]);
   const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [mostCommonFeeling, setMostCommonFeeling] = useState('');
   const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
@@ -29,11 +26,41 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
   const percent = (value: number) => Math.round((value / (totals.positive + totals.neutral + totals.negative)) * 100);
 
+  function getEncryptionKey(userId: string): string {
+    return CryptoJS.SHA256(userId).toString();
+  }
+
+  function decryptText(ciphertext: string, userId: string): string {
+    const key = getEncryptionKey(userId);
+    try {
+      const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch {
+      return '';
+    }
+  }
+
   useEffect(() => {
     async function load() {
-      const data = await fetchFeelings(userId, range);
+      const rawData: JournalEntryRaw[] = await fetchFeelings(userId);
 
-      const grouped = data.reduce((acc, entry) => {
+      const decryptedData: JournalEntryDecrypted[] = rawData.map((entry) => {
+        let feelingsArray: string[] = [];
+        if (entry.feeling) {
+          const decrypted = decryptText(entry.feeling, userId);
+          try {
+            feelingsArray = JSON.parse(decrypted);
+          } catch {
+            feelingsArray = [];
+          }
+        }
+        return {
+          created_at: entry.created_at,
+          feeling: feelingsArray,
+        };
+      });
+
+      const grouped = decryptedData.reduce((acc, entry) => {
         const day = { positive: 0, neutral: 0, negative: 0 };
         for (const f of entry.feeling) {
           if (feelingCategories.positive.includes(f)) day.positive++;
@@ -54,7 +81,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         { positive: 0, neutral: 0, negative: 0 }
       );
 
-      const allFeelings = data.flatMap((entry) => entry.feeling);
+      const allFeelings = decryptedData.flatMap((entry) => entry.feeling);
       const frequency = allFeelings.reduce((acc, f) => {
         acc[f] = (acc[f] || 0) + 1;
         return acc;
@@ -85,7 +112,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         }
       }
 
-      setEntries(data);
+      setEntries(decryptedData);
       setTotals(totalCounts);
       setMostCommonFeeling(topFeeling);
       setDominantMood(dominant);
