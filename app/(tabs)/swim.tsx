@@ -203,8 +203,7 @@ export default function SwimScreen() {
               isAdmin={!!profile?.admin}
               onResetPlayCount={handleResetPlayCount}
               onStartNewGame={startNewGame}
-              waitingForPlayCountUpdate={waitingForPlayCountUpdate}
-              isReady={!loading && playCountLoaded}
+              playsLeft={3 - (playCount ?? 0)}
             />
 
             {gameStarted && (

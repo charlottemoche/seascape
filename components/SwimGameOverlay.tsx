@@ -17,8 +17,7 @@ type SwimGameOverlayProps = {
   overlayMode: OverlayMode;
   highScore: number | null;
   isAdmin: boolean;
-  waitingForPlayCountUpdate?: boolean;
-  isReady?: boolean;
+  playsLeft?: number;
   onResetPlayCount: () => void;
   onStartNewGame: () => void;
 };
@@ -29,6 +28,7 @@ export function SwimGameOverlay({
   isAdmin,
   onResetPlayCount,
   onStartNewGame,
+  playsLeft,
 }: SwimGameOverlayProps) {
   switch (overlayMode) {
     case 'loading':
@@ -70,6 +70,7 @@ export function SwimGameOverlay({
             <Text style={styles.gameSubtext}>High Score: {highScore ?? 0}</Text>
             <Image source={preyImg} style={styles.preyIcon} resizeMode="contain" />
           </View>
+          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
           <Button onPress={onStartNewGame} title="Play again" style={styles.playButtonContainer} />
         </View>
       );
