@@ -3,19 +3,21 @@ import {
   View,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
+  Animated,
 } from 'react-native';
 import { Button, Text, Input } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 
 export default function ResetRequestScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const shiftAnim = useKeyboardShift(60, 300, 150);
 
   const router = useRouter();
 
@@ -36,11 +38,8 @@ export default function ResetRequestScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-      >
+     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View>
           <Text style={styles.label}>Enter your email to reset your password</Text>
           <Input
@@ -61,7 +60,7 @@ export default function ResetRequestScreen() {
             loading={loading}
           />
         </View>
-      </KeyboardAvoidingView>
+        </Animated.View>
     </TouchableWithoutFeedback>
   );
 }

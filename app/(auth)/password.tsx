@@ -8,11 +8,13 @@ import {
   Platform,
   Pressable,
   View,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button, Text, Input } from '@/components/Themed';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 
 export default function PasswordScreen() {
   const [password, setPassword] = useState('');
@@ -21,6 +23,8 @@ export default function PasswordScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
+
+  const shiftAnim = useKeyboardShift(60, 300, 150);
 
   const router = useRouter();
 
@@ -47,11 +51,8 @@ export default function PasswordScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-      >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
           <Text style={styles.label}>Enter your new password</Text>
           <View style={{ position: 'relative', marginBottom: 16 }}>
@@ -129,7 +130,7 @@ export default function PasswordScreen() {
             />
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }

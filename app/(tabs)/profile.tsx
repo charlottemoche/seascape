@@ -3,8 +3,6 @@ import {
   StyleSheet,
   Alert,
   Image,
-  TouchableWithoutFeedback,
-  Keyboard,
   ScrollView,
   useColorScheme,
   SafeAreaView,

@@ -4,11 +4,10 @@ import {
   StyleSheet,
   Alert,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   TouchableWithoutFeedback,
   Keyboard,
   useColorScheme,
+  Animated,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -17,6 +16,7 @@ import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
 import { Button, Input } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
+import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 
 type FishCustomizerProps = {
   lightText?: boolean;
@@ -31,6 +31,8 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
   const colorScheme = useColorScheme();
 
   const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
+
+  const shiftAnim = useKeyboardShift(60, 300, 150);
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(
@@ -81,12 +83,8 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={80}
-      >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
           <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
 
@@ -133,7 +131,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
             title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
           />
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }

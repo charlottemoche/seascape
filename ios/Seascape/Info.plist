@@ -34,12 +34,20 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>seascape</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
           <string>exp+seascape</string>
         </array>
       </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <true/>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
@@ -52,7 +60,7 @@
       <true/>
     </dict>
     <key>NSFaceIDUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+    <string>Allow $(PRODUCT_NAME) to use Face ID</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app requires microphone access to enable audio recording during breathing exercises.</string>
     <key>NSUserActivityTypes</key>

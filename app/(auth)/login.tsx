@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,14 +7,14 @@ import {
   TouchableWithoutFeedback,
   useColorScheme,
   Image,
-  KeyboardAvoidingView,
-  Platform,
+  Animated,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { Button, Input, Text } from '@/components/Themed';
 import { useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 import Colors from '@/constants/Colors';
 
 export default function LoginScreen() {
@@ -26,6 +26,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
+
+  const shiftAnim = useKeyboardShift(60, 300, 150);
 
   const colorScheme = useColorScheme();
   const router = useRouter();
@@ -136,11 +138,8 @@ export default function LoginScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-      >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
           <View style={styles.logoContainer}>
             <Image source={logoImage} style={styles.logo} />
@@ -255,7 +254,7 @@ export default function LoginScreen() {
           )}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          
+
           {isSignUp ? (
             <Button
               onPress={handleAuth}
@@ -286,7 +285,7 @@ export default function LoginScreen() {
           </Pressable>
 
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }
