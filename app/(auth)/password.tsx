@@ -63,7 +63,7 @@ export default function PasswordScreen() {
               secureTextEntry={true}
               onChangeText={setPassword}
               value={password}
-              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
             />
             {/* Plain Text Password Input */}
             <Input
@@ -71,9 +71,12 @@ export default function PasswordScreen() {
               autoComplete='password'
               placeholderTextColor='#888'
               secureTextEntry={false}
+              autoCapitalize='none'
+              autoCorrect={false}
+              spellCheck={false}
               onChangeText={setPassword}
               value={password}
-              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
             />
 
             <Pressable
@@ -93,7 +96,7 @@ export default function PasswordScreen() {
               secureTextEntry={true}
               onChangeText={setConfirm}
               value={confirm}
-              style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+              style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
             />
             {/* Plain Text Confirm Input */}
             <Input
@@ -101,9 +104,12 @@ export default function PasswordScreen() {
               autoComplete='password'
               placeholderTextColor='#888'
               secureTextEntry={false}
+              autoCapitalize='none'
+              autoCorrect={false}
+              spellCheck={false}
               onChangeText={setConfirm}
               value={confirm}
-              style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+              style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
             />
 
             <Pressable
