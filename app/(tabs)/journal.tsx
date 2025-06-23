@@ -350,6 +350,9 @@ export default function JournalScreen() {
             entriesUnlocked ? (
               <>
                 <Text style={styles.entriesTitle}>Your Journal Entries</Text>
+                <View style={styles.entriesContainer}>
+                  <Button onPress={handleLock} title="Lock" variant="secondary" />
+                </View>
                 {journalEntries.map((entry, index) => (
                   <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
                     <View style={styles.entryHeader}>
@@ -400,14 +403,11 @@ export default function JournalScreen() {
                 ) : hasMore ? (
                   <Button onPress={handleLoadMore} title="Load more" />
                 ) : null}
-                <View style={styles.entriesContainer}>
-                  <Button onPress={handleLock} title="Lock" lightColor={Colors.custom.grey} darkColor='#808080' textColor='#000' />
-                </View>
               </>
             ) : (
               <View style={styles.entriesContainer}>
                 <Text style={styles.lockedText}>Your journal is locked.</Text>
-                <Button onPress={handleUnlock} title="Unlock" lightColor={Colors.custom.grey} darkColor='#808080' textColor='#000' />
+                <Button onPress={handleUnlock} title="Unlock" variant="secondary" />
               </View>
             )
           ) : (

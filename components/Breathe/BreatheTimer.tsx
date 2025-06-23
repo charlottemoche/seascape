@@ -68,6 +68,7 @@ export default function BreatheTimer({
   const handleSessionEnd = () => {
     onSessionEnd(duration);
     setSessionComplete(false);
+    setIsRunning(false);
     setShowTime(true);
     setTimeLeft(duration);
   };

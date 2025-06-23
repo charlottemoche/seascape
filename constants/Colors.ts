@@ -10,6 +10,7 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
     buttonText: '#121212',
+    buttonSecondary: '#e4e3e3',
     transparent: 'transparent'
   },
   dark: {
@@ -20,6 +21,7 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
     buttonText: '#121212',
+    buttonSecondary: '#e4e3e3',
     transparent: 'transparent'
   },
   custom: {
@@ -34,5 +36,6 @@ export default {
     darkBlue: '#023c69',
     white: '#ffffff',
     dark: '#111111',
+    darkGrey: '#555555'
   }
 };

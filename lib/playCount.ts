@@ -15,8 +15,6 @@ export async function getPlayCount(userId: string): Promise<number> {
     .eq('date', today)
     .maybeSingle();
 
-  console.log('RPC data:', data);
-
   if (error) {
     console.error('Error fetching play count:', error);
     return 0;
@@ -37,8 +35,6 @@ export async function incrementPlayCount(userId: string): Promise<number> {
     uid: userId,
     play_date: today,
   });
-
-  console.log('RPC data:', data);
 
   if (error) {
     console.error('Error incrementing play count:', error);

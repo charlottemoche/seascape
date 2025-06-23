@@ -15,17 +15,16 @@ type ThemeProps = {
 
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
+export type InputProps = ThemeProps & DefaultView['props'];
 export type ButtonProps = {
   title: string;
   onPress: () => void;
   style?: any;
   disabled?: boolean;
   loading?: boolean;
-  lightColor?: string;
-  darkColor?: string;
   testID?: string;
+  variant?: 'primary' | 'secondary';
 };
-export type InputProps = ThemeProps & DefaultView['props'];
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -61,13 +60,17 @@ export function Button({
   style,
   disabled,
   loading,
-  lightColor,
-  darkColor,
   textColor,
+  variant = 'primary',
 }: ButtonProps & { textColor?: string }) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'button');
-  const resolvedTextColor =
-    textColor ?? useThemeColor({ light: darkColor, dark: darkColor }, 'buttonText');
+  const primaryBg = useThemeColor({ light: Colors.custom.blue, dark: Colors.custom.blue }, 'button');
+  const primaryText = useThemeColor({ light: '#000', dark: '#000' }, 'buttonText');
+
+  const secondaryBg = useThemeColor({ light: Colors.custom.grey, dark: Colors.custom.darkGrey }, 'buttonSecondary');
+  const secondaryText = useThemeColor({ light: '#000', dark: '#fff' }, 'buttonText');
+
+  const backgroundColor = variant === 'primary' ? primaryBg : secondaryBg;
+  const resolvedTextColor = variant === 'primary' ? primaryText : textColor ?? secondaryText;
 
   return (
     <Pressable
@@ -79,6 +82,10 @@ export function Button({
           opacity: pressed ? 0.7 : 1,
         },
         disabled && { opacity: 0.4 },
+        {
+          borderWidth: 2,
+          borderColor: Colors.custom.blue
+        },
         style,
       ]}
       disabled={disabled || loading}
@@ -101,8 +108,8 @@ export function Input(props: TextInputProps) {
 const styles = StyleSheet.create({
   button: {
     marginTop: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: 'center',
     alignSelf: 'center',

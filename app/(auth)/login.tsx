@@ -178,16 +178,31 @@ export default function LoginScreen() {
             value={email}
           />
 
-          <View>
+          <View style={{ position: 'relative' }}>
+            {/* Secure Input */}
             <Input
               placeholder='Password'
               autoComplete='password'
               placeholderTextColor='#888'
-              secureTextEntry={!showPassword}
+              secureTextEntry={true}
               onChangeText={setPassword}
               value={password}
-              style={{ paddingRight: 40 }}
+              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
             />
+            {/* Plain Text Input */}
+            <Input
+              placeholder='Password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={false}
+              autoCapitalize='none'
+              autoCorrect={false}
+              spellCheck={false}
+              onChangeText={setPassword}
+              value={password}
+              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+            />
+
             <Pressable
               onPress={() => setShowPassword((prev) => !prev)}
               style={styles.eye}
@@ -197,15 +212,27 @@ export default function LoginScreen() {
           </View>
 
           {isSignUp && (
-            <View>
+            <View style={{ position: 'relative' }}>
               <Input
                 placeholder='Confirm password'
                 autoComplete='password'
                 placeholderTextColor='#888'
-                secureTextEntry={!showConfirmedPassword}
+                secureTextEntry={true}
                 onChangeText={setConfirmedPassword}
                 value={confirmedPassword}
-                style={{ paddingRight: 40 }}
+                style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+              />
+              <Input
+                placeholder='Confirm password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={false}
+                autoCapitalize='none'
+                autoCorrect={false}
+                spellCheck={false}
+                onChangeText={setConfirmedPassword}
+                value={confirmedPassword}
+                style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
               />
               <Pressable
                 onPress={() => setShowConfirmedPassword((prev) => !prev)}
@@ -216,24 +243,36 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {!isSignUp && (
             <View style={styles.forgotPasswordContainer}>
-            <Pressable onPress={() => router.push('/reset')}>
-              <Text style={styles.forgotPasswordText}>
-                Forgot password?
-              </Text>
-            </Pressable>
+              <Pressable onPress={() => router.push('/reset')}>
+                <Text style={styles.forgotPasswordText}>
+                  Forgot password?
+                </Text>
+              </Pressable>
             </View>
           )}
 
-          <Button
-            onPress={handleAuth}
-            title={isSignUp ? 'Sign up' : 'Log in'}
-            loading={loading}
-            disabled={loading}
-          />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          
+          {isSignUp ? (
+            <Button
+              onPress={handleAuth}
+              title='Sign up'
+              loading={loading}
+              disabled={loading}
+              variant='secondary'
+              style={{ marginTop: 20 }}
+            />
+          ) : (
+            <Button
+              onPress={handleAuth}
+              title='Log in'
+              loading={loading}
+              disabled={loading}
+            />
+          )}
 
           <Pressable
             onPress={() => {

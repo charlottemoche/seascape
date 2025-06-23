@@ -54,16 +54,28 @@ export default function PasswordScreen() {
 
         <View style={styles.container}>
           <Text style={styles.label}>Enter your new password</Text>
-          <View>
+          <View style={{ position: 'relative', marginBottom: 16 }}>
+            {/* Secure Password Input */}
             <Input
               placeholder='Password'
               autoComplete='password'
               placeholderTextColor='#888'
-              secureTextEntry={!showPassword}
+              secureTextEntry={true}
               onChangeText={setPassword}
               value={password}
-              style={{ paddingRight: 40 }}
+              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
             />
+            {/* Plain Text Password Input */}
+            <Input
+              placeholder='Password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={false}
+              onChangeText={setPassword}
+              value={password}
+              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+            />
+
             <Pressable
               onPress={() => setShowPassword((prev) => !prev)}
               style={styles.eye}
@@ -71,16 +83,29 @@ export default function PasswordScreen() {
               {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
             </Pressable>
           </View>
-          <View>
+
+          <View style={{ position: 'relative', marginBottom: 16 }}>
+            {/* Secure Confirm Input */}
             <Input
               placeholder='Confirm password'
               autoComplete='password'
               placeholderTextColor='#888'
-              secureTextEntry={!showConfirmedPassword}
+              secureTextEntry={true}
               onChangeText={setConfirm}
               value={confirm}
-              style={{ paddingRight: 40 }}
+              style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
             />
+            {/* Plain Text Confirm Input */}
+            <Input
+              placeholder='Confirm password'
+              autoComplete='password'
+              placeholderTextColor='#888'
+              secureTextEntry={false}
+              onChangeText={setConfirm}
+              value={confirm}
+              style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+            />
+
             <Pressable
               onPress={() => setShowConfirmedPassword((prev) => !prev)}
               style={styles.eye}
