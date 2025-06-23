@@ -19,6 +19,7 @@ export default function PasswordScreen() {
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function PasswordScreen() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      Alert.alert('Error', error.message);
+      setError(error.message);
     } else {
       router.replace({ pathname: '/login', params: { reset: 'true' } });
     }
@@ -51,7 +52,6 @@ export default function PasswordScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
       >
-
         <View style={styles.container}>
           <Text style={styles.label}>Enter your new password</Text>
           <View style={{ position: 'relative', marginBottom: 16 }}>
@@ -118,6 +118,9 @@ export default function PasswordScreen() {
             >
               {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
             </Pressable>
+
+            {error && <Text style={styles.error}>{error}</Text>}
+
             <Button
               title="Reset Password"
               onPress={handleReset}
@@ -136,10 +139,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'transparent',
+    padding: 24,
     alignItems: 'center',
+    alignSelf: 'center',
+    width: '90%',
   },
   label: {
     marginBottom: 12,
+    textAlign: 'center',
     fontSize: 16
   },
   input: {
@@ -163,5 +170,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 12,
+    marginTop: 4,
+    textAlign: 'center',
   },
 });

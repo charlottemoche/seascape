@@ -9,6 +9,7 @@ import {
   useColorScheme,
   SafeAreaView,
   View,
+  Linking,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -29,6 +30,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
+  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const highScore = profile?.high_score ?? 0;
 
   const handleDeleteAccount = async () => {
@@ -125,38 +127,50 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
-      <ScrollView contentContainerStyle={[styles.wrapper, { backgroundColor: backgroundColor }]}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={styles.wrapper}>
-            <View style={styles.loggedInWrapper}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <ScrollView style={{ backgroundColor: backgroundColor }}>
+          <View style={styles.loggedInWrapper}>
+            <Text>
+              Logged in as: {user?.email ?? 'No email'}
+            </Text>
+            <View style={styles.highScoreWrapper}>
               <Text>
-                Logged in as: {user?.email ?? 'No email'}
+                High Score: {highScore}
               </Text>
-              <View style={styles.highScoreWrapper}>
-                <Text>
-                  High Score: {highScore}
-                </Text>
-                <Image
-                  source={preyImg}
-                  style={styles.fishImage}
-                />
-              </View>
-            </View>
-
-            <FishCustomizer />
-
-            <View style={styles.logoutWrapper}>
-              <Pressable onPress={handleLogout} style={styles.logoutButton}>
-                <Text style={styles.logoutText}>Log out</Text>
-              </Pressable>
-              <Pressable onPress={handleDeleteAccount} style={styles.deleteButton}>
-                <Text style={styles.deleteText}>Delete account</Text>
-              </Pressable>
+              <Image
+                source={preyImg}
+                style={styles.fishImage}
+              />
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
+
+          <FishCustomizer />
+
+          <View style={styles.logoutWrapper}>
+            <Pressable onPress={handleLogout} style={styles.logoutButton}>
+              <Text style={styles.logoutText}>Log out</Text>
+            </Pressable>
+            <Pressable onPress={handleDeleteAccount} style={styles.deleteButton}>
+              <Text style={styles.deleteText}>Delete account</Text>
+            </Pressable>
+          </View>
+
+        </ScrollView>
+      </View>
+      <View>
+        <View style={[styles.footer, { borderTopColor: greyBorder }]}>
+          <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
+            <Text style={[styles.versionText, styles.linkText, { color: Colors.custom.blue }]}>
+              Privacy Policy
+            </Text>
+          </Pressable>
+
+          <Text style={styles.versionText}>
+            Version 1.3.4
+          </Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -213,5 +227,19 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     marginLeft: 4,
+  },
+  versionText: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  linkText: {
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+    borderTopWidth: 1,
   },
 });

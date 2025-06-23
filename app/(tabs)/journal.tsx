@@ -62,9 +62,10 @@ export default function JournalScreen() {
   const [entriesUnlocked, setEntriesUnlocked] = useState(false);
   const [hasAnyEntries, setHasAnyEntries] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalEntryText, setModalEntryText] = useState('');
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const loaderColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
 
   function getEncryptionKey(userId: string): string {
     return CryptoJS.SHA256(userId).toString();
@@ -409,7 +410,7 @@ export default function JournalScreen() {
 
                 {loading ? (
                   <View style={styles.entriesContainer}>
-                    <ActivityIndicator size="large" color={Colors.custom.blue} />
+                    <ActivityIndicator size="large" color={loaderColor} />
                   </View>
                 ) : hasMore ? (
                   <Button onPress={handleLoadMore} title="Load more" />
