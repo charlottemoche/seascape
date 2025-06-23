@@ -47,6 +47,7 @@ export default function JournalScreen() {
 
   const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
   const { user, loading: authLoading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
@@ -331,7 +332,11 @@ export default function JournalScreen() {
               onPress={() => setModalVisible(true)}
               style={[styles.textArea, { backgroundColor: cardColor, borderColor: greyBorder }]}
             >
-              <Text style={{ color: entry ? '#000' : '#888' }}>
+              <Text
+                style={{ color: entry ? textColor : '#888' }}
+                numberOfLines={4}
+                ellipsizeMode="tail"
+              >
                 {entry || 'Write your thoughts here...'}
               </Text>
             </Pressable>
@@ -509,7 +514,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
-    height: 120,
+    overflow: 'hidden',
+    minHeight: 100,
     textAlignVertical: 'top',
     marginBottom: 16,
   },

@@ -22,6 +22,7 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
   const colorScheme = useColorScheme();
   
   const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
+  const modalOverlayColor = colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)';
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
@@ -36,7 +37,7 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
         Keyboard.dismiss();
         onClose();
       }}>
-        <View style={styles.modalOverlay} />
+        <View style={[styles.modalOverlay, { backgroundColor: modalOverlayColor }]} />
       </TouchableWithoutFeedback>
 
       <KeyboardAvoidingView
@@ -44,8 +45,8 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         style={styles.keyboardAvoidingView}
       >
-        <View style={styles.modalContent}>
-          <Text style={styles.title}>Write Your Journal Entry</Text>
+        <View style={[styles.modalContent, { backgroundColor: containerColor }]}>
+          <Text style={[styles.title, { color: textColor }]}>Write Your Journal Entry</Text>
           <TextInput
             style={[styles.textInput, { backgroundColor: containerColor, borderColor: greyBorder, color: textColor }]}
             multiline
@@ -74,7 +75,6 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000066',
   },
   keyboardAvoidingView: {
     position: 'absolute',
