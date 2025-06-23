@@ -13,7 +13,7 @@ export default {
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {
-      image: './assets/images/wave.png',
+      image: './assets/images/splashscreen.png',
       resizeMode: 'cover',
       backgroundColor: '#ffffff',
     },

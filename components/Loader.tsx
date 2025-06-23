@@ -3,7 +3,7 @@ import Colors from '@/constants/Colors';
 
 export function Loader() {
   const colorScheme = useColorScheme();
-  const color = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
+  const color = colorScheme === 'dark' ? Colors.custom.lightBlue : Colors.custom.blue;
 
   return (
     <View style={styles.loading}>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  TextInput,
   Pressable,
   StyleSheet,
   SafeAreaView,
@@ -18,6 +17,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import JournalModal from '@/components/JournalModal';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -45,10 +45,8 @@ const pageSize = 6;
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
 
-  const containerColor = colorScheme === 'dark' ? '#161618' : Colors.custom.white;
   const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
-  const textColor = colorScheme === 'dark' ? '#cecece' : '#444';
 
   const { user, loading: authLoading } = useRequireAuth();
   const { refreshStreaks } = useStreaks();
@@ -62,6 +60,8 @@ export default function JournalScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [entriesUnlocked, setEntriesUnlocked] = useState(false);
   const [hasAnyEntries, setHasAnyEntries] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalEntryText, setModalEntryText] = useState('');
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -324,26 +324,32 @@ export default function JournalScreen() {
             ))}
           </View>
 
-          <Text style={styles.prompt}>Want to write something?</Text>
+          <Text style={styles.prompt}>Want to write something? (optional)</Text>
 
-          <TextInput
-            testID="journal-entry-input"
-            value={entry}
-            onChangeText={setEntry}
-            multiline
-            numberOfLines={5}
-            style={[styles.textArea, { backgroundColor: containerColor, borderColor: greyBorder, color: textColor }]}
-            placeholder="Write your thoughts here..."
-            placeholderTextColor='#808080'
-          />
+          <>
+            <Pressable
+              onPress={() => setModalVisible(true)}
+              style={[styles.textArea, { backgroundColor: cardColor, borderColor: greyBorder }]}
+            >
+              <Text style={{ color: entry ? '#000' : '#888' }}>
+                {entry || 'Write your thoughts here...'}
+              </Text>
+            </Pressable>
 
-          <Button
-            testID="journal-submit-button"
-            onPress={handleSubmit}
-            disabled={!selectedFeelings.length && !entry}
-            title={'Save entry'}
-          >
-          </Button>
+            <JournalModal
+              visible={modalVisible}
+              onClose={() => setModalVisible(false)}
+              text={entry}
+              onChangeText={setEntry}
+            />
+
+            <Button
+              onPress={handleSubmit}
+              disabled={!selectedFeelings.length && !entry.trim()}
+              title={'Save entry'}
+              style={{ marginTop: 20 }}
+            />
+          </>
 
 
           {journalEntries.length > 0 || hasAnyEntries ? (
@@ -561,5 +567,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
+  },
+  modalButtonContainer: {
+    marginTop: 20,
+  },
+  modalButton: {
+    backgroundColor: Colors.custom.blue,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
