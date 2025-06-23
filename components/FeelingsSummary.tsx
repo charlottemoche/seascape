@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
 import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
+import { Loader } from '@/components/Loader';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
+import { useFocusEffect } from '@react-navigation/native';
 
 const feelingCategories = {
   positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
@@ -18,11 +20,21 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [mostCommonFeeling, setMostCommonFeeling] = useState('');
   const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
+  const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
-  const greyTextColor = colorScheme === 'dark' ? '#cecece' : '#444';
+  const greyTextColor = colorScheme === 'dark' ? '#fefefe' : '#444';
+
+  const cacheRef = useRef<Record<string, {
+    entries: JournalEntryDecrypted[],
+    totals: typeof totals,
+    mostCommonFeeling: string,
+    dominantMood: 'positive' | 'neutral' | 'negative'
+  }>>({});
 
   const percent = (value: number) => Math.round((value / (totals.positive + totals.neutral + totals.negative)) * 100);
 
@@ -40,9 +52,24 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     }
   }
 
-  useEffect(() => {
-    async function load() {
-      const rawData: JournalEntryRaw[] = await fetchFeelings(userId);
+  const load = useCallback(async () => {
+    const key = `${userId}-${range}`;
+    if (cacheRef.current[key]) {
+      const cached = cacheRef.current[key];
+      setEntries(cached.entries);
+      setTotals(cached.totals);
+      setMostCommonFeeling(cached.mostCommonFeeling);
+      setDominantMood(cached.dominantMood);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const rawData: JournalEntryRaw[] = await fetchFeelings(userId, range);
 
       const decryptedData: JournalEntryDecrypted[] = rawData.map((entry) => {
         let feelingsArray: string[] = [];
@@ -89,37 +116,69 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
       const topFeeling = Object.entries(frequency).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
 
+      // --- Updated dominant mood calculation start ---
       let dominant: 'positive' | 'neutral' | 'negative' = 'neutral';
 
-      if (totalCounts.positive > totalCounts.negative && totalCounts.positive > totalCounts.neutral) {
-        dominant = 'positive';
-      } else if (totalCounts.negative > totalCounts.positive && totalCounts.negative > totalCounts.neutral) {
-        dominant = 'negative';
-      } else if (totalCounts.positive === totalCounts.negative && totalCounts.positive !== 0) {
-        dominant = 'neutral';
-      } else if (totalCounts.positive === totalCounts.neutral && totalCounts.positive !== 0) {
-        dominant = 'positive';
-      } else if (totalCounts.negative === totalCounts.neutral && totalCounts.negative !== 0) {
-        dominant = 'negative';
+      const { positive, neutral, negative } = totalCounts;
+      const maxCount = Math.max(positive, neutral, negative);
+
+      const maxCategories = [
+        positive === maxCount ? 'positive' : null,
+        neutral === maxCount ? 'neutral' : null,
+        negative === maxCount ? 'negative' : null,
+      ].filter(Boolean) as ('positive' | 'neutral' | 'negative')[];
+
+      if (maxCategories.length === 1) {
+        dominant = maxCategories[0];
+      } else if (maxCategories.length > 1) {
+        // Tie-break priority: positive > neutral > negative
+        if (maxCategories.includes('positive')) {
+          dominant = 'positive';
+        } else if (maxCategories.includes('neutral')) {
+          dominant = 'neutral';
+        } else {
+          dominant = 'negative';
+        }
       }
 
+      // Optional override only if topFeeling category aligns with maxCategories
       if (topFeeling) {
         for (const category in feelingCategories) {
           if (feelingCategories[category as keyof typeof feelingCategories].includes(topFeeling)) {
-            dominant = category as 'positive' | 'neutral' | 'negative';
+            if (maxCategories.includes(category as 'positive' | 'neutral' | 'negative')) {
+              dominant = category as 'positive' | 'neutral' | 'negative';
+            }
             break;
           }
         }
       }
+      // --- Updated dominant mood calculation end ---
+
+      cacheRef.current[key] = {
+        entries: decryptedData,
+        totals: totalCounts,
+        mostCommonFeeling: topFeeling,
+        dominantMood: dominant,
+      };
 
       setEntries(decryptedData);
       setTotals(totalCounts);
       setMostCommonFeeling(topFeeling);
       setDominantMood(dominant);
+      setLoading(false);
+      setError(null);
+    } catch (err) {
+      console.error('[FeelingsSummary] fetch error:', err);
+      setError('Failed to load feelings data.');
+      setLoading(false);
     }
-
-    load();
   }, [userId, range]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -131,8 +190,21 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     return require('@/assets/images/rain-2.png');
   }
 
+  if (error) {
+    return (
+      <View style={[styles.containerWrapper, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: 'red', fontSize: 16 }}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.containerWrapper}>
+      {loading && (
+        <View style={[styles.loaderOverlay, { backgroundColor: loaderBackgroundColor }]}>
+          <Loader />
+        </View>
+      )}
       <View style={styles.container}>
         <View style={styles.ranges}>
           {(['1W', '1M', '3M', '6M'] as const).map((r) => (
@@ -174,7 +246,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
             )}
           </View>
         </View>
-
       </View>
 
       <View style={[styles.container, { marginTop: 16 }]}>
@@ -184,7 +255,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
         </View>
 
-        <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
+        <View style={[styles.keysContainer, { backgroundColor }]}>
           <View style={styles.keyContainer}>
             <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
             <Text style={styles.common}>
@@ -206,7 +277,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
       </View>
     </View>
-
   );
 }
 
@@ -221,6 +291,12 @@ const styles = StyleSheet.create({
   containerWrapper: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  loaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   ranges: {
     flexDirection: 'row',
