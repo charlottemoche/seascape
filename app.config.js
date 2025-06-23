@@ -5,7 +5,7 @@ export default {
     name: 'Seascape',
     slug: 'seascape',
     owner: 'charlottebmoche',
-    version: '1.0.0',
+    version: '1.3.4',
     orientation: 'portrait',
     icon: './assets/images/fish.png',
     scheme: 'seascape',
@@ -20,6 +20,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.cbm.seascape',
+      buildNumber: '2',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: true,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
