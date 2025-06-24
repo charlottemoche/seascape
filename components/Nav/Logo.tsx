@@ -36,7 +36,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     height: 60,
-    width: 140,
+    width: 120,
     resizeMode: 'contain',
+    marginRight: 16,
   },
 });
