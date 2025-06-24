@@ -5,7 +5,8 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
-  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
   useColorScheme
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
@@ -15,6 +16,7 @@ import { useStreaks } from '@/context/StreakContext';
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import JournalModal from '@/components/JournalModal';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
@@ -274,155 +276,162 @@ export default function JournalScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: backgroundColor }]}>
-      <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
-        <Text style={styles.title}>Journal</Text>
-        <Text style={styles.subtitle}>How are you feeling?</Text>
-        <View style={[{ backgroundColor: cardColor }, colorScheme === 'dark' ? styles.darkCard : styles.lightCard]}>
-          {Object.entries(emotions).map(([categoryKey, category]) => (
-            <View key={categoryKey} style={styles.categorySection}>
-              <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
-              <View style={styles.feelingsContainer}>
-                {category.options.map((feeling) => (
-                  <Pressable
-                    key={feeling}
-                    onPress={() => {
-                      setSelectedFeelings((prev) => {
-                        if (prev.includes(feeling)) {
-                          return prev.filter((f) => f !== feeling);
-                        } else if (prev.length < 3) {
-                          return [...prev, feeling];
-                        } else {
-                          Alert.alert('Limit Reached', 'You can only select up to 3 feelings.');
-                          return prev;
-                        }
-                      });
-                    }}
-                    style={[
-                      styles.feelingButton,
-                      selectedFeelings.includes(feeling) && styles.selectedFeelingButton,
-                    ]}
-                  >
-                    <Text
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAwareScrollView
+        style={styles.container}
+        enableOnAndroid
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+      >
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>Journal</Text>
+          <Text style={styles.subtitle}>How are you feeling?</Text>
+          <View style={[{ backgroundColor: cardColor }, colorScheme === 'dark' ? styles.darkCard : styles.lightCard]}>
+            {Object.entries(emotions).map(([categoryKey, category]) => (
+              <View key={categoryKey} style={styles.categorySection}>
+                <Text style={[styles.categoryTitle, { color: category.color }]}>{category.label}</Text>
+                <View style={styles.feelingsContainer}>
+                  {category.options.map((feeling) => (
+                    <Pressable
+                      key={feeling}
+                      onPress={() => {
+                        setSelectedFeelings((prev) => {
+                          if (prev.includes(feeling)) {
+                            return prev.filter((f) => f !== feeling);
+                          } else if (prev.length < 3) {
+                            return [...prev, feeling];
+                          } else {
+                            Alert.alert('Limit Reached', 'You can only select up to 3 feelings.');
+                            return prev;
+                          }
+                        });
+                      }}
                       style={[
-                        styles.feelingText,
-                        selectedFeelings.includes(feeling) && styles.selectedFeelingText,
+                        styles.feelingButton,
+                        selectedFeelings.includes(feeling) && styles.selectedFeelingButton,
                       ]}
                     >
-                      {feeling}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <Text style={styles.prompt}>Want to write something? (optional)</Text>
-
-        <>
-          <Pressable
-            onPress={() => setModalVisible(true)}
-            style={[styles.textArea, { backgroundColor: cardColor, borderColor: greyBorder }]}
-          >
-            <Text
-              style={{ color: entry ? textColor : '#888' }}
-              numberOfLines={4}
-              ellipsizeMode="tail"
-            >
-              {entry || 'Write your thoughts here...'}
-            </Text>
-          </Pressable>
-
-          <JournalModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            text={entry}
-            onChangeText={setEntry}
-          />
-
-          <Button
-            onPress={handleSubmit}
-            disabled={!selectedFeelings.length && !entry.trim()}
-            title={'Save entry'}
-            style={{ marginTop: 20 }}
-          />
-        </>
-
-
-        {journalEntries.length > 0 || hasAnyEntries ? (
-          entriesUnlocked ? (
-            <>
-              <Text style={styles.entriesTitle}>Your Journal Entries</Text>
-              <View style={styles.entriesContainer}>
-                <Button onPress={handleLock} title="Lock" variant="secondary" />
-              </View>
-              {journalEntries.map((entry, index) => (
-                <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
-                  <View style={styles.entryHeader}>
-                    {(() => {
-                      let decryptedFeelings = [];
-                      if (typeof entry.feeling === 'string') {
-                        try {
-                          const decryptedStr = decryptText(entry.feeling, user.id);
-                          decryptedFeelings = JSON.parse(decryptedStr);
-                        } catch {
-                          decryptedFeelings = [];
-                        }
-                      }
-                      return (
-                        <Text style={styles.entryTitle}>
-                          {Array.isArray(decryptedFeelings) && decryptedFeelings.length > 0
-                            ? decryptedFeelings.join(', ')
-                            : 'Entry'}
-                        </Text>
-                      );
-                    })()}
-                    <Pressable onPress={() => handleDeleteEntry(entry.id)}>
-                      <TabBarIcon
-                        type="AntDesign"
-                        name="delete"
-                        color={Colors.custom.red}
-                        size={16}
-                        style={{ marginBottom: 2 }}
-                      />
+                      <Text
+                        style={[
+                          styles.feelingText,
+                          selectedFeelings.includes(feeling) && styles.selectedFeelingText,
+                        ]}
+                      >
+                        {feeling}
+                      </Text>
                     </Pressable>
-                  </View>
-
-                  {(() => {
-                    const decrypted = decryptText(entry.entry, user.id);
-                    return decrypted ? (
-                      <Text style={styles.entryText}>{decrypted}</Text>
-                    ) : null;
-                  })()}
-
-                  <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
+                  ))}
                 </View>
-              ))}
+              </View>
+            ))}
+          </View>
 
-              {loading ? (
+          <Text style={styles.prompt}>Want to write something? (optional)</Text>
+
+          <>
+            <Pressable
+              onPress={() => setModalVisible(true)}
+              style={[styles.textArea, { backgroundColor: cardColor, borderColor: greyBorder }]}
+            >
+              <Text
+                style={{ color: entry ? textColor : '#888' }}
+                numberOfLines={4}
+                ellipsizeMode="tail"
+              >
+                {entry || 'Write your thoughts here...'}
+              </Text>
+            </Pressable>
+
+            <JournalModal
+              visible={modalVisible}
+              onClose={() => setModalVisible(false)}
+              text={entry}
+              onChangeText={setEntry}
+            />
+
+            <Button
+              onPress={handleSubmit}
+              disabled={!selectedFeelings.length && !entry.trim()}
+              title={'Save entry'}
+              style={{ marginTop: 20 }}
+            />
+          </>
+
+
+          {journalEntries.length > 0 || hasAnyEntries ? (
+            entriesUnlocked ? (
+              <>
+                <Text style={styles.entriesTitle}>Your Journal Entries</Text>
                 <View style={styles.entriesContainer}>
-                  <ActivityIndicator size="large" color={loaderColor} />
+                  <Button onPress={handleLock} title="Lock" variant="secondary" />
                 </View>
-              ) : hasMore ? (
-                <Button onPress={handleLoadMore} title="Load more" />
-              ) : null}
-            </>
+                {journalEntries.map((entry, index) => (
+                  <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
+                    <View style={styles.entryHeader}>
+                      {(() => {
+                        let decryptedFeelings = [];
+                        if (typeof entry.feeling === 'string') {
+                          try {
+                            const decryptedStr = decryptText(entry.feeling, user.id);
+                            decryptedFeelings = JSON.parse(decryptedStr);
+                          } catch {
+                            decryptedFeelings = [];
+                          }
+                        }
+                        return (
+                          <Text style={styles.entryTitle}>
+                            {Array.isArray(decryptedFeelings) && decryptedFeelings.length > 0
+                              ? decryptedFeelings.join(', ')
+                              : 'Entry'}
+                          </Text>
+                        );
+                      })()}
+                      <Pressable onPress={() => handleDeleteEntry(entry.id)}>
+                        <TabBarIcon
+                          type="AntDesign"
+                          name="delete"
+                          color={Colors.custom.red}
+                          size={16}
+                          style={{ marginBottom: 2 }}
+                        />
+                      </Pressable>
+                    </View>
+
+                    {(() => {
+                      const decrypted = decryptText(entry.entry, user.id);
+                      return decrypted ? (
+                        <Text style={styles.entryText}>{decrypted}</Text>
+                      ) : null;
+                    })()}
+
+                    <Text style={styles.entryDate}>{new Date(entry.created_at).toLocaleString()}</Text>
+                  </View>
+                ))}
+
+                {loading ? (
+                  <View style={styles.entriesContainer}>
+                    <ActivityIndicator size="large" color={loaderColor} />
+                  </View>
+                ) : hasMore ? (
+                  <Button onPress={handleLoadMore} title="Load more" />
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.entriesContainer}>
+                <Text style={styles.lockedText}>Your journal is locked.</Text>
+                <Button onPress={handleUnlock} title="Unlock" variant="secondary" />
+              </View>
+            )
           ) : (
             <View style={styles.entriesContainer}>
-              <Text style={styles.lockedText}>Your journal is locked.</Text>
-              <Button onPress={handleUnlock} title="Unlock" variant="secondary" />
+              <Text style={styles.noEntries}>
+                You have no journal entries.
+              </Text>
             </View>
-          )
-        ) : (
-          <View style={styles.entriesContainer}>
-            <Text style={styles.noEntries}>
-              You have no journal entries.
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          )}
+        </SafeAreaView>
+      </KeyboardAwareScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
