@@ -11,7 +11,6 @@ export default function ProtectedTabLayout() {
   const { user, loading: userLoading, sessionChecked } = useUser();
   const { profile, error: profileError } = useProfile();
 
-  const isProfileLoaded = !!profile;
   const shouldRedirectToLogin = sessionChecked && !user;
   const hasProfileError = !!profileError;
   const shouldRedirectToWelcome = profile && profile.onboarding_completed === false;
