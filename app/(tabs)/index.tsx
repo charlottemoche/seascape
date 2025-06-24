@@ -19,8 +19,6 @@ export default function HomeScreen() {
   const { profile, loading: profileLoading } = useProfile();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
 
-  const [refreshing, setRefreshing] = useState(false);
-
   const lastRefresh = useRef(0);
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
@@ -28,14 +26,6 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
-
-  const loaderColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await refreshStreaks();
-    setRefreshing(false);
-  }, [refreshStreaks]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -69,16 +59,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: backgroundColor }]}>
-      <ScrollView
-        contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[loaderColor]}
-            tintColor={loaderColor}
-          />
-        }>
+      <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Your personal stats</Text>
         <View style={styles.colorOptions}>
