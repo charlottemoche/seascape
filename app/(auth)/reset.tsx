@@ -17,7 +17,7 @@ export default function ResetRequestScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const shiftAnim = useKeyboardShift(60, 300, 150);
+  const shiftAnim = useKeyboardShift();
 
   const router = useRouter();
 

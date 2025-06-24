@@ -27,7 +27,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
-  const shiftAnim = useKeyboardShift(60, 300, 150);
+  const shiftAnim = useKeyboardShift();
 
   const colorScheme = useColorScheme();
   const router = useRouter();

@@ -24,7 +24,7 @@ export default function PasswordScreen() {
   const [error, setError] = useState('');
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
-  const shiftAnim = useKeyboardShift(60, 300, 150);
+  const shiftAnim = useKeyboardShift();
 
   const router = useRouter();
 

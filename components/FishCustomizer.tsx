@@ -32,7 +32,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
 
   const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
 
-  const shiftAnim = useKeyboardShift(60, 300, 150);
+  const shiftAnim = useKeyboardShift();
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(

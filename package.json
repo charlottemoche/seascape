@@ -47,7 +47,8 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "^13.6.4",
-    "uri-scheme": "^1.4.7"
+    "uri-scheme": "^1.4.7",
+    "expo": "~53.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

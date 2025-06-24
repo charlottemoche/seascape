@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
-import { Keyboard, Animated } from 'react-native';
+import { Keyboard, Animated, Platform } from 'react-native';
 
 export function useKeyboardShift(shiftAmount = 60, showDuration = 300, hideDuration = 300) {
   const shiftAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
       Animated.timing(shiftAnim, {
         toValue: -shiftAmount,
         duration: showDuration,
@@ -13,7 +16,7 @@ export function useKeyboardShift(shiftAmount = 60, showDuration = 300, hideDurat
       }).start();
     });
 
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+    const hideSub = Keyboard.addListener(hideEvent, () => {
       Animated.timing(shiftAnim, {
         toValue: 0,
         duration: hideDuration,
