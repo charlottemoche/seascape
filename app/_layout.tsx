@@ -32,7 +32,7 @@ const imagesToCache = [
   require('../assets/images/rain-2.png'),
   require('../assets/images/logo-light.png'),
   require('../assets/images/logo-dark.png'),
-  require('../assets/images/splashscreen.png'),
+  require('../assets/images/splashbackground.png'),
 ];
 
 export {

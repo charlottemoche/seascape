@@ -85,10 +85,11 @@ export function SwimGameOverlay({
             <Image source={predatorImg} style={styles.iconInlinePredator} resizeMode="contain" />
             <Text style={styles.gameSubtext}> and collect</Text>
             <Image source={preyImg} style={styles.iconInlinePrey} resizeMode="contain" />
-            <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
           </View>
 
           <Text style={styles.gameSubtext}>before you run out of plays.</Text>
+          
+          <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
 
           <Button onPress={onStartNewGame} title="Play" style={styles.playButtonContainer} />
         </View>
