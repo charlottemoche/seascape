@@ -24,7 +24,8 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
-  const backgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
+  const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
+  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#fff';
   const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
   const greyTextColor = colorScheme === 'dark' ? '#fefefe' : '#444';
@@ -226,7 +227,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
             />
           </View>
 
-          <View style={[styles.summaryBox, { backgroundColor }]}>
+          <View style={[styles.summaryBox, { backgroundColor: backgroundColorBox }]}>
             {entries.length === 0 ? (
               <Text style={[styles.noEntries, { color: textColor }]}>
                 Log some journal entries to track your mood.
@@ -248,14 +249,14 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
       </View>
 
-      <View style={[styles.container, { marginTop: 16 }]}>
+      <View style={[styles.container, { marginTop: 16 }, { backgroundColor: backgroundColor }]}>
         <View style={styles.bar}>
           <View style={{ flex: totals.positive, backgroundColor: Colors.custom.blue }} />
           <View style={{ flex: totals.neutral, backgroundColor: Colors.custom.green }} />
           <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
         </View>
 
-        <View style={[styles.keysContainer, { backgroundColor }]}>
+        <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
           <View style={styles.keyContainer}>
             <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
             <Text style={styles.common}>
