@@ -46,7 +46,7 @@ const mockUpdateStreak = () =>
   });
 
 const getJournalScreen = async () => {
-  const { getByText, getByPlaceholderText } = render(
+  const utils = render(
     <MockUserProvider>
       <ProfileProvider>
         <StreakProvider>
@@ -56,20 +56,25 @@ const getJournalScreen = async () => {
     </MockUserProvider>
   );
 
-  const input = await waitFor(() => getByPlaceholderText('Write your thoughts here...'));
-  const saveButton = getByText('Save entry');
+  const openModalPressable = await waitFor(() => utils.getByText('Write your thoughts here...'));
+  fireEvent.press(openModalPressable);
 
-  return { input, saveButton };
+  const modalInput = await waitFor(() => utils.getByTestId('journal-modal-input'));
+
+  const saveButton = utils.getByText('Save entry');
+
+  return { ...utils, modalInput, saveButton };
 };
 
 const submitJournalEntry = async (text: string) => {
-  const { input, saveButton } = await getJournalScreen();
-  fireEvent.changeText(input, text);
+  const { modalInput, saveButton } = await getJournalScreen();
+
+  fireEvent.changeText(modalInput, text);
   fireEvent.press(saveButton);
+
   await waitFor(() => {
     expect(Alert.alert).toHaveBeenCalledWith('Journal entry saved!');
   });
-  return { input, saveButton };
 };
 
 describe('journal', () => {

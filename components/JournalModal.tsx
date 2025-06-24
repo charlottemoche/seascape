@@ -48,6 +48,7 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
         <View style={[styles.modalContent, { backgroundColor: containerColor }]}>
           <Text style={[styles.title, { color: textColor }]}>Write Your Journal Entry</Text>
           <TextInput
+            testID="journal-modal-input"
             style={[styles.textInput, { backgroundColor: containerColor, borderColor: greyBorder, color: textColor }]}
             multiline
             placeholder="Write your thoughts here..."
