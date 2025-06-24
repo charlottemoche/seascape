@@ -278,7 +278,7 @@ export default function JournalScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAwareScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: backgroundColor }]}
         enableOnAndroid
         extraScrollHeight={100}
         keyboardShouldPersistTaps="handled"
