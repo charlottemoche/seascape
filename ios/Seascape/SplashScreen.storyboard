@@ -12,13 +12,14 @@
         <scene sceneID="EXPO-SCENE-1">
             <objects>
                 <viewController storyboardIdentifier="SplashScreenViewController" id="EXPO-VIEWCONTROLLER-1" sceneMemberID="viewController">
-                    <view key="view" userInteractionEnabled="NO" contentMode="scaleAspectFit" insetsLayoutMarginsFromSafeArea="NO" id="EXPO-ContainerView" userLabel="ContainerView">
+                    <view key="view" userInteractionEnabled="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="EXPO-ContainerView" userLabel="ContainerView">
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="SplashLogo" translatesAutoresizingMaskIntoConstraints="NO" id="mtL-BK-GEZ">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="SplashLogo" translatesAutoresizingMaskIntoConstraints="NO" id="mtL-BK-GEZ">
                                 <rect key="frame" x="139" y="384" width="137" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Rmq-lb-GrQ"/>
