@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import {
-  View,
   StyleSheet,
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
   Animated,
 } from 'react-native';
-import { Button, Text, Input } from '@/components/Themed';
+import { Button, Text, Input, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
@@ -39,26 +38,28 @@ export default function ResetRequestScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
-        <View>
-          <Text style={styles.label}>Enter your email to reset your password</Text>
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="you@example.com"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoCorrect={false}
-            spellCheck={false}
-            style={styles.input}
-          />
-          {error && <Text style={styles.error}>{error}</Text>}
-          <Button
-            title="Send reset link"
-            onPress={handleResetRequest}
-            disabled={!email || loading}
-            loading={loading}
-          />
+      <Animated.View style={[styles.wrapper, { transform: [{ translateY: shiftAnim }] }]}>
+        <View style={styles.container}>
+          <View style={styles.inner}>
+            <Text style={styles.label}>Enter your email to reset your password</Text>
+            <Input
+              value={email}
+              onChangeText={setEmail}
+              placeholder="you@example.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoCorrect={false}
+              spellCheck={false}
+              style={styles.input}
+            />
+            {error && <Text style={styles.error}>{error}</Text>}
+            <Button
+              title="Send reset link"
+              onPress={handleResetRequest}
+              disabled={!email || loading}
+              loading={loading}
+            />
+          </View>
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
@@ -66,17 +67,21 @@ export default function ResetRequestScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
+  },
+  container: {
     padding: 24,
+  },
+  inner: {
+    width: '90%',
+    maxWidth: 500,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    width: '90%',
-    maxWidth: 400,
   },
   label: {
-    marginBottom: 30,
+    marginBottom: 20,
     textAlign: 'center',
     fontSize: 16
   },
@@ -85,7 +90,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 6,
     padding: 12,
-    marginBottom: 24,
+    marginBottom: 18,
   },
   error: {
     color: 'red',

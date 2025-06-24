@@ -5,13 +5,13 @@ import {
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
-  Platform,
+  Animated,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Input } from '@/components/Themed';
 import { Text } from '@/components/Themed';
+import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
@@ -27,6 +27,8 @@ export default function VerifyEmailScreen() {
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const shiftAnim = useKeyboardShift();
 
   const handleVerify = async () => {
     setLoading(true);
@@ -48,10 +50,8 @@ export default function VerifyEmailScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
           <Text style={styles.header}>Please check your email for verfication code</Text>
           <Input
@@ -81,7 +81,7 @@ export default function VerifyEmailScreen() {
             title={loading ? 'Verifying...' : 'Verify email'}
           />
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }

@@ -2,19 +2,19 @@ import { useState } from 'react';
 import {
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
   Pressable,
   View,
   Animated,
+  useColorScheme,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button, Text, Input } from '@/components/Themed';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
+import Colors from '@/constants/Colors';
 
 export default function PasswordScreen() {
   const [password, setPassword] = useState('');
@@ -25,6 +25,10 @@ export default function PasswordScreen() {
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
   const shiftAnim = useKeyboardShift();
+
+  const colorScheme = useColorScheme();
+
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
 
   const router = useRouter();
 
@@ -52,11 +56,10 @@ export default function PasswordScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
-        <View>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
+        <View style={styles.container}>
           <Text style={styles.label}>Enter your new password</Text>
-          <View style={{ position: 'relative', marginBottom: 16 }}>
-            {/* Secure Password Input */}
+          <View style={{ position: 'relative', marginBottom: 10 }}>
             <Input
               placeholder='Password'
               autoComplete='password'
@@ -66,7 +69,6 @@ export default function PasswordScreen() {
               value={password}
               style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
             />
-            {/* Plain Text Password Input */}
             <Input
               placeholder='Password'
               autoComplete='password'
@@ -89,7 +91,6 @@ export default function PasswordScreen() {
           </View>
 
           <View style={{ position: 'relative', marginBottom: 16 }}>
-            {/* Secure Confirm Input */}
             <Input
               placeholder='Confirm password'
               autoComplete='password'
@@ -99,7 +100,6 @@ export default function PasswordScreen() {
               value={confirm}
               style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
             />
-            {/* Plain Text Confirm Input */}
             <Input
               placeholder='Confirm password'
               autoComplete='password'
@@ -138,16 +138,13 @@ export default function PasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
     padding: 24,
+    justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    width: '90%',
-    maxWidth: 400,
+    maxWidth: 500,
   },
   label: {
-    marginBottom: 12,
+    marginBottom: 20,
     textAlign: 'center',
     fontSize: 16
   },

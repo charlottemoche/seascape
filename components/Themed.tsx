@@ -3,10 +3,9 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
-
-import Colors from '@/constants/Colors';
+import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Colors from '@/constants/Colors';
 
 type ThemeProps = {
   lightColor?: string;
@@ -14,8 +13,9 @@ type ThemeProps = {
 };
 
 export type TextProps = ThemeProps & DefaultText['props'];
-export type ViewProps = ThemeProps & DefaultView['props'];
 export type InputProps = ThemeProps & DefaultView['props'];
+export type ViewProps = ThemeProps & DefaultView['props'];
+
 export type ButtonProps = {
   title: string;
   onPress: () => void;
@@ -49,9 +49,9 @@ export function Text(props: TextProps) {
 
 export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  const backgroundColor = useThemeColor({}, 'background');
 
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+  return <DefaultView style={[{ backgroundColor }, style, styles.view]} {...otherProps} />;
 }
 
 export function Button({
@@ -63,14 +63,14 @@ export function Button({
   textColor,
   variant = 'primary',
 }: ButtonProps & { textColor?: string }) {
-  const primaryBg = useThemeColor({ light: Colors.custom.blue, dark: Colors.custom.blue }, 'button');
-  const primaryText = useThemeColor({ light: '#000', dark: '#000' }, 'buttonText');
+  const primaryBg = useThemeColor({}, 'button');
+  const primaryText = useThemeColor({}, 'buttonText');
 
-  const secondaryBg = useThemeColor({ light: Colors.custom.grey, dark: Colors.custom.darkGrey }, 'buttonSecondary');
-  const secondaryText = useThemeColor({ light: '#000', dark: '#fff' }, 'buttonText');
+  const secondaryBg = useThemeColor({}, 'buttonSecondary');
+  const secondaryText = useThemeColor({}, 'buttonText');
 
-  const dangerBg = useThemeColor({ light: '#dd0b0b', dark: '#dd0b0b' }, 'button');
-  const dangerText = useThemeColor({ light: '#fff', dark: '#fff' }, 'buttonText');
+  const dangerBg = useThemeColor({}, 'danger');
+  const dangerText = useThemeColor({}, 'white');
 
   const backgroundColor = variant === 'primary' ? primaryBg : variant === 'secondary' ? secondaryBg : dangerBg;
   const resolvedTextColor = variant === 'primary' ? primaryText : variant === 'secondary' ? textColor ?? secondaryText : dangerText;
@@ -104,8 +104,9 @@ export function Input(props: TextInputProps) {
   const { style, ...otherProps } = props;
   const borderColor = useThemeColor({}, 'tint');
   const color = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'input');
 
-  return <TextInput style={[styles.input, { borderColor, color }, style]} {...otherProps} />;
+  return <TextInput style={[styles.input, { borderColor, color, backgroundColor }, style]} {...otherProps} />;
 }
 
 const styles = StyleSheet.create({
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     alignSelf: 'center',
-    maxWidth: 400,
+    maxWidth: 500,
     width: 180,
   },
   text: {
@@ -129,6 +130,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     minWidth: '90%',
-    maxWidth: '90%'
+    maxWidth: '90%',
+    height: 40,
+  },
+  card: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    borderWidth: 1,
+  },
+  view: {
+    flex: 1,
   },
 });

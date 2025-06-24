@@ -15,33 +15,34 @@ export default function ProtectedTabLayout() {
   const hasProfileError = !!profileError;
   const shouldRedirectToWelcome = profile && profile.onboarding_completed === false;
 
-  if (!sessionChecked || userLoading) {
-    return <Loader />;
-  }
+  // if (!sessionChecked || userLoading) {
+  //   return <Loader />;
+  // }
 
-  if (shouldRedirectToLogin) {
-    return <Redirect href="/login" />;
-  }
+  // if (shouldRedirectToLogin) {
+  //   return <Redirect href="/login" />;
+  // }
 
-  if (hasProfileError) {
-    return (
-      <View style={styles.container}>
-        <Text>We're having trouble loading your profile.</Text>
-      </View>
-    );
-  }
+  // if (hasProfileError) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text>We're having trouble loading your profile.</Text>
+  //     </View>
+  //   );
+  // }
 
-  if (shouldRedirectToWelcome) {
-    return <Redirect href="/welcome" />;
-  }
+  // if (shouldRedirectToWelcome) {
+  //   return <Redirect href="/welcome" />;
+  // }
 
-  return <TabLayout />;
+  // return <TabLayout />;
+    return <Redirect href="/password" />;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
+    backgroundColor: Colors.custom.transparent,
     justifyContent: 'center',
     alignItems: 'center',
   },

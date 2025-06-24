@@ -27,8 +27,8 @@ export default function ProfileScreen() {
 
   const colorScheme = useColorScheme();
 
-  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#fff';
-  const footerColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  const footerColor = colorScheme === 'dark' ? Colors.dark.card : '#f8f8f8';
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const linkColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.darkBlue;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
@@ -120,8 +120,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: footerColor }]}>
-      <ScrollView style={{ backgroundColor: footerColor }}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: backgroundColor }]}>
+      <ScrollView>
         <View style={{ padding: 24, backgroundColor: backgroundColor }}>
           <View style={styles.profileSection}>
             <Text style={[styles.label, { color: textColor }]}>Email</Text>
@@ -141,8 +141,8 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.logoutWrapper}>
-            <Button title="Log out" onPress={handleDeleteAccount} variant="secondary" />
-            <Button title="Delete account" onPress={handleLogout} variant="danger" />
+            <Button title="Log out" onPress={handleLogout} variant="secondary" />
+            <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
           </View>
         </View>
 
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     width: '60%',
-    maxWidth: 400,
+    maxWidth: 500,
     alignSelf: 'center',
   },
   buttonText: {

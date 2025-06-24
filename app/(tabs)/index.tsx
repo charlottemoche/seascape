@@ -1,5 +1,5 @@
-import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image, RefreshControl } from 'react-native';
-import React, { useState, useCallback, useRef } from 'react';
+import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
+import React, { useRef, useCallback } from 'react';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
@@ -19,16 +19,17 @@ export default function HomeScreen() {
   const { profile, loading: profileLoading } = useProfile();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
 
+  const colorScheme = useColorScheme();
+
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
+
   const lastRefresh = useRef(0);
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-  const colorScheme = useColorScheme();
-
-  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
-
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const now = Date.now();
       if (now - lastRefresh.current > REFRESH_INTERVAL_MS) {
         refreshStreaks();
@@ -58,62 +59,64 @@ export default function HomeScreen() {
   const { total_minutes } = profile;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: backgroundColor }]}>
-      <ScrollView contentContainerStyle={[styles.background, { backgroundColor: backgroundColor }]}>
-        <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.subtitle}>Your personal stats</Text>
-        <View style={styles.colorOptions}>
-          {availableColors.map((color) => (
-            <Image source={fishImages[color]} key={color} style={styles.smallFish} />
-          ))}
-        </View>
-        <View style={[styles.card, styles.darkCard]}>
-          <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
-          <View style={styles.streakRow}>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
+    <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.title}>Dashboard</Text>
+          <Text style={styles.subtitle}>Your personal stats</Text>
+          <View style={styles.colorOptions}>
+            {availableColors.map((color) => (
+              <Image source={fishImages[color]} key={color} style={styles.smallFish} />
+            ))}
+          </View>
+          <View style={[styles.card, { backgroundColor: cardColor }]}>
+            <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
+            <View style={styles.streakRow}>
+              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
+                  <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
+                </View>
+                <Text style={styles.streakSubtitle}>Journaling</Text>
+                <Text testID="journal-streak" style={styles.cardDataStreaks}>
+                  {typeof journalStreak === 'number'
+                    ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
+                    : 'No data'}
+                </Text>
               </View>
-              <Text style={styles.streakSubtitle}>Journaling</Text>
-              <Text testID="journal-streak" style={styles.cardDataStreaks}>
-                {typeof journalStreak === 'number'
-                  ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
-                  : 'No data'}
-              </Text>
-            </View>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={18} />
+              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
+                  <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={18} />
+                </View>
+                <Text style={styles.streakSubtitle}>Breathing</Text>
+                <Text testID="breathing-streak" style={styles.cardDataStreaks}>
+                  {typeof breathStreak === 'number'
+                    ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
+                    : 'No data'}
+                </Text>
               </View>
-              <Text style={styles.streakSubtitle}>Breathing</Text>
-              <Text testID="breathing-streak" style={styles.cardDataStreaks}>
-                {typeof breathStreak === 'number'
-                  ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
-                  : 'No data'}
-              </Text>
             </View>
           </View>
-        </View>
 
-        <View style={[styles.card, styles.darkCard]}>
-          <Text style={styles.streakTitle}>Total Time Meditated</Text>
-          <View style={styles.streakRow}>
-            <View style={styles.streakItem}>
-              <View style={styles.iconWrapper}>
-                <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
+          <View style={[styles.card, { backgroundColor: cardColor }]}>
+            <Text style={styles.streakTitle}>Total Time Meditated</Text>
+            <View style={styles.streakRow}>
+              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <View style={styles.iconWrapper}>
+                  <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
+                </View>
+                <Text style={styles.streakSubtitle}>Time</Text>
+                <Text style={styles.cardDataStreaks}>
+                  {typeof total_minutes === 'number' && total_minutes > 0
+                    ? formatTime(total_minutes)
+                    : 'No time logged yet'}
+                </Text>
               </View>
-              <Text style={styles.streakSubtitle}>Time</Text>
-              <Text style={styles.cardDataStreaks}>
-                {typeof total_minutes === 'number' && total_minutes > 0
-                  ? formatTime(total_minutes)
-                  : 'No time logged yet'}
-              </Text>
             </View>
           </View>
-        </View>
-        <View style={[styles.feelingsWrapper, { backgroundColor: backgroundColor }]}>
-          <View style={[styles.container, { maxWidth: 400, backgroundColor: backgroundColor }]}>
-            <FeelingsSummary userId={user.id} />
+          <View style={styles.feelingsWrapper}>
+            <View style={{ maxWidth: 500 }}>
+              <FeelingsSummary userId={user.id} />
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -122,12 +125,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
   },
-  background: {
-    flexGrow: 1,
-    padding: 20,
+  container: {
+    padding: 24,
   },
   colorOptions: {
     flexDirection: 'row',
@@ -163,12 +165,10 @@ const styles = StyleSheet.create({
     padding: 16,
     width: '100%',
     marginBottom: 30,
-    maxWidth: 400,
+    maxWidth: 500,
     alignSelf: 'center',
-  },
-  darkCard: {
     borderWidth: 1,
-    borderColor: 'rgba(123, 182, 212, 0.5)',
+    borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   cardTitle: {
     fontSize: 16,
@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
   streakRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
     marginTop: 12,
   },
   streakItem: {
@@ -214,6 +213,7 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     marginBottom: 8,
+    backgroundColor: 'transparent'
   },
   feelingsWrapper: {
     flex: 1,

@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: Colors.custom.background,
+    backgroundColor: Colors.custom.transparent,
   },
   container: {
     flex: 1,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 31, 51, 0.7)',
   },
   customizeContainer: {
-    backgroundColor: Colors.custom.background,
+    backgroundColor: Colors.custom.transparent,
     padding: 24,
   },
   content: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 24,
-    backgroundColor: Colors.custom.background
+    backgroundColor: Colors.custom.transparent
   },
   nextButtonWrapper: {
     flex: 1,

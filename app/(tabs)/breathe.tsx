@@ -115,7 +115,7 @@ export default function BreatheScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.custom.background,
+    backgroundColor: Colors.custom.transparent,
     justifyContent: 'space-between',
   },
   overlay: {

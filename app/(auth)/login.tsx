@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -30,6 +30,9 @@ export default function LoginScreen() {
   const shiftAnim = useKeyboardShift();
 
   const colorScheme = useColorScheme();
+
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  
   const router = useRouter();
 
   const { verified, reset, deleted } = useLocalSearchParams();
@@ -139,7 +142,7 @@ export default function LoginScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
           <View style={styles.logoContainer}>
             <Image source={logoImage} style={styles.logo} />
@@ -296,12 +299,7 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    maxWidth: 500,
   },
   switchText: {
     textAlign: 'center',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
@@ -24,8 +24,9 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
+
   const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
-  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#fff';
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.card : '#fff';
   const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
   const greyTextColor = colorScheme === 'dark' ? '#fefefe' : '#444';
@@ -207,7 +208,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
       )}
       <View style={styles.container}>
-        <View style={styles.ranges}>
+        <View style={[styles.ranges, { backgroundColor: backgroundColor }]}>
           {(['1W', '1M', '3M', '6M'] as const).map((r) => (
             <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
               <Text style={{
@@ -249,34 +250,36 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
       </View>
 
-      <View style={[styles.container, { marginTop: 16 }, { backgroundColor: backgroundColor }]}>
-        <View style={styles.bar}>
-          <View style={{ flex: totals.positive, backgroundColor: Colors.custom.blue }} />
-          <View style={{ flex: totals.neutral, backgroundColor: Colors.custom.green }} />
-          <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
-        </View>
+      {entries.length > 0 && (
+        <View style={[styles.container, { marginTop: 16, backgroundColor: backgroundColor }]}>
+          <View style={styles.bar}>
+            <View style={{ flex: totals.positive, backgroundColor: Colors.custom.blue }} />
+            <View style={{ flex: totals.neutral, backgroundColor: Colors.custom.green }} />
+            <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
+          </View>
 
-        <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
-          <View style={styles.keyContainer}>
-            <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
-            <Text style={styles.common}>
-              Positive ({percent(totals.positive)}%)
-            </Text>
-          </View>
-          <View style={styles.keyContainer}>
-            <View style={[styles.keyDot, { backgroundColor: Colors.custom.green }]} />
-            <Text style={styles.common}>
-              Neutral ({percent(totals.neutral)}%)
-            </Text>
-          </View>
-          <View style={styles.keyContainer}>
-            <View style={[styles.keyDot, { backgroundColor: Colors.custom.red }]} />
-            <Text style={styles.common}>
-              Negative ({percent(totals.negative)}%)
-            </Text>
+          <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
+            <View style={styles.keyContainer}>
+              <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
+              <Text style={styles.common}>
+                Positive ({percent(totals.positive)}%)
+              </Text>
+            </View>
+            <View style={styles.keyContainer}>
+              <View style={[styles.keyDot, { backgroundColor: Colors.custom.green }]} />
+              <Text style={styles.common}>
+                Neutral ({percent(totals.neutral)}%)
+              </Text>
+            </View>
+            <View style={styles.keyContainer}>
+              <View style={[styles.keyDot, { backgroundColor: Colors.custom.red }]} />
+              <Text style={styles.common}>
+                Negative ({percent(totals.negative)}%)
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
@@ -284,18 +287,19 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    borderColor: 'rgba(123, 182, 212, 0.5)',
+    borderColor: 'rgba(123, 182, 212, 0.4)',
     borderWidth: 1,
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
   },
   containerWrapper: {
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
   },
   loaderOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
+    borderRadius: 16,
   },
   ranges: {
     flexDirection: 'row',

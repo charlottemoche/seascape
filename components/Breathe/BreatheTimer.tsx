@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
   startText: {
     fontSize: 18,
-    color: Colors.custom.background,
+    color: Colors.custom.transparent,
     fontWeight: 'bold',
   },
   buttonRow: {
