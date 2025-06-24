@@ -31,6 +31,7 @@ export default function ProfileScreen() {
   const footerColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const linkColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.darkBlue;
+  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
 
   const highScore = profile?.high_score ?? 0;
 
@@ -146,7 +147,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={{ backgroundColor: footerColor }}>
-          <View style={[styles.footer, { backgroundColor: footerColor }]}>
+          <View style={[styles.footer, { backgroundColor: footerColor, borderColor: greyBorder }]}>
             <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
               <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
             </Pressable>
@@ -194,7 +195,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     borderTopWidth: 1,
-    borderColor: '#ccc',
     paddingVertical: 16,
     paddingHorizontal: 24,
     flexDirection: 'row',
