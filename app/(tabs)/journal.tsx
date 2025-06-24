@@ -12,7 +12,6 @@ import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
@@ -44,7 +43,7 @@ const pageSize = 6;
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
 
-  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#fff';
+  const backgroundColor = colorScheme === 'dark' ? Colors.custom.dark : '#f8f8f8';
   const cardColor = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.white;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
