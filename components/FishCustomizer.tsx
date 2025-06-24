@@ -86,7 +86,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
-          <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
+          <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 14 }]}>Customize Your Fish</Text>
 
           <View style={styles.colorOptions}>
             {availableColors.map((color) => (
@@ -121,7 +121,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
               style={[styles.input, { color: textColor }]}
             />
           ) : (
-            <Text style={[styles.fishNameText, { color: textColor }]}>{fishName || 'Name your fish'}</Text>
+            <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || 'Name your fish'}</Text>
           )}
 
           <Button
@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   title: {
-    fontSize: 22,
     fontWeight: '600',
     marginBottom: 24,
   },
@@ -189,7 +188,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   fishNameText: {
-    fontSize: 18,
     marginBottom: 20,
     height: 36,
   }
