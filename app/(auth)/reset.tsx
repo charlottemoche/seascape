@@ -38,8 +38,8 @@ export default function ResetRequestScreen() {
   };
 
   return (
-     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View>
           <Text style={styles.label}>Enter your email to reset your password</Text>
           <Input
@@ -60,7 +60,7 @@ export default function ResetRequestScreen() {
             loading={loading}
           />
         </View>
-        </Animated.View>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }

@@ -53,7 +53,7 @@ export default function PasswordScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
-        <View style={styles.container}>
+        <View>
           <Text style={styles.label}>Enter your new password</Text>
           <View style={{ position: 'relative', marginBottom: 16 }}>
             {/* Secure Password Input */}

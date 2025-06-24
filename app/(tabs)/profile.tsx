@@ -125,9 +125,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <ScrollView style={{ backgroundColor: backgroundColor }}>
+    <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>Add commentMore actions
+      <ScrollView contentContainerStyle={[styles.wrapper, { backgroundColor: backgroundColor }]}>
           <View style={styles.loggedInWrapper}>
             <Text>
               Logged in as: {user?.email ?? 'No email'}
@@ -154,21 +153,7 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
-        </ScrollView>
-      </View>
-      <View>
-        <View style={[styles.footer, { borderTopColor: greyBorder }]}>
-          <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
-            <Text style={[styles.versionText, styles.linkText, { color: Colors.custom.blue }]}>
-              Privacy Policy
-            </Text>
-          </Pressable>
-
-          <Text style={styles.versionText}>
-            Version 1.3.4
-          </Text>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

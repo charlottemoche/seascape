@@ -86,22 +86,16 @@ function useHandleRecovery() {
 
   useEffect(() => {
     const handleUrl = async (url: string | null) => {
-      console.log('Handling URL:', url);  // Log incoming URL
-
       if (!url || handled) return;
 
       try {
         const parsed = new URL(url);
-        console.log('Parsed URL:', parsed);
 
         const fragmentParams = new URLSearchParams(parsed.hash.slice(1));
-        console.log('Fragment params:', Object.fromEntries(fragmentParams.entries()));
 
         const access_token = fragmentParams.get('access_token');
         const refresh_token = fragmentParams.get('refresh_token');
         const type = fragmentParams.get('type');
-
-        console.log('Extracted tokens:', { access_token, refresh_token, type });
 
         if (type === 'recovery' && access_token && refresh_token) {
           const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
@@ -110,7 +104,6 @@ function useHandleRecovery() {
             console.error('setSession failed:', error.message, error);
             Alert.alert('Error', 'Failed to set session: ' + error.message);
           } else {
-            console.log('Session set successfully:', data);
             setHandled(true);
             router.replace('/password');
           }
