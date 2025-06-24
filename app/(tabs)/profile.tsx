@@ -14,7 +14,7 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
-import { Text } from '@/components/Themed';
+import { Text, Button } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
@@ -140,12 +140,8 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.logoutWrapper}>
-            <Pressable onPress={handleLogout} style={[styles.button, { borderColor: '#aaa' }]}>
-              <Text style={styles.buttonText}>Log out</Text>
-            </Pressable>
-            <Pressable onPress={handleDeleteAccount} style={[styles.button, { borderColor: 'red' }]}>
-              <Text style={[styles.buttonText, { color: 'red' }]}>Delete account</Text>
-            </Pressable>
+            <Button title="Log out" onPress={handleDeleteAccount} variant="secondary" />
+            <Button title="Delete account" onPress={handleLogout} variant="danger" />
           </View>
         </View>
 
@@ -154,7 +150,7 @@ export default function ProfileScreen() {
             <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
               <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
             </Pressable>
-            <Text style={[styles.footerText, { color: textColor }]}>Version 1.3.4</Text>
+            <Text style={[styles.footerText, { color: textColor }]}>Version 1.3.6</Text>
           </View>
         </View>
       </ScrollView>
@@ -222,7 +218,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    width: '100%',
+    width: '60%',
     maxWidth: 400,
     alignSelf: 'center',
   },

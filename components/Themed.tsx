@@ -23,7 +23,7 @@ export type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   testID?: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
 };
 
 export function useThemeColor(
@@ -69,8 +69,11 @@ export function Button({
   const secondaryBg = useThemeColor({ light: Colors.custom.grey, dark: Colors.custom.darkGrey }, 'buttonSecondary');
   const secondaryText = useThemeColor({ light: '#000', dark: '#fff' }, 'buttonText');
 
-  const backgroundColor = variant === 'primary' ? primaryBg : secondaryBg;
-  const resolvedTextColor = variant === 'primary' ? primaryText : textColor ?? secondaryText;
+  const dangerBg = useThemeColor({ light: '#dd0b0b', dark: '#dd0b0b' }, 'button');
+  const dangerText = useThemeColor({ light: '#fff', dark: '#fff' }, 'buttonText');
+
+  const backgroundColor = variant === 'primary' ? primaryBg : variant === 'secondary' ? secondaryBg : dangerBg;
+  const resolvedTextColor = variant === 'primary' ? primaryText : variant === 'secondary' ? textColor ?? secondaryText : dangerText;
 
   return (
     <Pressable
@@ -84,7 +87,7 @@ export function Button({
         disabled && { opacity: 0.4 },
         {
           borderWidth: 2,
-          borderColor: Colors.custom.blue
+          borderColor: variant === 'danger' ? '#dd0b0b' : Colors.custom.blue
         },
         style,
       ]}
@@ -114,6 +117,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     maxWidth: 400,
+    width: 180,
   },
   text: {
     fontSize: 16,
