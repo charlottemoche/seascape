@@ -129,7 +129,7 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.profileSection}>
-            <Text style={[styles.label, { color: textColor }]}>High Score</Text>
+            <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>High Score</Text>
             <View style={styles.highScoreRow}>
               <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
               <Image source={preyImg} style={styles.fishImage} />
@@ -168,12 +168,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
+    paddingBottom: 8,
   },
   value: {
-    fontSize: 14,
+    fontSize: 16,
   },
   highScoreRow: {
     flexDirection: 'row',
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   logoutWrapper: {
-    paddingTop: 12,
+    paddingVertical: 12,
     alignItems: 'center',
     flexDirection: 'column',
     gap: 8,
@@ -219,7 +219,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     width: '60%',
-    maxWidth: 500,
     alignSelf: 'center',
   },
   buttonText: {

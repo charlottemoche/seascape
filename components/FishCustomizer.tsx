@@ -86,7 +86,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
-          <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 14 }]}>Customize Your Fish</Text>
+          <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 16 }]}>Customize Your Fish</Text>
 
           <View style={styles.colorOptions}>
             {availableColors.map((color) => (

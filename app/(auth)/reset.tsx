@@ -50,7 +50,6 @@ export default function ResetRequestScreen() {
               keyboardType="email-address"
               autoCorrect={false}
               spellCheck={false}
-              style={styles.input}
             />
             {error && <Text style={styles.error}>{error}</Text>}
             <Button
@@ -75,7 +74,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: '90%',
-    maxWidth: 500,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -84,13 +82,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     fontSize: 16
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 18,
   },
   error: {
     color: 'red',

@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     minWidth: '90%',
-    maxWidth: '90%',
     height: 40,
   },
   card: {

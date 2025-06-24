@@ -141,19 +141,11 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    maxWidth: 500,
   },
   label: {
     marginBottom: 20,
     textAlign: 'center',
     fontSize: 16
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 16,
   },
   eye: {
     position: 'absolute',
