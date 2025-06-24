@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     alignSelf: 'center',
+    maxWidth: 400,
   },
   text: {
     fontSize: 16,

@@ -282,14 +282,12 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     borderRadius: 16,
     borderColor: 'rgba(123, 182, 212, 0.5)',
     borderWidth: 1,
     backgroundColor: 'transparent',
   },
   containerWrapper: {
-    flex: 1,
     backgroundColor: 'transparent',
   },
   loaderOverlay: {

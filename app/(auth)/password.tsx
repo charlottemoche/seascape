@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     width: '90%',
+    maxWidth: 400,
   },
   label: {
     marginBottom: 12,

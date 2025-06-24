@@ -296,6 +296,8 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   scrollContainer: {
     flexGrow: 1,

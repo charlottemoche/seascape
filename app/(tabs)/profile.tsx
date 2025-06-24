@@ -223,6 +223,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   buttonText: {
     fontSize: 16,

@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    width: '90%'
+    width: '90%',
+    maxWidth: 400,
   },
   label: {
     marginBottom: 30,

@@ -18,9 +18,9 @@ export default function HomeScreen() {
   const { user, loading } = useRequireAuth();
   const { profile, loading: profileLoading } = useProfile();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
-    
+
   const [refreshing, setRefreshing] = useState(false);
-  
+
   const lastRefresh = useRef(0);
 
   const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
@@ -130,8 +130,11 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-
-        <FeelingsSummary userId={user.id} />
+        <View style={[styles.feelingsWrapper, { backgroundColor: backgroundColor }]}>
+          <View style={[styles.container, { maxWidth: 400, backgroundColor: backgroundColor }]}>
+            <FeelingsSummary userId={user.id} />
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -179,6 +182,8 @@ const styles = StyleSheet.create({
     padding: 16,
     width: '100%',
     marginBottom: 30,
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   darkCard: {
     borderWidth: 1,
@@ -228,5 +233,10 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     marginBottom: 8,
+  },
+  feelingsWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
