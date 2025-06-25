@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { fetchStreaks } from '@/lib/streakService';
 import { useUser } from './UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type StreakContextType = {
   lastActive?: string | null;
@@ -41,66 +42,67 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
   const [breathStreak, setBreathStreak] = useState(0);
   const [streaksLoading, setStreaksLoading] = useState(true);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    (async () => {
+      const cached = await AsyncStorage.getItem(`streaks:${userId}`);
+      if (!cached) return;
+
+      try {
+        const parsed = JSON.parse(cached);
+
+        setLastActive(parsed.lastActive);
+        setDidJournal(parsed.didJournal);
+        setDidBreathe(parsed.didBreathe);
+        setJournalStreak(parsed.journalStreak);
+        setBreathStreak(parsed.breathStreak);
+        setStreaksLoading(false);
+      } catch {
+        await AsyncStorage.removeItem(`streaks:${userId}`);
+      }
+    })();
+  }, [userId]);
 
   const refreshStreaks = useCallback(async () => {
-    if (!userId) {
-      console.warn('[refreshStreaks] No user ID');
-      setStreaksLoading(false);
-      return;
-    }
+    if (!userId) return;
 
     setStreaksLoading(true);
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     try {
-      const result = await fetchStreaks(userId, userTimezone);
+      const r = await fetchStreaks(userId, tz);
+      if (!r.success) return;
 
-      if (!result.success) {
-        console.error('Streak fetch failed');
-        return;
-      }
+      setLastActive(r.lastActive);
+      setDidJournal(r.didJournal);
+      setDidBreathe(r.didBreathe);
+      setJournalStreak(r.journalStreak);
+      setBreathStreak(r.breathStreak);
 
-      setLastActive(result.lastActive);
-      setDidJournal(result.didJournal);
-      setDidBreathe(result.didBreathe);
-      setJournalStreak(result.journalStreak);
-      setBreathStreak(result.breathStreak);
-
-    } catch (e) {
-      console.error('[refreshStreaks] Unexpected error:', e);
+      await AsyncStorage.setItem(
+        `streaks:${userId}`,
+        JSON.stringify({ ...r, updated: new Date().toISOString() })
+      );
     } finally {
       setStreaksLoading(false);
     }
   }, [userId]);
 
   useEffect(() => {
-    if (!userId) return;
-    refreshStreaks();
-  }, [refreshStreaks, userId]);
+    if (userId) refreshStreaks();
+  }, [userId, refreshStreaks]);
 
-  const contextValue = useMemo(
-    () => ({
-      lastActive,
-      didJournal,
-      didBreathe,
-      journalStreak,
-      breathStreak,
-      refreshStreaks,
-      streaksLoading,
-    }),
-    [
-      lastActive,
-      didJournal,
-      didBreathe,
-      journalStreak,
-      breathStreak,
-      refreshStreaks,
-      streaksLoading,
-    ]
-  );
+  const value = useMemo(() => ({
+    lastActive, didJournal, didBreathe,
+    journalStreak, breathStreak,
+    refreshStreaks, streaksLoading,
+  }), [lastActive, didJournal, didBreathe,
+    journalStreak, breathStreak,
+    refreshStreaks, streaksLoading]);
 
   return (
-    <StreakContext.Provider value={contextValue}>
+    <StreakContext.Provider value={value}>
       {children}
     </StreakContext.Provider>
   );
