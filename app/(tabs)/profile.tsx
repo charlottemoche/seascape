@@ -151,7 +151,7 @@ export default function ProfileScreen() {
             <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
               <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
             </Pressable>
-            <Text style={[styles.footerText, { color: textColor }]}>Version 1.3.6</Text>
+            <Text style={[styles.footerText, { color: textColor }]}>Version 1.4.6</Text>
           </View>
         </View>
       </ScrollView>
