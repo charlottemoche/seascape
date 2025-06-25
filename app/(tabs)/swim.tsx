@@ -66,7 +66,6 @@ export default function SwimScreen() {
     startNewGame,
     resetGame,
     obstacles,
-    waitingForPlayCountUpdate,
     preyEaten,
     environmentIndex,
     invincible,

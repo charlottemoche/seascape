@@ -9,13 +9,13 @@ type OverlayMode =
 export function getOverlayMode(params: {
   loading: boolean;
   canPlay: boolean;
-  playCount: number | null;
+  playCount: number;
   gameStarted: boolean;
   gameOver: boolean;
 }): OverlayMode {
   const { loading, canPlay, playCount, gameStarted, gameOver } = params;
 
-  if (loading || playCount === null) {
+  if (loading) {
     return 'loading';
   }
 

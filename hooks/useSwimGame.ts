@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Animated, Dimensions } from 'react-native';
 import { useAudioPlayer } from 'expo-audio';
-import { bumpPlayCount } from './useLightSync';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
 const gravity = 0.6;
@@ -77,7 +75,6 @@ export function useSwimGame({
   const [preyEaten, setPreyEaten] = useState(0);
   const [environmentIndex, setEnvironmentIndex] = useState(0);
   const [invincible, setInvincible] = useState(false);
-  const [waitingForPlayCountUpdate, setWaitingForPlayCountUpdate] = useState(false);
 
   const position = useRef(new Animated.Value(height / 7)).current;
   const positionY = useRef(height / 2);
@@ -111,7 +108,6 @@ export function useSwimGame({
     player.replace(require('@/assets/sounds/pop.wav'));
     player.play();
     setGameOver(true);
-    setWaitingForPlayCountUpdate(true);
     setObstacles([]);
     setGameStarted(false);
     setInvincible(false);
@@ -119,9 +115,6 @@ export function useSwimGame({
 
     if (currentSessionStarted && onPlayCountChange) {
       onPlayCountChange?.(playCount + 1);
-      setWaitingForPlayCountUpdate(false);
-    } else {
-      setWaitingForPlayCountUpdate(false);
     }
   }, [currentSessionStarted, onPlayCountChange, playCount]);
 
@@ -295,7 +288,6 @@ export function useSwimGame({
     setGameStarted,
     setGameOver,
     playCount,
-    waitingForPlayCountUpdate,
     swimUp,
     startNewGame,
     resetGame,

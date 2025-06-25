@@ -5,8 +5,8 @@ import { useStreaks } from '@/context/StreakContext';
 export function useCanPlay() {
   const { didBreathe, didJournal, lastActive } = useStreaks();
 
-  const [count, setCount]   = useState<number | null>(null);
-  const [loading, setLoad]  = useState(true);
+  const [count, setCount] = useState<number>(0);
+  const [loading, setLoad]  = useState(false);
 
   useEffect(() => {
     let cancel = false;

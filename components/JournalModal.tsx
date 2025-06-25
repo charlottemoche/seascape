@@ -21,7 +21,8 @@ const { height: screenHeight } = Dimensions.get('window');
 export default function JournalModal({ visible, onClose, text, onChangeText }: JournalModalProps) {
   const colorScheme = useColorScheme();
   
-  const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
+  const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.light.background;
+  const inputColor = colorScheme === 'dark' ? Colors.dark.input : Colors.light.input;
   const modalOverlayColor = colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)';
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
@@ -49,7 +50,7 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
           <Text style={[styles.title, { color: textColor }]}>Write Your Journal Entry</Text>
           <TextInput
             testID="journal-modal-input"
-            style={[styles.textInput, { backgroundColor: containerColor, borderColor: greyBorder, color: textColor }]}
+            style={[styles.textInput, { backgroundColor: inputColor, borderColor: greyBorder, color: textColor }]}
             multiline
             placeholder="Write your thoughts here..."
             placeholderTextColor="#888"
