@@ -11,6 +11,7 @@ type OverlayMode =
   | 'mustComplete'
   | 'gameOver'
   | 'welcome'
+  | 'start'
   | 'none';
 
 type SwimGameOverlayProps = {
@@ -18,6 +19,7 @@ type SwimGameOverlayProps = {
   highScore: number | null;
   isAdmin: boolean;
   playsLeft?: number;
+  hasPlayed?: boolean;
   onResetPlayCount: () => void;
   onStartNewGame: () => void;
 };
@@ -29,6 +31,7 @@ export function SwimGameOverlay({
   onResetPlayCount,
   onStartNewGame,
   playsLeft,
+  hasPlayed,
 }: SwimGameOverlayProps) {
   switch (overlayMode) {
     case 'loading':
@@ -70,7 +73,7 @@ export function SwimGameOverlay({
             <Text style={styles.gameSubtext}>High Score: {highScore ?? 0}</Text>
             <Image source={preyImg} style={styles.preyIcon} resizeMode="contain" />
           </View>
-          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
+          <Text style={[styles.gameSubtext, { paddingTop: 20 }]}>Plays left: {playsLeft}</Text>
           <Button onPress={onStartNewGame} title="Play again" style={styles.playButtonContainer} />
         </View>
       );
@@ -91,8 +94,21 @@ export function SwimGameOverlay({
           
           <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
 
-          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
+          <Text style={[styles.gameSubtext, { paddingTop: 20 }]}>Plays left: {playsLeft}</Text>
 
+          <Button onPress={onStartNewGame} title="Play" style={styles.playButtonContainer} />
+        </View>
+      );
+
+
+      case 'start':
+      return (
+        <View style={styles.gameMessageOverlay}>
+          <View style={styles.instructionsRow}>
+            <Text style={styles.gameStatusText}>Welcome back!</Text>
+            <Image source={preyImg} style={styles.iconInlinePrey} resizeMode="contain" />
+          </View>
+          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
           <Button onPress={onStartNewGame} title="Play" style={styles.playButtonContainer} />
         </View>
       );

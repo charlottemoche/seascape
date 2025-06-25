@@ -55,7 +55,6 @@ class LargeSecureStore {
 
   async removeItem(key: string) {
     await AsyncStorage.removeItem(key);
-    // don't delete the encryption key here! Keep it persistent.
   }
 
   async setItem(key: string, value: string) {
@@ -67,9 +66,11 @@ class LargeSecureStore {
 const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl!;
 const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey!;
 
+const isNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: new LargeSecureStore(),
+    storage: isNative ? new LargeSecureStore() : undefined,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

@@ -4,6 +4,7 @@ type OverlayMode =
   | 'mustComplete'
   | 'gameOver'
   | 'welcome'
+  | 'start'
   | 'none';
 
 export function getOverlayMode(params: {
@@ -12,8 +13,9 @@ export function getOverlayMode(params: {
   playCount: number;
   gameStarted: boolean;
   gameOver: boolean;
+  hasPlayed?: boolean;
 }): OverlayMode {
-  const { loading, canPlay, playCount, gameStarted, gameOver } = params;
+  const { loading, canPlay, playCount, gameStarted, gameOver, hasPlayed } = params;
 
   if (loading) {
     return 'loading';
@@ -33,8 +35,12 @@ export function getOverlayMode(params: {
     return 'gameOver';
   }
 
-  if (!gameStarted) {
+  if (!gameStarted && !hasPlayed) {
     return 'welcome';
+  }
+
+  if (!gameStarted && hasPlayed) {
+    return 'start';
   }
 
   return 'none';

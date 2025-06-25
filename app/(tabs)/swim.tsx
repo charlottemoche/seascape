@@ -13,23 +13,25 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useSwimGame, environments } from '@/hooks/useSwimGame';
 import { useCanPlay } from '@/hooks/user/useCanPlayToday';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { resetPlayCount } from '@/lib/playCount';
 import { Text } from '@/components/Themed';
 import { SwimGameOverlay } from '@/components/SwimGameOverlay';
 import { getOverlayMode } from '@/lib/gameOverlay';
 import { bumpHighScore } from '@/hooks/useLightSync';
+import { supabase } from '@/lib/supabase';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
-  const { profile } = useProfile();
+  const { profile, refreshProfile } = useProfile();
 
   const [envMessage, setEnvMessage] = useState<string | null>(null);
   const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<number | null>(null);
   const [resetting, setResetting] = useState(false);
   const [bestScore, setBestScore] = useState<number>(profile?.high_score ?? 0);
+
+  const hasMarkedPlayed = useRef(false);
 
   const predatorSize = 90;
   const preySize = 50;
@@ -55,6 +57,19 @@ export default function SwimScreen() {
   }, [rawColor]);
   const fishImage = useMemo(() => fishImages[fishColor], [fishColor]);
   const tabBarHeight = useBottomTabBarHeight();
+
+  const markHasPlayed = async () => {
+    if (user && !profile?.has_played) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ has_played: true })
+        .eq('user_id', user.id);
+
+      if (error) console.error('Failed to mark has_played:', error);
+      else await refreshProfile();
+    }
+  };
+
 
   const {
     position,
@@ -85,8 +100,9 @@ export default function SwimScreen() {
       playCount,
       gameStarted,
       gameOver,
+      hasPlayed: profile?.has_played,
     });
-  }, [canPlayLoading, loading, canPlay, playCount, gameStarted, gameOver]);
+  }, [canPlayLoading, loading, canPlay, playCount, gameStarted, gameOver, profile?.has_played]);
 
   const handlePressIn = () => {
     if (!canPlay || !gameStarted) return;
@@ -159,6 +175,11 @@ export default function SwimScreen() {
         await bumpHighScore(preyEaten);
         setBestScore(preyEaten);
       }
+
+      if (!hasMarkedPlayed.current && !profile?.has_played) {
+        await markHasPlayed();
+        hasMarkedPlayed.current = true;
+      }
     };
 
     if (gameOver) {
@@ -210,6 +231,7 @@ export default function SwimScreen() {
               onResetPlayCount={handleResetPlayCount}
               onStartNewGame={startNewGame}
               playsLeft={3 - (playsUsed ?? 0)}
+              hasPlayed={profile?.has_played}
             />
 
             {gameStarted && (

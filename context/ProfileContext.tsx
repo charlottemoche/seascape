@@ -14,6 +14,7 @@ type ProfileType = {
   fish_color?: string;
   fish_name?: string;
   onboarding_completed?: boolean;
+  has_played?: boolean;
   high_score?: number;
   total_minutes?: number;
   admin?: boolean;
@@ -46,7 +47,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin')
+        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played')
         .eq('user_id', user.id)
         .maybeSingle();
 
