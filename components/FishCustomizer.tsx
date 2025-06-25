@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Pressable,
   StyleSheet,
   Alert,
   Image,
   TouchableWithoutFeedback,
   Keyboard,
   useColorScheme,
-  Animated,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
 import fishImages from '@/constants/fishMap';
 import { FishColor } from '@/constants/fishMap';
-import { Button, Input } from '@/components/Themed';
+import { Button } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
-import { useKeyboardShift } from '@/hooks/useKeyboardShift';
+import FishModal from './FishModal';
 
 type FishCustomizerProps = {
   lightText?: boolean;
@@ -32,8 +30,6 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
 
   const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
 
-  const shiftAnim = useKeyboardShift();
-
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(
     availableColors.includes(profile?.fish_color as FishColor)
@@ -41,7 +37,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
       : 'blue'
   );
   const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     setFishName(profile?.fish_name ?? '');
@@ -58,7 +54,7 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
   const handleSave = async () => {
     if (!user) return;
 
-    if (editing) {
+    if (modalVisible) {
       setSaving(true);
 
       const { error } = await supabase
@@ -74,64 +70,40 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
       if (error) {
         Alert.alert('Error', 'Failed to save profile. Please try again.');
       } else {
-        setEditing(false);
+        setModalVisible(false);
         Alert.alert('Success', 'Fish updated.');
       }
     } else {
-      setEditing(true);
+      setModalVisible(true);
     }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
+      <View style={styles.container}>
         <View style={styles.container}>
           <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 16 }]}>Customize Your Fish</Text>
 
-          <View style={styles.colorOptions}>
-            {availableColors.map((color) => (
-              <Pressable
-                key={color}
-                onPress={() => {
-                  if (color !== fishColor) {
-                    setFishColor(color);
-                    setEditing(true);
-                  }
-                }}
-              >
-                <Image
-                  source={fishImages[color]}
-                  style={[
-                    styles.smallFish,
-                    fishColor === color && editing && styles.selectedFish,
-                  ]}
-                />
-              </Pressable>
-            ))}
-          </View>
-
           <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
-          {editing ? (
-            <Input
-              value={fishName}
-              onChangeText={setFishName}
-              placeholder="Name your fish"
-              placeholderTextColor="#888"
-              style={[styles.input, { color: textColor }]}
-            />
-          ) : (
-            <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || 'Name your fish'}</Text>
-          )}
+          <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || ' '}</Text>
 
-          <Button
-            onPress={handleSave}
-            disabled={saving}
-            loading={saving}
-            title={saving ? 'Saving...' : editing ? 'Save' : 'Edit'}
+          <Button title="Edit" onPress={() => setModalVisible(true)} />
+
+          <FishModal
+            visible={modalVisible}
+            text={fishName}
+            onChangeText={setFishName}
+            fishColor={fishColor}
+            setFishColor={setFishColor}
+            availableColors={availableColors}
+            saving={saving}
+            onSave={handleSave}
+            onCancel={() => setModalVisible(false)}
           />
+
         </View>
-      </Animated.View>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -148,8 +120,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   title: {
-    fontWeight: '600',
-    marginBottom: 24,
+    fontWeight: 600,
+    marginBottom: 12,
   },
   colorOptions: {
     flexDirection: 'row',
@@ -166,10 +138,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 24,
-  },
-  selectedFish: {
-    borderBottomColor: '#808080',
-    borderBottomWidth: 2,
   },
   input: {
     borderWidth: 1,
@@ -188,7 +156,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   fishNameText: {
-    marginBottom: 20,
     height: 36,
   }
 });

@@ -69,11 +69,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  openButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-  },
   modalOverlay: {
     flex: 1,
   },
@@ -96,7 +91,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 500,
     marginBottom: 12,
   },
   textInput: {

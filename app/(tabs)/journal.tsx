@@ -328,7 +328,7 @@ export default function JournalScreen() {
                 ))}
               </View>
 
-              <Text style={styles.prompt}>Want to write something?</Text>
+              <Text style={styles.subtitle}>Want to write something?</Text>
 
               <>
                 <Pressable
@@ -368,8 +368,8 @@ export default function JournalScreen() {
                       <Button onPress={handleLock} title="Lock" variant="secondary" />
                     </View>
                     {journalEntries.map((entry, index) => (
-                      <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder }]}>
-                        <View style={styles.entryHeader}>
+                      <View key={entry.id ?? index} style={[styles.entryCard, { borderColor: greyBorder, backgroundColor: cardColor }]}>
+                        <View style={[styles.entryHeader, { backgroundColor: cardColor }]}>
                           {(() => {
                             let decryptedFeelings = [];
                             if (typeof entry.feeling === 'string') {
@@ -474,7 +474,8 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 12,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
     marginBottom: 30,
     borderWidth: 1,
     borderColor: 'rgba(123, 182, 212, 0.4)',
@@ -485,7 +486,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   feelingButton: {
-    backgroundColor: 'rgba(207, 233, 241, 0.2)',
+    backgroundColor: 'rgba(207, 233, 241, 0.1)',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
@@ -505,11 +506,6 @@ const styles = StyleSheet.create({
   selectedFeelingText: {
     fontWeight: 500,
     color: '#000000',
-  },
-  prompt: {
-    fontSize: 16,
-    marginBottom: 8,
-    marginTop: 40,
   },
   textArea: {
     borderWidth: 1,

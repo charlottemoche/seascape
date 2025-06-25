@@ -59,7 +59,7 @@ export default function PasswordScreen() {
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
           <Text style={styles.label}>Enter your new password</Text>
-          <View style={{ position: 'relative', marginBottom: 10 }}>
+          <View style={{ position: 'relative' }}>
             <Input
               placeholder='Password'
               autoComplete='password'
@@ -90,7 +90,7 @@ export default function PasswordScreen() {
             </Pressable>
           </View>
 
-          <View style={{ position: 'relative', marginBottom: 16 }}>
+          <View style={{ position: 'relative' }}>
             <Input
               placeholder='Confirm password'
               autoComplete='password'

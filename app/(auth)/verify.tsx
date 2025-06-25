@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  View,
   Alert,
   StyleSheet,
   Keyboard,
@@ -9,7 +8,7 @@ import {
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Button, Input } from '@/components/Themed';
+import { Button, Input, View } from '@/components/Themed';
 import { Text } from '@/components/Themed';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 
@@ -53,33 +52,35 @@ export default function VerifyEmailScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }] }]}>
         <View style={styles.container}>
-          <Text style={styles.header}>Please check your email for verfication code</Text>
-          <Input
-            placeholder="Email"
-            placeholderTextColor="#888"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-            value={email}
-            onChangeText={setEmail}
-          />
+          <View style={styles.inner}>
+            <Text style={styles.header}>Please check your email for verfication code</Text>
+            <Input
+              placeholder="Email"
+              placeholderTextColor="#888"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+              value={email}
+              onChangeText={setEmail}
+            />
 
-          <Input
-            placeholder="6-digit code"
-            placeholderTextColor="#888"
-            keyboardType="number-pad"
-            maxLength={6}
-            value={code}
-            onChangeText={setCode}
-          />
+            <Input
+              placeholder="6-digit code"
+              placeholderTextColor="#888"
+              keyboardType="number-pad"
+              maxLength={6}
+              value={code}
+              onChangeText={setCode}
+            />
 
-          <Button
-            loading={loading}
-            onPress={handleVerify}
-            disabled={loading}
-            title={loading ? 'Verifying...' : 'Verify email'}
-          />
+            <Button
+              loading={loading}
+              onPress={handleVerify}
+              disabled={loading}
+              title={loading ? 'Verifying...' : 'Verify email'}
+            />
+          </View>
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
@@ -89,9 +90,14 @@ export default function VerifyEmailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    justifyContent: 'center',
+  },
+  inner: {
+    padding: 24, 
+    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   header: {
     fontSize: 16,

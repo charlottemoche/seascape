@@ -27,7 +27,7 @@ export default function ProfileScreen() {
 
   const colorScheme = useColorScheme();
 
-  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.white;
   const footerColor = colorScheme === 'dark' ? Colors.dark.card : '#f8f8f8';
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const linkColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.darkBlue;
