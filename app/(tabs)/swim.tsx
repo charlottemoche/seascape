@@ -230,7 +230,7 @@ export default function SwimScreen() {
               isAdmin={!!profile?.admin}
               onResetPlayCount={handleResetPlayCount}
               onStartNewGame={startNewGame}
-              playsLeft={3 - (playsUsed ?? 0)}
+              playsLeft={5 - (playsUsed ?? 0)}
               hasPlayed={profile?.has_played}
             />
 
@@ -243,7 +243,7 @@ export default function SwimScreen() {
                 </View>
                 <View style={styles.counterRow}>
                   <Text style={styles.counterLabel}>Plays Left:</Text>
-                  <Text style={styles.counterText}>{3 - (playsUsed ?? 0)}</Text>
+                  <Text style={styles.counterText}>{5 - (playsUsed ?? 0)}</Text>
                 </View>
               </View>
             )}

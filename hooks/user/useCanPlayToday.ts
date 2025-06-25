@@ -26,7 +26,7 @@ export function useCanPlay() {
     return today === lastActive && (didBreathe || didJournal);
   }, [lastActive, didBreathe, didJournal]);
 
-  const canPlay = didOneToday && (count ?? 0) < 3;
+  const canPlay = didOneToday && (count ?? 0) < 5;
 
   return { canPlay, loading, count, setCount, bump, reset };
 }

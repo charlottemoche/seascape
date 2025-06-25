@@ -1,34 +1,40 @@
 import React, { useState } from 'react';
-import { View, Button, Alert, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Button, Alert, StyleSheet, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { Logo } from '@/components/Nav/Logo';
+import { TabBarIcon } from '@/components/Tabs/TabBar';
+import Slide from '@/components/Slide';
 import Colors from '@/constants/Colors';
-import { Text } from '@/components/Themed';
 
 const slides = [
   {
     key: 'welcome',
     content: 'Your personal companion for meditation and mindfulness.',
+    icon: require('@/assets/images/fish.png'),
   },
   {
     key: 'breathing',
     content: 'Practice calming breathing exercises to relax your mind and body.',
+    icon: <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={28} />,
   },
   {
     key: 'journaling',
     content: 'Write journal entries to reflect on your thoughts and emotions.',
+    icon: <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={26} />,
   },
   {
     key: 'tracking',
-    content: 'Keep track of your meditation minutes, daily streaks, and journaling habits.',
+    content: 'Keep track of your mood, meditation minutes, daily streaks, and journaling habits.',
+    icon: <TabBarIcon name="line-chart" color={Colors.custom.yellow} type="FontAwesome" size={26} />,
   },
   {
     key: 'game',
-    content: 'Enjoy a relaxing fish game as a reward for your mindfulness progress!',
+    content: 'Enjoy a fish game as a reward for your mindfulness progress!',
+    icon: require('@/assets/images/prey.png'),
   },
   {
     key: 'customize',
@@ -64,7 +70,7 @@ export default function OnboardingScreen() {
       }
 
       await refreshProfile();
-        router.replace('/');
+      router.replace('/');
     }
   };
 
@@ -83,14 +89,27 @@ export default function OnboardingScreen() {
       <View style={styles.container}>
         <Logo />
         <View style={styles.content}>
-          {isFirstPage && (
-            <Text style={styles.header}>Welcome to Seascape</Text>
-          )}
           {slides[page].key === 'customize' ? (
-            <FishCustomizer lightText />
+            <FishCustomizer lightText onSaved={onNext} />
           ) : (
-            <Text style={styles.text}>{slides[page].content}</Text>
+            <Slide
+              title={isFirstPage ? 'Welcome to Seascape' : undefined}
+              body={slides[page].content}
+              icon={slides[page].icon}
+            />
           )}
+        </View>
+
+        <View style={styles.dots}>
+          {slides.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                i === page && styles.dotActive
+              ]}
+            />
+          ))}
         </View>
 
         <View style={styles.buttons}>
@@ -153,5 +172,21 @@ const styles = StyleSheet.create({
   nextButtonWrapper: {
     flex: 1,
     alignItems: 'flex-end',
+  },
+  dots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+    backgroundColor: 'transparent',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  dotActive: {
+    backgroundColor: Colors.custom.lightBlue,
   },
 });

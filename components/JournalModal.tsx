@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 500,
     marginBottom: 12,
+    textAlign: 'center',
   },
   textInput: {
     flex: 1,

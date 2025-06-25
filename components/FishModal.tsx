@@ -43,67 +43,69 @@ export default function FishModal({
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
   const [localName, setLocalName] = useState(initialText);
-const [localColor, setLocalColor] = useState<FishColor>(initialColor);
+  const [localColor, setLocalColor] = useState<FishColor>(initialColor);
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onCancel}>
 
-      <TouchableWithoutFeedback
+      <Pressable
+        style={[styles.backdrop, { backgroundColor: modalOverlayColor }]}
         onPress={() => {
-          Keyboard.dismiss();
           onCancel();
+          Keyboard.dismiss();
         }}
       >
-        <View style={[styles.modalOverlay, { backgroundColor: modalOverlayColor }]} />
-      </TouchableWithoutFeedback>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
-        style={styles.keyboardAvoidingView}
-      >
-        <View style={[styles.modalContent, { backgroundColor: containerColor }]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+          style={styles.keyboardAvoidingView}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={[styles.modalContent, { backgroundColor: containerColor }]}>
 
-          <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
+              <Text style={[styles.title, { color: textColor }]}>Customize Your Fish</Text>
 
-          <View style={styles.colorRow}>
-            {availableColors.map(c => (
-              <Pressable key={c} onPress={() => setLocalColor(c)}>
-                <Image
-                  source={fishImages[c]}
-                  style={[
-                    styles.smallFish,
-                    localColor === c && styles.selectedFish,
-                  ]}
+              <View style={styles.colorRow}>
+                {availableColors.map(c => (
+                  <Pressable key={c} onPress={() => setLocalColor(c)}>
+                    <Image
+                      source={fishImages[c]}
+                      style={[
+                        styles.smallFish,
+                        localColor === c && styles.selectedFish,
+                      ]}
+                    />
+                  </Pressable>
+                ))}
+              </View>
+
+              <Input
+                value={localName}
+                onChangeText={setLocalName}
+                placeholder="Finny"
+                placeholderTextColor="#888"
+                autoFocus
+                style={{
+                  backgroundColor: containerColor,
+                  borderColor: greyBorder,
+                  color: textColor,
+                }}
+              />
+
+              <View style={styles.btnRow}>
+                <Button title="Cancel" onPress={onCancel} variant="secondary" />
+                <Button
+                  title={saving ? 'Saving…' : 'Save'}
+                  onPress={() => onSave(localName, localColor)}
+                  loading={saving}
+                  disabled={saving}
                 />
-              </Pressable>
-            ))}
-          </View>
-
-          <Input
-            value={localName}
-            onChangeText={setLocalName}
-            placeholder="Finny"
-            placeholderTextColor="#888"
-            autoFocus
-            style={{
-              backgroundColor: containerColor,
-              borderColor: greyBorder,
-              color: textColor,
-            }}
-          />
-
-          <View style={styles.btnRow}>
-            <Button title="Cancel" onPress={onCancel} variant="secondary" />
-            <Button
-              title={saving ? 'Saving…' : 'Save'}
-              onPress={() => onSave(localName, localColor)}
-              loading={saving}
-              disabled={saving}
-            />
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </Pressable>
     </Modal>
   );
 }
@@ -113,8 +115,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalOverlay: {
+  backdrop: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   keyboardAvoidingView: {
     position: 'absolute',

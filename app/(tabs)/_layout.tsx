@@ -36,6 +36,9 @@ export default function ProtectedTabLayout() {
   }
 
   return <TabLayout />;
+
+  // Test any screen below
+  // return <Redirect href="/welcome" />;
 }
 
 const styles = StyleSheet.create({

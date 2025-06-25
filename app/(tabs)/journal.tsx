@@ -7,7 +7,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   SafeAreaView,
-  useColorScheme
+  useColorScheme,
+  ScrollView,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { TabBarIcon } from '@/components/Tabs/TabBar';
@@ -277,13 +278,9 @@ export default function JournalScreen() {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: backgroundColor }}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAwareScrollView
-          enableOnAndroid
-          extraScrollHeight={100}
-          keyboardShouldPersistTaps="handled"
-        >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: backgroundColor }]}>
+      <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); if(modalVisible) setModalVisible(false);}} accessible={false}>
+        <ScrollView>
           <View style={styles.container}>
             <View style={styles.inner}>
               <Text style={styles.title}>Journal</Text>
@@ -433,13 +430,16 @@ export default function JournalScreen() {
               )}
             </View>
           </View>
-        </KeyboardAwareScrollView>
+        </ScrollView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     padding: 24,
   },

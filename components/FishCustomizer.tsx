@@ -18,11 +18,12 @@ import FishModal from './FishModal';
 
 type FishCustomizerProps = {
   lightText?: boolean;
+  onSaved?: () => void;
 };
 
 const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-export function FishCustomizer({ lightText }: FishCustomizerProps) {
+export function FishCustomizer({ lightText, onSaved }: FishCustomizerProps) {
   const { user } = useUser();
   const { profile } = useProfile();
 
@@ -73,24 +74,25 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
       setFishName(newName);
       setFishColor(newColor);
       Alert.alert('Success', 'Fish updated.');
+      onSaved?.();
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={() => { if (modalVisible) setModalVisible(false); Keyboard.dismiss(); }}>
       <View style={styles.container}>
         <View style={styles.container}>
           <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 16 }]}>Customize Your Fish</Text>
 
           <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
-          <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || ' '}</Text>
+          <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || 'Finny'}</Text>
 
-          <Button title="Edit" onPress={() => setModalVisible(true)} />
+          <Button title="Edit" onPress={() => setModalVisible(true)} variant="secondary" />
 
           <FishModal
             visible={modalVisible}
-            initialText={fishName}
+            initialText={fishName || 'Finny'}
             initialColor={fishColor}
             onSave={(newName, newColor) => handleSave(newName, newColor)}
             onCancel={() => setModalVisible(false)}

@@ -38,6 +38,7 @@ export default {
     lightBlue: '#cfe9f1',
     red: '#ce6548',
     green: '#4b9032',
+    yellow: '#f9c74f',
     blue: '#7bb6d4',
     mediumBlue: '#5591ad',
     darkBlue: '#023c69',

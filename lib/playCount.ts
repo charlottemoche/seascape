@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'dailyPlayCounts';
-const MAX_PLAYS   = 3;
+const MAX_PLAYS   = 5;
 
 const todayKey = (): string => new Date().toLocaleDateString('en-CA');
 

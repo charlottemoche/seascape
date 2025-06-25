@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Alert,
   StyleSheet,
@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Input, View } from '@/components/Themed';
 import { Text } from '@/components/Themed';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
@@ -23,11 +24,43 @@ export default function VerifyEmailScreen() {
         ? params.email[0]
         : '';
 
+  const MIN_INTERVAL = 30;
+
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(MIN_INTERVAL);
+
+  const intervalRef = useRef<number | null>(null);
 
   const shiftAnim = useKeyboardShift();
+
+  useEffect(() => {
+    (async () => {
+      const ts = await AsyncStorage.getItem('pendingEmailSentAt');
+      if (!ts) return;
+      const elapsed = (Date.now() - Number(ts)) / 1000;
+      const remaining = Math.max(0, MIN_INTERVAL - Math.floor(elapsed));
+      setCooldown(remaining);
+    })();
+  }, []);
+
+  const handleResend = async () => {
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      email,
+      type: 'signup',
+    });
+
+    if (error) {
+      Alert.alert('Resend failed', error.message);
+    } else {
+      await AsyncStorage.setItem('pendingEmailSentAt', Date.now().toString());
+      setCooldown(30);
+    }
+    setResendLoading(false);
+  };
 
   const handleVerify = async () => {
     setLoading(true);
@@ -40,10 +73,8 @@ export default function VerifyEmailScreen() {
     if (error) {
       Alert.alert('Verification failed', error.message);
     } else {
-      router.replace({
-        pathname: '/login',
-        params: { verified: 'true' },
-      });
+      await AsyncStorage.removeItem('pendingEmail');
+      router.replace('/');
     }
     setLoading(false);
   };
@@ -80,6 +111,15 @@ export default function VerifyEmailScreen() {
               disabled={loading}
               title={loading ? 'Verifying...' : 'Verify email'}
             />
+
+            <Button
+              variant="secondary"
+              loading={resendLoading}
+              onPress={handleResend}
+              disabled={resendLoading || cooldown > 0}
+              style={{ marginTop: 16 }}
+              title={cooldown > 0 ? `Send again in ${cooldown}s` : 'Send again'}
+            />
           </View>
         </View>
       </Animated.View>
@@ -93,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inner: {
-    padding: 24, 
+    padding: 24,
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',

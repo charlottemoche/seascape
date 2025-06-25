@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -16,6 +16,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
 import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -32,17 +33,17 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
-  
+
   const router = useRouter();
 
-  const { verified, reset, deleted } = useLocalSearchParams();
+  const { reset, deleted, logout } = useLocalSearchParams();
 
   const logoImage =
     colorScheme === 'dark'
       ? require('@/assets/images/logo-light.png')
       : require('@/assets/images/logo-dark.png');
 
-  const verifiedMessageColor = colorScheme === 'dark' ? Colors.custom.mediumBlue : Colors.custom.darkBlue;
+  const messageColor = colorScheme === 'dark' ? Colors.custom.mediumBlue : Colors.custom.darkBlue;
 
   const handleAuth = async () => {
     setLoading(true);
@@ -93,6 +94,8 @@ export default function LoginScreen() {
             loginError.message.includes('Email not confirmed') ||
             loginError.message.includes('email not verified')
           ) {
+            await AsyncStorage.setItem('pendingEmail', email);
+            await AsyncStorage.setItem('pendingEmailSentAt', Date.now().toString());
             router.push({ pathname: '/verify', params: { email } });
             setLoading(false);
             return;
@@ -140,6 +143,23 @@ export default function LoginScreen() {
     }
   };
 
+  useEffect(() => {
+    const bootstrap = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace('/');
+        return;
+      }
+
+      const pendingEmail = await AsyncStorage.getItem('pendingEmail');
+      if (pendingEmail) {
+        router.replace({ pathname: '/verify', params: { email: pendingEmail } });
+      }
+    };
+
+    bootstrap();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
@@ -148,25 +168,23 @@ export default function LoginScreen() {
             <Image source={logoImage} style={styles.logo} />
           </View>
 
-          {verified === 'true' && (
-            <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
-              Email verified. Please log in.
-            </Text>
-          )}
-
           {reset === 'true' && (
-            <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
+            <Text style={[styles.message, { backgroundColor: messageColor }]}>
               Password reset. Please log in.
             </Text>
           )}
 
-          {
-            deleted === 'true' && (
-              <Text style={[styles.verifiedMessage, { backgroundColor: verifiedMessageColor }]}>
-                Your account has been deleted.
-              </Text>
-            )
-          }
+          {deleted === 'true' && (
+            <Text style={[styles.message, { backgroundColor: messageColor }]}>
+              Your account has been deleted.
+            </Text>
+          )}
+
+          {logout === 'true' && (
+            <Text style={[styles.message, { backgroundColor: messageColor }]}>
+              You have been logged out.
+            </Text>
+          )}
 
           <Input
             placeholder='Email'
@@ -330,7 +348,7 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     resizeMode: 'contain',
   },
-  verifiedMessage: {
+  message: {
     fontSize: 16,
     marginBottom: 40,
     textAlign: 'center',

@@ -37,17 +37,17 @@ export const environments: Environment[] = [
   {
     name: 'Deep Sea',
     backgroundImage: require('@/assets/images/swim-background.png'),
-    spawnInterval: 100,
+    spawnInterval: 80,
     obstacleSpeed: 3500,
-    maxObstacles: 2,
+    maxObstacles: 3,
     preyRatio: 0.7,
   },
   {
     name: 'Kelp Forest',
     backgroundImage: require('@/assets/images/kelp-forest.png'),
-    spawnInterval: 150,
+    spawnInterval: 120,
     obstacleSpeed: 3000,
-    maxObstacles: 3,
+    maxObstacles: 4,
     preyRatio: 0.6,
   },
   {
@@ -81,7 +81,7 @@ export function useSwimGame({
   const velocity = useRef(0);
   const collidedPreyIds = useRef<Set<string>>(new Set());
   const obstaclesRef = useRef<Obstacle[]>([]);
-  const upgradeThresholds = [10, 30];
+  const upgradeThresholds = [10, 40];
 
   const player = useAudioPlayer(require('@/assets/sounds/chomp.wav'));
 
@@ -202,7 +202,7 @@ export function useSwimGame({
 
     animationFrame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animationFrame);
-  }, [gameStarted, gameOver, obstacles, tabBarHeight, endGame]);
+  }, [gameStarted, gameOver, tabBarHeight, endGame]);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -267,7 +267,7 @@ export function useSwimGame({
   }, [gameStarted, environmentIndex]);
 
   const startNewGame = useCallback(() => {
-    if (loading || !canPlayToday || playCount >= 3)
+    if (loading || !canPlayToday || playCount >= 5)
       return;
     resetGame();
     setGameOver(false);

@@ -112,8 +112,8 @@ export default function ProfileScreen() {
         Alert.alert('Error', 'Failed to log out. Please try again.');
         return;
       }
+      router.replace('/login?logout=true');
       setUser(null);
-      Alert.alert('Success', 'You have been logged out.');
     } catch {
       setUser(null);
     }
