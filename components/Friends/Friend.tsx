@@ -34,13 +34,6 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
           {high_score}
         </Text>
       )}
-
-      {/* {high_score != null && ( */}
-      <Text style={[styles.text, { color: textColor, marginLeft: 12 }]}>
-        {labeled ? 'High score: ' : ''}
-        20
-      </Text>
-      {/* )} */}
     </View>
   );
 }

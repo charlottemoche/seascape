@@ -41,19 +41,22 @@ export default function IncomingRequests({ onAccepted }: { onAccepted: () => voi
     return <Text style={[styles.empty, { color: textColor }]}>No friend requests</Text>;
 
   return (
-    <View style={{ backgroundColor: 'transparent' }}>
+    <View style={{ backgroundColor: 'transparent', flexShrink: 1 }}>
       {rows.map((item) => (
         <View style={styles.row} key={item.id}>
-          <Friend
-            fish_name={item.fish_name}
-            friend_code={item.friend_code}
-            fish_color={item.fish_color}
-          />
+          <View style={{ flexShrink: 1, backgroundColor: 'transparent' }}>
+            <Friend
+              fish_name={item.fish_name}
+              friend_code={item.friend_code}
+              fish_color={item.fish_color}
+            />
+          </View>
           <Button
             title="Accept"
             onPress={() => handleAccept(item.requesterId)}
           />
         </View>
+
       ))}
     </View>
   );
@@ -66,11 +69,13 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: 500,
+    marginTop: 4,
   },
   row: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
   },
 });
