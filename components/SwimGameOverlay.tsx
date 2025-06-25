@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   gameStatusText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
