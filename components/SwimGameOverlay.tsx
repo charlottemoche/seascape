@@ -69,11 +69,11 @@ export function SwimGameOverlay({
       return (
         <View style={styles.gameMessageOverlay}>
           <Text style={styles.gameStatusText}>Game Over</Text>
+          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
           <View style={styles.highScoreRow}>
             <Text style={styles.gameSubtext}>High Score: {highScore ?? 0}</Text>
             <Image source={preyImg} style={styles.preyIcon} resizeMode="contain" />
           </View>
-          <Text style={[styles.gameSubtext, { paddingTop: 20 }]}>Plays left: {playsLeft}</Text>
           <Button onPress={onStartNewGame} title="Play again" style={styles.playButtonContainer} />
         </View>
       );
