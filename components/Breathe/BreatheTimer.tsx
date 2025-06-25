@@ -20,8 +20,8 @@ export default function BreatheTimer({
   onComplete,
   onSessionEnd,
 }: BreatheTimerProps) {
-  const [duration, setDuration] = useState(5);
-  const [timeLeft, setTimeLeft] = useState(5 * 60);
+  const [duration, setDuration] = useState(3);
+  const [timeLeft, setTimeLeft] = useState(3 * 60);
   const [showTime, setShowTime] = useState(true);
 
   useEffect(() => {

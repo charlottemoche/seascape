@@ -51,30 +51,28 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
     );
   }, [profile?.fish_color]);
 
-  const handleSave = async () => {
+  const handleSave = async (newName: string, newColor: FishColor) => {
     if (!user) return;
 
-    if (modalVisible) {
-      setSaving(true);
+    setSaving(true);
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          fish_color: fishColor,
-          fish_name: fishName,
-        })
-        .eq('user_id', user.id);
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        fish_color: newColor,
+        fish_name: newName,
+      })
+      .eq('user_id', user.id);
 
-      setSaving(false);
+    setSaving(false);
 
-      if (error) {
-        Alert.alert('Error', 'Failed to save profile. Please try again.');
-      } else {
-        setModalVisible(false);
-        Alert.alert('Success', 'Fish updated.');
-      }
+    if (error) {
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
     } else {
-      setModalVisible(true);
+      setModalVisible(false);
+      setFishName(newName);
+      setFishColor(newColor);
+      Alert.alert('Success', 'Fish updated.');
     }
   };
 
@@ -92,14 +90,12 @@ export function FishCustomizer({ lightText }: FishCustomizerProps) {
 
           <FishModal
             visible={modalVisible}
-            text={fishName}
-            onChangeText={setFishName}
-            fishColor={fishColor}
-            setFishColor={setFishColor}
-            availableColors={availableColors}
-            saving={saving}
-            onSave={handleSave}
+            initialText={fishName}
+            initialColor={fishColor}
+            onSave={(newName, newColor) => handleSave(newName, newColor)}
             onCancel={() => setModalVisible(false)}
+            saving={saving}
+            availableColors={availableColors}
           />
 
         </View>

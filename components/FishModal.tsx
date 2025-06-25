@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import {
   Modal,
   StyleSheet,
@@ -16,22 +17,18 @@ import fishImages, { FishColor } from '@/constants/fishMap';
 
 type Props = {
   visible: boolean;
-  text: string;
-  onChangeText: (s: string) => void;
-  fishColor: FishColor;
-  setFishColor: (c: FishColor) => void;
+  initialText: string;
+  initialColor: FishColor;
   availableColors: FishColor[];
   saving: boolean;
-  onSave: () => void;
+  onSave: (name: string, color: FishColor) => void;
   onCancel: () => void;
 };
 
 export default function FishModal({
   visible,
-  text,
-  onChangeText,
-  fishColor,
-  setFishColor,
+  initialText,
+  initialColor,
   availableColors,
   saving,
   onSave,
@@ -44,6 +41,9 @@ export default function FishModal({
     colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)';
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
+
+  const [localName, setLocalName] = useState(initialText);
+const [localColor, setLocalColor] = useState<FishColor>(initialColor);
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onCancel}>
@@ -68,12 +68,12 @@ export default function FishModal({
 
           <View style={styles.colorRow}>
             {availableColors.map(c => (
-              <Pressable key={c} onPress={() => setFishColor(c)}>
+              <Pressable key={c} onPress={() => setLocalColor(c)}>
                 <Image
                   source={fishImages[c]}
                   style={[
                     styles.smallFish,
-                    fishColor === c && styles.selectedFish,
+                    localColor === c && styles.selectedFish,
                   ]}
                 />
               </Pressable>
@@ -81,10 +81,11 @@ export default function FishModal({
           </View>
 
           <Input
-            value={text}
-            onChangeText={onChangeText}
+            value={localName}
+            onChangeText={setLocalName}
             placeholder="Finny"
             placeholderTextColor="#888"
+            autoFocus
             style={{
               backgroundColor: containerColor,
               borderColor: greyBorder,
@@ -96,7 +97,7 @@ export default function FishModal({
             <Button title="Cancel" onPress={onCancel} variant="secondary" />
             <Button
               title={saving ? 'Saving…' : 'Save'}
-              onPress={onSave}
+              onPress={() => onSave(localName, localColor)}
               loading={saving}
               disabled={saving}
             />
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '20%',
     width: '100%',
+    alignItems: 'center',
   },
   modalContent: {
     backgroundColor: 'white',
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
-    flex: 1,
+    maxWidth: 500,
     justifyContent: 'center',
     alignItems: 'center',
   },
