@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Animated, Dimensions } from 'react-native';
-import { incrementPlayCount } from '@/lib/playCount';
 import { useAudioPlayer } from 'expo-audio';
+import { bumpPlayCount } from './useLightSync';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
 const gravity = 0.6;
@@ -22,7 +23,6 @@ type UseSwimGameParams = {
   loading: boolean;
   tabBarHeight: number;
   playCount: number;
-  playCountLoaded: boolean;
   onPlayCountChange?: (newCount: number) => void;
 };
 
@@ -68,7 +68,6 @@ export function useSwimGame({
   loading,
   tabBarHeight,
   playCount,
-  playCountLoaded,
   onPlayCountChange,
 }: UseSwimGameParams) {
   const [gameOver, setGameOver] = useState(false);
@@ -118,16 +117,13 @@ export function useSwimGame({
     setInvincible(false);
     setEnvironmentIndex(0);
 
-
-    if (currentSessionStarted && userId && onPlayCountChange) {
-      incrementPlayCount(userId).then((newCount) => {
-        onPlayCountChange(newCount);
-        setWaitingForPlayCountUpdate(false);
-      });
+    if (currentSessionStarted && onPlayCountChange) {
+      onPlayCountChange?.(playCount + 1);
+      setWaitingForPlayCountUpdate(false);
     } else {
       setWaitingForPlayCountUpdate(false);
     }
-  }, [currentSessionStarted, userId, onPlayCountChange]);
+  }, [currentSessionStarted, onPlayCountChange, playCount]);
 
   useEffect(() => {
     obstaclesRef.current = obstacles;
@@ -278,14 +274,14 @@ export function useSwimGame({
   }, [gameStarted, environmentIndex]);
 
   const startNewGame = useCallback(() => {
-    if (loading || !canPlayToday || playCountLoaded === false || playCount >= 3)
+    if (loading || !canPlayToday || playCount >= 3)
       return;
     resetGame();
     setGameOver(false);
     setGameStarted(true);
     setCurrentSessionStarted(true);
     velocity.current = jumpForce;
-  }, [loading, canPlayToday, playCount, playCountLoaded, resetGame]);
+  }, [loading, canPlayToday, playCount, resetGame]);
 
   const swimUp = useCallback(() => {
     if (!gameStarted || gameOver) return;
@@ -299,7 +295,6 @@ export function useSwimGame({
     setGameStarted,
     setGameOver,
     playCount,
-    playCountLoaded,
     waitingForPlayCountUpdate,
     swimUp,
     startNewGame,

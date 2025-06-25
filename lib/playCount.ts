@@ -1,68 +1,35 @@
-import { supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export async function getPlayCount(userId: string): Promise<number> {
-  // Get user's local date as YYYY-MM-DD
-  const localDate = new Date();
-  const yyyy = localDate.getFullYear();
-  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(localDate.getDate()).padStart(2, '0');
-  const today = `${yyyy}-${mm}-${dd}`;
+const STORAGE_KEY = 'dailyPlayCounts';
+const MAX_PLAYS   = 3;
 
-  const { data, error } = await supabase
-    .from('play_counts')
-    .select('play_count')
-    .eq('user_id', userId)
-    .eq('date', today)
-    .maybeSingle();
+const todayKey = (): string => new Date().toLocaleDateString('en-CA');
 
-  if (error) {
-    console.error('Error fetching play count:', error);
-    return 0;
-  }
-
-  return data?.play_count ?? 0;
+async function readMap(): Promise<Record<string, number>> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : {};
 }
 
-export async function incrementPlayCount(userId: string): Promise<number> {
-  // Use local device date for consistency
-  const localDate = new Date();
-  const yyyy = localDate.getFullYear();
-  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(localDate.getDate()).padStart(2, '0');
-  const today = `${yyyy}-${mm}-${dd}`;
-
-  const { data, error } = await supabase.rpc('increment_play_count', {
-    uid: userId,
-    play_date: today,
-  });
-
-  if (error) {
-    console.error('Error incrementing play count:', error);
-    return 0;
-  }
-
-  if (Array.isArray(data) && data.length > 0) {
-    return data[0].play_count ?? 0;
-  }
-
-  return 0;
+async function writeMap(map: Record<string, number>): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(map));
 }
 
-export async function resetPlayCount(userId: string): Promise<void> {
-  const localDate = new Date();
-  const yyyy = localDate.getFullYear();
-  const mm = String(localDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(localDate.getDate()).padStart(2, '0');
-  const today = `${yyyy}-${mm}-${dd}`;
+export async function getPlayCount(): Promise<number> {
+  const map = await readMap();
+  return map[todayKey()] ?? 0;
+}
 
-  const { error } = await supabase
-    .from('play_counts')
-    .update({ play_count: 0 })
-    .eq('user_id', userId)
-    .eq('date', today);
+export async function incrementPlayCount(): Promise<number> {
+  const map  = await readMap();
+  const key  = todayKey();
+  const next = Math.min((map[key] ?? 0) + 1, MAX_PLAYS);
+  map[key]   = next;
+  await writeMap(map);
+  return next;
+}
 
-  if (error) {
-    console.error('Error resetting play count:', error);
-    throw error;
-  }
+export async function resetPlayCount(): Promise<void> {
+  const map = await readMap();
+  delete map[todayKey()];
+  await writeMap(map);
 }

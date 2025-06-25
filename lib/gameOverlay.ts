@@ -12,16 +12,14 @@ export function getOverlayMode(params: {
   playCount: number | null;
   gameStarted: boolean;
   gameOver: boolean;
-  waitingForPlayCountUpdate?: boolean;
-  isReady?: boolean;
 }): OverlayMode {
-  const { loading, canPlay, playCount, gameStarted, gameOver, waitingForPlayCountUpdate, isReady } = params;
+  const { loading, canPlay, playCount, gameStarted, gameOver } = params;
 
-  if (!isReady || loading || waitingForPlayCountUpdate) {
+  if (loading || playCount === null) {
     return 'loading';
   }
 
-  const playsLeft = 3 - (playCount ?? 0);
+  const playsLeft = 3 - playCount;
 
   if (playsLeft <= 0) {
     return 'noPlaysLeft';

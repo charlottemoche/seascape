@@ -91,6 +91,8 @@ export function SwimGameOverlay({
           
           <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
 
+          <Text style={styles.gameSubtext}>Plays left: {playsLeft}</Text>
+
           <Button onPress={onStartNewGame} title="Play" style={styles.playButtonContainer} />
         </View>
       );

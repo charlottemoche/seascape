@@ -6,28 +6,30 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
-  Alert
+  Alert,
 } from 'react-native';
 import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useSwimGame, environments } from '@/hooks/useSwimGame';
 import { useCanPlay } from '@/hooks/user/useCanPlayToday';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { supabase } from '@/lib/supabase';
 import { resetPlayCount } from '@/lib/playCount';
 import { Text } from '@/components/Themed';
 import { SwimGameOverlay } from '@/components/SwimGameOverlay';
 import { getOverlayMode } from '@/lib/gameOverlay';
+import { bumpHighScore } from '@/hooks/useLightSync';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 
 export default function SwimScreen() {
   const { user, loading } = useRequireAuth();
-  const { profile, refreshProfile } = useProfile();
+  const { profile } = useProfile();
 
   const [envMessage, setEnvMessage] = useState<string | null>(null);
   const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<number | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [bestScore, setBestScore] = useState<number>(profile?.high_score ?? 0);
 
   const predatorSize = 90;
   const preySize = 50;
@@ -35,15 +37,18 @@ export default function SwimScreen() {
   const {
     canPlay,
     loading: canPlayLoading,
-    playCount,
-    playCountLoaded,
-    setPlayCount,
-  } = useCanPlay(user?.id);
-  const [resetting, setResetting] = useState(false);
+    count: playCountRaw,
+    setCount: setPlayCount,
+    bump: bumpLocalPlayCount,
+    reset: resetLocalPlayCount,
+  } = useCanPlay();
+
+  const playCount = playCountRaw ?? 0;
+
+  const [playsUsed, setPlaysUsed] = useState<number>(playCount ?? 0);
 
   const swimIntervalRef = useRef<number | null>(null);
 
-  // Default color setup for fish
   const rawColor = profile?.fish_color ?? 'blue';
   const fishColor = useMemo(() => {
     return (rawColor in fishImages ? rawColor : 'blue') as FishColor;
@@ -70,22 +75,19 @@ export default function SwimScreen() {
     canPlayToday: canPlay,
     loading: loading || canPlayLoading,
     tabBarHeight,
-    playCount: playCount ?? 0,
-    playCountLoaded: playCountLoaded ?? false,
-    onPlayCountChange: setPlayCount,
+    playCount,
+    onPlayCountChange: bumpLocalPlayCount,
   });
 
   const overlayMode = useMemo(() => {
     return getOverlayMode({
-      loading,
+      loading: canPlayLoading || loading,
       canPlay,
       playCount,
       gameStarted,
       gameOver,
-      waitingForPlayCountUpdate,
-      isReady: !loading && playCountLoaded,
     });
-  }, [loading, canPlay, playCount, gameStarted, gameOver, waitingForPlayCountUpdate, playCountLoaded]);
+  }, [canPlayLoading, loading, canPlay, playCount, gameStarted, gameOver]);
 
   const handlePressIn = () => {
     if (!canPlay || !gameStarted) return;
@@ -101,10 +103,9 @@ export default function SwimScreen() {
   };
 
   const handleResetPlayCount = async () => {
-    if (!user?.id) return;
     setResetting(true);
     try {
-      await resetPlayCount(user.id);
+      await resetLocalPlayCount();
       setPlayCount(0);
       resetGame();
       setGameStarted(false);
@@ -152,25 +153,31 @@ export default function SwimScreen() {
   }, [invincible]);
 
   useEffect(() => {
-    const maybeUpdateHighScore = async () => {
-      if (!user?.id || preyEaten <= (profile?.high_score ?? 0)) return;
+    const maybeSaveProgress = async () => {
+      if (!user?.id) return;
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({ high_score: preyEaten })
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Failed to update high score:', error);
-      } else {
-        await refreshProfile({ silent: true });
+      if (preyEaten > (profile?.high_score ?? 0)) {
+        await bumpHighScore(preyEaten);
+        setBestScore(preyEaten);
       }
     };
 
     if (gameOver) {
-      maybeUpdateHighScore();
+      maybeSaveProgress();
     }
   }, [gameOver, preyEaten, profile, user]);
+
+  useEffect(() => {
+    if (profile?.high_score && profile.high_score > bestScore) {
+      setBestScore(profile.high_score);
+    }
+  }, [profile, bestScore]);
+
+  useEffect(() => {
+    if (typeof playCount === 'number') {
+      setPlaysUsed(playCount);
+    }
+  }, [playCount]);
 
   return (
     <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
@@ -199,11 +206,11 @@ export default function SwimScreen() {
 
             <SwimGameOverlay
               overlayMode={overlayMode}
-              highScore={profile?.high_score ?? 0}
+              highScore={bestScore}
               isAdmin={!!profile?.admin}
               onResetPlayCount={handleResetPlayCount}
               onStartNewGame={startNewGame}
-              playsLeft={3 - (playCount ?? 0)}
+              playsLeft={3 - (playsUsed ?? 0)}
             />
 
             {gameStarted && (
@@ -215,7 +222,7 @@ export default function SwimScreen() {
                 </View>
                 <View style={styles.counterRow}>
                   <Text style={styles.counterLabel}>Plays Left:</Text>
-                  <Text style={styles.counterText}>{3 - (playCount ?? 0)}</Text>
+                  <Text style={styles.counterText}>{3 - (playsUsed ?? 0)}</Text>
                 </View>
               </View>
             )}

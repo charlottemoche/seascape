@@ -1,68 +1,32 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { getPlayCount, resetPlayCount, incrementPlayCount } from '@/lib/playCount';
 import { useStreaks } from '@/context/StreakContext';
-import { getPlayCount } from '@/lib/playCount';
 
-function isToday(dateString?: string | null) {
-  if (!dateString) return false;
-
-  const [year, month, day] = dateString.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
-  const now = new Date();
-
-  return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  );
-}
-
-export function useCanPlay(userId?: string | null) {
+export function useCanPlay() {
   const { didBreathe, didJournal, lastActive } = useStreaks();
-  const [playCount, setPlayCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [playCountLoaded, setPlayCountLoaded] = useState(false);
+
+  const [count, setCount]   = useState<number | null>(null);
+  const [loading, setLoad]  = useState(true);
 
   useEffect(() => {
-    if (!userId) {
-      setPlayCount(null);
-      setLoading(false);
-      setPlayCountLoaded(false);
-      return;
-    }
+    let cancel = false;
+    (async () => {
+      const c = await getPlayCount();
+      if (!cancel) { setCount(c); setLoad(false); }
+    })();
+    return () => { cancel = true; };
+  }, []);
 
-    let isCancelled = false;
+  const bump = async () => setCount(await incrementPlayCount());
+  const reset = async () => { await resetPlayCount(); setCount(0); };
 
-    async function fetchPlayCount() {
-      setLoading(true);
-      try {
-        const count = await getPlayCount(userId!);
-        if (!isCancelled) {
-          setPlayCount(count);
-          setPlayCountLoaded(true);
-        }
-      } catch (e) {
-        console.error('Failed fetching play count:', e);
-        if (!isCancelled) {
-          setPlayCount(0);
-          setPlayCountLoaded(true);
-        }
-      } finally {
-        if (!isCancelled) setLoading(false);
-      }
-    }
+  const didOneToday = useMemo(() => {
+    if (!lastActive) return false;
+    const today = new Date().toLocaleDateString('en-CA');
+    return today === lastActive && (didBreathe || didJournal);
+  }, [lastActive, didBreathe, didJournal]);
 
-    fetchPlayCount();
+  const canPlay = didOneToday && (count ?? 0) < 3;
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [userId]);
-
-  const canPlay = useMemo(() => {
-    const didOneToday = isToday(lastActive) && (didBreathe || didJournal);
-    const hasPlaysLeft = playCount !== null && playCount < 3;
-    return didOneToday && hasPlaysLeft;
-  }, [lastActive, didBreathe, didJournal, playCount]);
-
-  return { canPlay, loading, playCount, playCountLoaded, setPlayCount };
+  return { canPlay, loading, count, setCount, bump, reset };
 }
