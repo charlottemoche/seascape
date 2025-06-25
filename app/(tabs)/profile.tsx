@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -6,7 +7,6 @@ import {
   ScrollView,
   useColorScheme,
   SafeAreaView,
-  View,
   Linking,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
@@ -14,10 +14,14 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
-import { Text, Button } from '@/components/Themed';
+import { Text, Button, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
+import * as Clipboard from 'expo-clipboard';
+import AddByCode from '@/components/Friends/AddFriend';
+import IncomingRequests from '@/components/Friends/IncomingRequests';
+import FriendsList from '@/components/Friends/Friends';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -25,15 +29,31 @@ export default function ProfileScreen() {
   const { setUser } = useUser();
   const { profile } = useProfile();
 
+  const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<'profile' | 'friends'>('profile');
+  const [friendRefreshTick, setFriendRefreshTick] = useState(0);
+  const [friendSubTab, setFriendSubTab] = useState<'add' | 'requests' | 'list'>('add');
+
   const colorScheme = useColorScheme();
 
-  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.white;
-  const footerColor = colorScheme === 'dark' ? Colors.dark.card : '#f8f8f8';
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
+  const footerColor = colorScheme === 'dark' ? Colors.dark.background : '#f8f8f8';
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const linkColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.darkBlue;
   const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
 
   const highScore = profile?.high_score ?? 0;
+
+  const code = profile?.friend_code ?? '';
+
+  async function copyCode() {
+    if (!code || busy) return;
+    setBusy(true);
+    await Clipboard.setStringAsync(code);
+    Alert.alert('Copied', 'Friend code copied to clipboard.');
+    setBusy(false);
+  }
 
   const handleDeleteAccount = async () => {
     Alert.alert(
@@ -120,30 +140,139 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: backgroundColor }]}>
+    <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
       <ScrollView>
-        <View style={{ padding: 24, backgroundColor: backgroundColor }}>
-          <View style={styles.profileSection}>
-            <Text style={[styles.label, { color: textColor }]}>Email</Text>
-            <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
-          </View>
+        <View
+          style={[
+            styles.tabBar,
+            { borderColor: greyBorder, backgroundColor: backgroundColor, marginTop: 24 },
+          ]}
+        >
+          {(['profile', 'friends'] as const).map((key) => (
+            <Pressable
+              key={key}
+              onPress={() => setTab(key)}
+              style={[
+                styles.tab,
+                { borderColor: greyBorder },
+                tab === key && styles.tabActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: tab === key ? '#000' : textColor },
+                ]}
+              >
+                {key === 'profile' ? 'Profile' : 'Friends'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
-          <View style={styles.profileSection}>
-            <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>High Score</Text>
-            <View style={styles.highScoreRow}>
-              <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-              <Image source={preyImg} style={styles.fishImage} />
-            </View>
-          </View>
+        <View style={styles.container}>
+          {tab === 'profile' && (
+            <>
+              <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                <View style={styles.textRow}>
+                  <Text style={[styles.label, { color: textColor }]}>Email</Text>
+                  <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
+                </View>
 
-          <View style={styles.customizerWrapper}>
-            <FishCustomizer />
-          </View>
+                <View style={styles.textRow}>
+                  <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>
+                    Friend Code
+                  </Text>
 
-          <View style={styles.logoutWrapper}>
-            <Button title="Log out" onPress={handleLogout} variant="secondary" />
-            <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
-          </View>
+                  <Pressable onPress={copyCode}>
+                    <Text style={[styles.value, { color: textColor, textDecorationLine: 'underline' }]}>
+                      {code}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>High Score</Text>
+                <View style={styles.highScoreRow}>
+                  <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
+                  <Image source={preyImg} style={styles.fishImage} />
+                </View>
+              </View>
+
+              <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                <FishCustomizer />
+              </View>
+
+              <View style={styles.logoutWrapper}>
+                <Button title="Log out" onPress={handleLogout} variant="secondary" />
+                <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
+              </View>
+            </>
+          )}
+          {tab === 'friends' && (
+            <>
+              <View
+                style={[
+                  styles.tabBar, styles.tabBarFriends,
+                  { borderColor: greyBorder, marginBottom: 20, }
+                ]}
+              >
+                {(['add', 'requests', 'list'] as const).map((key) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => setFriendSubTab(key)}
+                    style={[
+                      styles.tab,
+                      { borderColor: greyBorder },
+                      friendSubTab === key && styles.tabActiveFriends,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        { color: friendSubTab === key ? '#000' : textColor },
+                      ]}
+                    >
+                      {key === 'add'
+                        ? 'Add'
+                        : key === 'requests'
+                          ? 'Requests'
+                          : 'Friends'}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {friendSubTab === 'add' && (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <Text style={styles.sectionTitle}>Add Friend</Text>
+                  <AddByCode />
+                </View>
+              )}
+
+              {friendSubTab === 'requests' && (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
+                    Incoming Requests
+                  </Text>
+                  <IncomingRequests
+                    onAccepted={() => {
+                      setFriendRefreshTick((n) => n + 1);
+                      setFriendSubTab('list');
+                    }}
+                  />
+                </View>
+              )}
+
+              {friendSubTab === 'list' && (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
+                    Friends
+                  </Text>
+                  <FriendsList refreshSignal={friendRefreshTick} />
+                </View>
+              )}
+            </>
+          )}
         </View>
 
         <View style={{ backgroundColor: footerColor }}>
@@ -151,7 +280,7 @@ export default function ProfileScreen() {
             <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
               <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
             </Pressable>
-            <Text style={[styles.footerText, { color: textColor }]}>Version 1.4.6</Text>
+            <Text style={[styles.footerText, { color: textColor }]}>Version 1.5.7</Text>
           </View>
         </View>
       </ScrollView>
@@ -163,9 +292,21 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  wrapper: {
+    flex: 1,
+  },
+  container: {
+    padding: 24,
+  },
   profileSection: {
-    flexDirection: 'column',
-    alignItems: 'center',
+    borderRadius: 12,
+    padding: 16,
+    width: '100%',
+    marginBottom: 30,
+    maxWidth: 500,
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   label: {
     fontSize: 16,
@@ -178,18 +319,19 @@ const styles = StyleSheet.create({
   highScoreRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  textRow: {
+    backgroundColor: 'transparent',
   },
   fishImage: {
     width: 24,
     height: 24,
     marginLeft: 8,
   },
-  customizerWrapper: {
-    marginBottom: 32,
-  },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: 500,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -213,6 +355,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 8,
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   button: {
     marginVertical: 8,
@@ -227,5 +370,29 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     textAlign: 'center',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+  },
+  tabBarFriends: {
+    backgroundColor: 'rgba(207, 233, 241, 0.1)',
+  },
+  tabActiveFriends: {
+    backgroundColor: 'rgba(207, 233, 241, 0.6)',
+  },
+  tab: {
+    paddingVertical: 6,
+    paddingHorizontal: 24,
+  },
+  tabActive: {
+    backgroundColor: Colors.custom.grey,
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

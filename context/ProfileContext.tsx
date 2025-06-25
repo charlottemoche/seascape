@@ -18,6 +18,7 @@ type ProfileType = {
   high_score?: number;
   total_minutes?: number;
   admin?: boolean;
+  friend_code?: string;
 };
 
 type ProfileContextType = {
@@ -47,7 +48,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played')
+        .select('fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code')
         .eq('user_id', user.id)
         .maybeSingle();
 

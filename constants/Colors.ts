@@ -20,7 +20,7 @@ export default {
   dark: {
     text: '#fff',
     background: '#121212',
-    card: '#2a2a2a',
+    card: '#1f1f1f',
     input: '#2a2a2a',
     white: '#fff',
     tint: tintColorDark,
