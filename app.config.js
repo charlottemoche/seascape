@@ -19,7 +19,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.cbm.seascape',
-      buildNumber: '3',
+      buildNumber: '4',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: true,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
