@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image, Pressable } from 'react-native';
 import React, { useRef, useCallback } from 'react';
 import { Icon } from '@/components/Icon';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
@@ -8,6 +8,7 @@ import { View, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { FishColor } from '@/constants/fishMap';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/FeelingsSummary';
 import Colors from '@/constants/Colors';
@@ -19,10 +20,13 @@ export default function HomeScreen() {
   const { profile, loading: profileLoading } = useProfile();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
 
+  const router = useRouter();
+
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
 
   const lastRefresh = useRef(0);
 
@@ -72,28 +76,32 @@ export default function HomeScreen() {
           <View style={[styles.card, { backgroundColor: cardColor }]}>
             <Text style={styles.streakTitle}>Mindfulness Streaks</Text>
             <View style={styles.streakRow}>
-              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
-                <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
-                  <Icon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
+              <Pressable onPress={() => router.push('/journal')} style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                  <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
+                    <Icon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
+                  </View>
+                  <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Journaling</Text>
+                  <Text testID="journal-streak" style={styles.cardDataStreaks}>
+                    {typeof journalStreak === 'number'
+                      ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
+                      : 'No data'}
+                  </Text>
                 </View>
-                <Text style={styles.streakSubtitle}>Journaling</Text>
-                <Text testID="journal-streak" style={styles.cardDataStreaks}>
-                  {typeof journalStreak === 'number'
-                    ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
-                    : 'No data'}
-                </Text>
-              </View>
-              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
-                <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
-                  <Icon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
+              </Pressable>
+              <Pressable onPress={() => router.push('/breathe')} style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                  <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
+                    <Icon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
+                  </View>
+                  <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Breathing</Text>
+                  <Text testID="breathing-streak" style={styles.cardDataStreaks}>
+                    {typeof breathStreak === 'number'
+                      ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
+                      : 'No data'}
+                  </Text>
                 </View>
-                <Text style={styles.streakSubtitle}>Breathing</Text>
-                <Text testID="breathing-streak" style={styles.cardDataStreaks}>
-                  {typeof breathStreak === 'number'
-                    ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
-                    : 'No data'}
-                </Text>
-              </View>
+              </Pressable>
             </View>
           </View>
 
@@ -104,7 +112,7 @@ export default function HomeScreen() {
                 <View style={styles.iconWrapper}>
                   <Icon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={18} />
                 </View>
-                <Text style={styles.streakSubtitle}>Time</Text>
+                <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Time</Text>
                 <Text style={styles.cardDataStreaks}>
                   {typeof total_minutes === 'number' && total_minutes > 0
                     ? formatTime(total_minutes)
@@ -189,8 +197,7 @@ const styles = StyleSheet.create({
   streakSubtitle: {
     fontSize: 14,
     marginTop: 2,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
     paddingBottom: 2,
     fontWeight: 500,
   },

@@ -19,7 +19,7 @@ export async function fetchFeelings(userId: string, range: '1W' | '1M' | '3M' | 
 
   if (error) {
     console.error('[fetchFeelings] error:', error);
-    return [];
+    throw error;
   }
 
   return data as JournalEntryRaw[];

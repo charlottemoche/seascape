@@ -44,6 +44,6 @@ export default {
     darkBlue: '#023c69',
     white: '#fff',
     dark: '#111111',
-    darkGrey: '#292828'
+    darkGrey: '#808080'
   }
 };

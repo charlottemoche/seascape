@@ -34,7 +34,7 @@ export default function ProfileScreen() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
-  const [friendSubTab, setFriendSubTab] = useState<'add' | 'requests' | 'list'>('add');
+  const [friendSubTab, setFriendSubTab] = useState<'list' | 'requests' | 'add'>('list');
   const [hasPending, setHasPending] = useState(false);
   const [tapped, setTapped] = useState(false)
 
@@ -199,12 +199,12 @@ export default function ProfileScreen() {
             <>
               <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
                 <View style={styles.textRow}>
-                  <Text style={[styles.label, { color: textColor }]}>Email</Text>
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>Email</Text>
                   <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
                 </View>
 
                 <View style={styles.textRow}>
-                  <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>
                     Friend Code
                   </Text>
 
@@ -222,7 +222,7 @@ export default function ProfileScreen() {
                   </Pressable>
                 </View>
 
-                <Text style={[styles.label, { color: textColor, paddingTop: 20 }]}>High Score</Text>
+                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
                 <View style={styles.highScoreRow}>
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
                   <Image source={preyImg} style={styles.fishImage} />
@@ -284,6 +284,15 @@ export default function ProfileScreen() {
 
               </View>
 
+              {friendSubTab === 'list' && (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
+                    Friends
+                  </Text>
+                  <FriendsList refreshSignal={friendRefreshTick} />
+                </View>
+              )}
+
               {friendSubTab === 'add' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
                   <Text style={styles.sectionTitle}>Add Friend</Text>
@@ -302,15 +311,6 @@ export default function ProfileScreen() {
                       setFriendSubTab('list');
                     }}
                   />
-                </View>
-              )}
-
-              {friendSubTab === 'list' && (
-                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
-                    Friends
-                  </Text>
-                  <FriendsList refreshSignal={friendRefreshTick} />
                 </View>
               )}
             </View>
@@ -355,9 +355,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
+    marginTop: 2,
+    borderBottomWidth: 1,
+    paddingBottom: 2,
+    marginBottom: 8,
     fontWeight: 500,
-    paddingBottom: 8,
-    textDecorationLine: 'underline',
+    alignSelf: 'flex-start',
   },
   value: {
     fontSize: 16,

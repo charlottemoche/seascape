@@ -54,6 +54,16 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     }
   }
 
+  function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function imageForMood(category: string) {
+    if (category === 'positive') return require('@/assets/images/sun-2.png');
+    if (category === 'neutral') return require('@/assets/images/moon-2.png');
+    return require('@/assets/images/rain-2.png');
+  }
+
   const load = useCallback(async () => {
     const key = `${userId}-${range}`;
     if (cacheRef.current[key]) {
@@ -118,7 +128,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
       const topFeeling = Object.entries(frequency).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
 
-      // --- Updated dominant mood calculation start ---
       let dominant: 'positive' | 'neutral' | 'negative' = 'neutral';
 
       const { positive, neutral, negative } = totalCounts;
@@ -143,7 +152,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         }
       }
 
-      // Optional override only if topFeeling category aligns with maxCategories
       if (topFeeling) {
         for (const category in feelingCategories) {
           if (feelingCategories[category as keyof typeof feelingCategories].includes(topFeeling)) {
@@ -154,7 +162,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           }
         }
       }
-      // --- Updated dominant mood calculation end ---
 
       cacheRef.current[key] = {
         entries: decryptedData,
@@ -176,29 +183,16 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     }
   }, [userId, range]);
 
+  const showNeutralImage = error || entries.length === 0;
+  const summaryText = error
+    ? error
+    : 'Log some journal entries to track your mood.';
+
   useFocusEffect(
     useCallback(() => {
       load();
     }, [load])
   );
-
-  function capitalize(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  function imageForMood(category: string) {
-    if (category === 'positive') return require('@/assets/images/sun-2.png');
-    if (category === 'neutral') return require('@/assets/images/moon-2.png');
-    return require('@/assets/images/rain-2.png');
-  }
-
-  if (error) {
-    return (
-      <View style={[styles.containerWrapper, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: 'red', fontSize: 16 }}>{error}</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.containerWrapper}>
@@ -222,25 +216,23 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         <View style={styles.wrapper}>
           <View style={styles.imageContainer}>
             <Image
-              source={imageForMood(dominantMood)}
+              source={imageForMood(showNeutralImage ? 'neutral' : dominantMood)}
               style={styles.image}
               resizeMode="cover"
             />
           </View>
 
           <View style={[styles.summaryBox, { backgroundColor: backgroundColorBox }]}>
-            {entries.length === 0 ? (
+            {showNeutralImage ? (
               <Text style={[styles.noEntries, { color: textColor }]}>
-                Log some journal entries to track your mood.
+                {summaryText}
               </Text>
             ) : (
               <>
                 <Text style={styles.label}>
                   This {range === '1W' ? 'week' : 'period'}, your overall mood was
                 </Text>
-                <Text style={styles.mood}>
-                  {capitalize(dominantMood)}
-                </Text>
+                <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
                 <Text style={[styles.common, { color: greyTextColor }]}>
                   Most frequent feeling: {mostCommonFeeling}
                 </Text>
