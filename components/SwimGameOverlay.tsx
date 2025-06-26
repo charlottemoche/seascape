@@ -44,7 +44,7 @@ export function SwimGameOverlay({
     case 'noPlaysLeft':
       return (
         <View style={styles.gameMessageOverlay}>
-          <Text style={styles.gameStatusText}>You’ve used all 3 plays for today</Text>
+          <Text style={styles.gameStatusText}>You’ve used all 5 plays for today</Text>
           <Text style={styles.gameSubtext}>Come back tomorrow!</Text>
           <View style={styles.highScoreRow}>
             <Text style={styles.gameSubtext}>High score: {highScore ?? 0}</Text>

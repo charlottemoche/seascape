@@ -6,7 +6,7 @@ import { useProfile } from '@/context/ProfileContext';
 import { supabase } from '@/lib/supabase';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { Logo } from '@/components/Nav/Logo';
-import { TabBarIcon } from '@/components/Tabs/TabBar';
+import { Icon } from '@/components/Icon';
 import Slide from '@/components/Slide';
 import Colors from '@/constants/Colors';
 
@@ -19,17 +19,17 @@ const slides = [
   {
     key: 'breathing',
     content: 'Practice calming breathing exercises to relax your mind and body.',
-    icon: <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={28} />,
+    icon: <Icon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={28} />,
   },
   {
     key: 'journaling',
     content: 'Write journal entries to reflect on your thoughts and emotions.',
-    icon: <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={26} />,
+    icon: <Icon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={26} />,
   },
   {
     key: 'tracking',
     content: 'Keep track of your mood, meditation minutes, daily streaks, and journaling habits.',
-    icon: <TabBarIcon name="line-chart" color={Colors.custom.yellow} type="FontAwesome" size={26} />,
+    icon: <Icon name="line-chart" color={Colors.custom.yellow} type="FontAwesome" size={26} />,
   },
   {
     key: 'game',
@@ -90,7 +90,7 @@ export default function OnboardingScreen() {
         <Logo />
         <View style={styles.content}>
           {slides[page].key === 'customize' ? (
-            <FishCustomizer lightText onSaved={onNext} />
+            <FishCustomizer transparent onSaved={onNext} />
           ) : (
             <Slide
               title={isFirstPage ? 'Welcome to Seascape' : undefined}

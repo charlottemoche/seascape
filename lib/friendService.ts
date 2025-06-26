@@ -17,12 +17,9 @@ export type FriendRow = {
   high_score?: number | null;
 };
 
-type IncomingRequestRow = {
-  id: string;
-  requester: string;
-  profiles: { username: string; friend_code: string; fish_color: string };
-};
-
+let cachedFriends: FriendRow[] | null = null;
+let fetchedAt = 0;
+const TTL = 5 * 60 * 1000;
 
 export async function sendFriendRequest(addresseeId: string) {
   const { data, error: userError } = await supabase.auth.getUser();
@@ -35,13 +32,21 @@ export async function sendFriendRequest(addresseeId: string) {
     throw new Error("You can't add yourself as a friend.");
   }
 
+  const { count, error: existsError } = await supabase
+    .from('friendships')
+    .select('*', { count: 'exact', head: true })
+    .or(
+      `and(requester.eq.${currentUser.id},addressee.eq.${addresseeId}),and(requester.eq.${addresseeId},addressee.eq.${currentUser.id})`
+    );
+
+  if (existsError) throw existsError;
+  if ((count ?? 0) > 0) {
+    throw new Error('Friend request sent or already friends.');
+  }
+
   const { error } = await supabase
     .from('friendships')
     .insert({ addressee: addresseeId, requester: currentUser.id });
-
-  if (error?.code === '23505') {
-    throw new Error('Friend request already sent or already friends.');
-  }
 
   if (error) throw error;
 }
@@ -96,7 +101,13 @@ export async function listIncomingRequests(): Promise<IncomingRequest[]> {
   });
 }
 
-export async function listFriends(): Promise<FriendRow[]> {
+export async function listFriends(opts: { force?: boolean } = {}): Promise<FriendRow[]> {
+  const now = Date.now();
+
+  if (!opts.force && cachedFriends && now - fetchedAt < TTL) {
+    return cachedFriends;
+  }
+
   const { data: authData, error: authErr } = await supabase.auth.getUser();
   if (authErr) throw authErr;
   const me = authData.user;
@@ -105,43 +116,30 @@ export async function listFriends(): Promise<FriendRow[]> {
   const { data, error } = await supabase
     .from('friendships')
     .select(`
-      id,
-      requester,
-      addressee,
-
-      requester_profile:profiles!requester (
-        fish_name,
-        friend_code,
-        fish_color,
-        high_score
-      ),
-
-      addressee_profile:profiles!addressee (
-        fish_name,
-        friend_code,
-        fish_color,
-        high_score
-      )
+      id, requester, addressee,
+      requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score ),
+      addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score )
     `)
     .eq('status', 'accepted')
     .or(`requester.eq.${me.id},addressee.eq.${me.id}`);
 
   if (error) throw error;
 
-  return (data ?? []).map((row: any) => {
+  const friends: FriendRow[] = (data ?? []).map((row: any) => {
     const iAmRequester = row.requester === me.id;
-    const friendId = iAmRequester ? row.addressee : row.requester;
-
     const profileArr = iAmRequester ? row.addressee_profile : row.requester_profile;
     const profile = Array.isArray(profileArr) ? profileArr[0] : profileArr;
-
     return {
       id: row.id,
-      friendId,
+      friendId: iAmRequester ? row.addressee : row.requester,
       fish_name: profile?.fish_name ?? null,
       friend_code: profile?.friend_code ?? '',
       fish_color: profile?.fish_color ?? null,
       high_score: profile?.high_score ?? null,
     };
   });
+
+  cachedFriends = friends;
+  fetchedAt = now;
+  return friends;
 }

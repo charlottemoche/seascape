@@ -11,13 +11,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
-import { TabBarIcon } from '@/components/Tabs/TabBar';
+import { Icon } from '@/components/Icon';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import JournalModal from '@/components/JournalModal';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
@@ -49,7 +48,7 @@ export default function JournalScreen() {
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
   const inputColor = colorScheme === 'dark' ? Colors.dark.input : '#fff';
-  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
   const { user, loading: authLoading } = useRequireAuth();
@@ -280,7 +279,7 @@ export default function JournalScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: backgroundColor }]}>
       <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); if(modalVisible) setModalVisible(false);}} accessible={false}>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <View style={styles.inner}>
               <Text style={styles.title}>Journal</Text>
@@ -360,7 +359,7 @@ export default function JournalScreen() {
               {journalEntries.length > 0 || hasAnyEntries ? (
                 entriesUnlocked ? (
                   <>
-                    <Text style={styles.entriesTitle}>Your Journal Entries</Text>
+                    <Text style={styles.entriesTitle}>Your journal entries</Text>
                     <View style={styles.entriesContainer}>
                       <Button onPress={handleLock} title="Lock" variant="secondary" />
                     </View>
@@ -386,7 +385,7 @@ export default function JournalScreen() {
                             );
                           })()}
                           <Pressable onPress={() => handleDeleteEntry(entry.id)}>
-                            <TabBarIcon
+                            <Icon
                               type="AntDesign"
                               name="delete"
                               color={Colors.custom.red}
@@ -452,7 +451,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 20,
   },
   title: {
     fontSize: 20,
@@ -518,9 +518,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   entriesTitle: {
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 40,
-    marginBottom: 10,
     textAlign: 'center',
   },
   entryCard: {
@@ -532,11 +531,11 @@ const styles = StyleSheet.create({
   },
   entryTitle: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   entryText: {
     fontSize: 14,
-    marginTop: 8,
+    marginVertical: 4,
   },
   entryDate: {
     marginTop: 8,
@@ -563,7 +562,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     paddingBottom: 6,
-    // backgroundColor: 'transparent',
   },
   loading: {
     padding: 20,
@@ -584,6 +582,6 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 500,
   },
 });

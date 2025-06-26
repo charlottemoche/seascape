@@ -23,15 +23,14 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 
       <View style={styles.friendInfo}>
         <Image source={fishImage} style={styles.image} />
-        <Text style={[styles.text, { color: textColor }]}>
+        <Text style={[styles.text, { color: textColor }, !labeled && { paddingTop: 6 }]}>
           {fish_name || friend_code}
         </Text>
       </View>
 
-      {high_score != null && (
+      {labeled && high_score && high_score !== null && (
         <Text style={[styles.text, { color: textColor, marginLeft: 12 }]}>
-          {labeled ? 'High score: ' : ''}
-          {high_score}
+          High score: {high_score}
         </Text>
       )}
     </View>

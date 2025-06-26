@@ -8,29 +8,23 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
   const [rows, setRows] = useState<FriendRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refresh = async () => {
+  const refresh = async (force = false) => {
+    if (rows.length && !force) return;
     setLoading(true);
     try {
-      setRows(await listFriends());
+      setRows(await listFriends({ force }));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(true); }, [refreshSignal]);
 
-  useEffect(() => { refresh(); }, [refreshSignal]);
+  useEffect(() => { refresh(); }, []);
 
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
-
-  useEffect(() => {
-    (async () => {
-      setRows(await listFriends());
-      setLoading(false);
-    })();
-  }, []);
 
   if (loading) return <ActivityIndicator style={{ padding: 4 }} />;
 
@@ -60,13 +54,13 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    fontWeight: '600'
+    fontWeight: 600
   },
   row: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
 });

@@ -44,15 +44,14 @@ type SimpleLineIconsIconProps = {
     style?: any;
 };
 
-type TabBarIconProps =
+type IconProps =
     | FontAwesomeIconProps
     | EntypoIconProps
     | AntDesignIconProps
     | SimpleLineIconsIconProps
     | IoniconsIconProps;
 
-
-export function TabBarIcon(props: TabBarIconProps) {
+export function Icon(props: IconProps) {
     const { color, size = 20 } = props;
     const style = props.style;
 

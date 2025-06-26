@@ -24,7 +24,7 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
   const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.light.background;
   const inputColor = colorScheme === 'dark' ? Colors.dark.input : Colors.light.input;
   const modalOverlayColor = colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)';
-  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
   return (
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 500,
     marginBottom: 12,
     textAlign: 'center',
@@ -116,6 +116,6 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: 'white',
-    fontWeight: '600',
+    fontWeight: 600,
   },
 });

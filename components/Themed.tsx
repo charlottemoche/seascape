@@ -6,6 +6,7 @@
 import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Colors from '@/constants/Colors';
+import { DarkTheme } from '@react-navigation/native';
 
 type ThemeProps = {
   lightColor?: string;
@@ -23,7 +24,7 @@ export type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   testID?: string;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'danger';
 };
 
 export function useThemeColor(
@@ -63,17 +64,45 @@ export function Button({
   textColor,
   variant = 'primary',
 }: ButtonProps & { textColor?: string }) {
-  const primaryBg = useThemeColor({}, 'button');
-  const primaryText = useThemeColor({}, 'buttonText');
 
-  const secondaryBg = useThemeColor({}, 'buttonSecondary');
-  const secondaryText = useThemeColor({}, 'buttonText');
+  const c = {
+    primaryBg:   useThemeColor({}, 'button'),
+    primaryText: useThemeColor({}, 'buttonText'),
 
-  const dangerBg = useThemeColor({}, 'danger');
-  const dangerText = useThemeColor({}, 'white');
+    secondaryBg: useThemeColor({}, 'buttonSecondary'),
+    secondaryText: useThemeColor({}, 'buttonText'),
 
-  const backgroundColor = variant === 'primary' ? primaryBg : variant === 'secondary' ? secondaryBg : dangerBg;
-  const resolvedTextColor = variant === 'primary' ? primaryText : variant === 'secondary' ? textColor ?? secondaryText : dangerText;
+    dangerBg:    useThemeColor({}, 'danger'),
+    dangerText:  useThemeColor({}, 'white'),
+
+    tertiaryBg:  useThemeColor({}, 'transparent'), 
+    tertiaryText: useThemeColor({}, 'text'),
+  };
+
+  const variants = {
+    primary: {
+      bg:   c.primaryBg,
+      text: c.primaryText,
+      border: Colors.custom.blue,
+    },
+    secondary: {
+      bg:   c.secondaryBg,
+      text: textColor ?? c.secondaryText,
+      border: Colors.custom.blue,
+    },
+    danger: {
+      bg:   c.dangerBg,
+      text: c.dangerText,
+      border: '#dd0b0b',
+    },
+    tertiary: {
+      bg:   c.tertiaryBg,
+      text: textColor ?? c.tertiaryText,
+      border: '#6a6a6a',
+    },
+  } as const;
+
+  const { bg, text, border } = variants[variant];
 
   return (
     <Pressable
@@ -81,19 +110,17 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor,
+          backgroundColor: bg,
           opacity: pressed ? 0.7 : 1,
+          borderWidth: 2,
+          borderColor: border,
         },
         disabled && { opacity: 0.4 },
-        {
-          borderWidth: 2,
-          borderColor: variant === 'danger' ? '#dd0b0b' : Colors.custom.blue
-        },
         style,
       ]}
       disabled={disabled || loading}
     >
-      <Text style={[styles.text, { color: resolvedTextColor }]}>
+      <Text style={[styles.text, { color: text }]}>
         {loading ? 'Loading...' : title}
       </Text>
     </Pressable>

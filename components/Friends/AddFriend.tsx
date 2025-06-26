@@ -48,7 +48,7 @@ export default function AddByCode() {
         placeholderTextColor='#888'
         style={{ borderColor: greyBorder }}
       />
-      <Button title="Add friend" onPress={handleAdd} disabled={busy} />
+      <Button title="Add" onPress={handleAdd} disabled={busy} />
     </View>
   );
 }

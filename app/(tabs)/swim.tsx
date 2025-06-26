@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   counterText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   invincibleIndicator: {
     position: 'absolute',
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   envMessageText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     textAlign: 'center',
   },
 });

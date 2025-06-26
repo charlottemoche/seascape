@@ -1,13 +1,24 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
-import { TabBarIcon } from '@/components/Tabs/TabBar';
-import Colors from '@/constants/Colors';
+import { Icon } from '@/components/Icon';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Logo } from '@/components/Nav/Logo';
+import { listIncomingRequests } from '@/lib/friendService';
+import Colors from '@/constants/Colors';
 
 export function TabLayout() {
   const colorScheme = useColorScheme();
+  const [indicator, setIndicator] = useState(false);
+
+  useEffect(() => {
+    async function checkRequests() {
+      const requests = await listIncomingRequests();
+      setIndicator(!!requests.length);
+    }
+    checkRequests();
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -27,7 +38,7 @@ export function TabLayout() {
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) =>
-              TabBarIcon({ name: 'home', color, type: 'AntDesign' }),
+              Icon({ name: 'home', color, type: 'AntDesign' }),
           }}
         />
         <Tabs.Screen
@@ -35,7 +46,7 @@ export function TabLayout() {
           options={{
             title: 'Play',
             tabBarIcon: ({ color }) =>
-              TabBarIcon({ name: 'water-outline', color, type: 'Ionicons' }),
+              Icon({ name: 'water-outline', color, type: 'Ionicons' }),
           }}
         />
         <Tabs.Screen
@@ -43,7 +54,7 @@ export function TabLayout() {
           options={{
             title: 'Breathe',
             tabBarIcon: ({ color }) =>
-              TabBarIcon({ name: 'leaf-outline', color, type: 'Ionicons' }),
+              Icon({ name: 'leaf-outline', color, type: 'Ionicons' }),
           }}
         />
         <Tabs.Screen
@@ -51,18 +62,41 @@ export function TabLayout() {
           options={{
             title: 'Journal',
             tabBarIcon: ({ color }) =>
-              TabBarIcon({ name: 'pencil', color, type: 'SimpleLineIcons' }),
+              Icon({ name: 'pencil', color, type: 'SimpleLineIcons' }),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
-            tabBarIcon: ({ color }) =>
-              TabBarIcon({ name: 'user', color, type: 'AntDesign' }),
+            tabBarIcon: ({ color }) => (
+              <View style={{ position: 'relative' }}>
+                {Icon({ name: 'user', color, type: 'AntDesign' })}
+                {indicator && (
+                  <View
+                    style={styles.indicator}
+                  />
+                )}
+              </View>
+            ),
+          }}
+          listeners={{
+            tabPress: () => setIndicator(false),
           }}
         />
       </Tabs>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  indicator: {
+    position: 'absolute',
+    top: -2,
+    right: -6,
+    width: 8,
+    height: 8,
+    backgroundColor: 'red',
+    borderRadius: 4,
+  },
+});

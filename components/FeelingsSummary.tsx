@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   mood: {
     fontSize: 22,
-    fontWeight: '600',
+    fontWeight: 600,
     textAlign: 'center',
   },
   common: {

@@ -17,19 +17,19 @@ import { View, Text } from '@/components/Themed';
 import FishModal from './FishModal';
 
 type FishCustomizerProps = {
-  lightText?: boolean;
+  transparent?: boolean;
   onSaved?: () => void;
 };
 
 const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
-export function FishCustomizer({ lightText, onSaved }: FishCustomizerProps) {
+export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const { user } = useUser();
   const { profile } = useProfile();
 
   const colorScheme = useColorScheme();
 
-  const textColor = lightText || colorScheme === 'dark' ? '#fff' : '#000';
+  const textColor = transparent || colorScheme === 'dark' ? '#fff' : '#000';
 
   const [fishName, setFishName] = useState(profile?.fish_name ?? '');
   const [fishColor, setFishColor] = useState<FishColor>(
@@ -82,17 +82,21 @@ export function FishCustomizer({ lightText, onSaved }: FishCustomizerProps) {
     <TouchableWithoutFeedback onPress={() => { if (modalVisible) setModalVisible(false); Keyboard.dismiss(); }}>
       <View style={styles.container}>
         <View style={styles.container}>
-          <Text style={[styles.title, { color: textColor, fontSize: lightText ? 20 : 16 }]}>Customize Your Fish</Text>
+
+          {transparent ? (
+            <Text style={[styles.title, { color: textColor, fontSize: transparent ? 20 : 16 }]}>Customize Your Fish</Text>
+          ) : (
+            <Text style={[styles.fishNameText, { color: textColor }]}>{fishName || ''}</Text>
+          )}
 
           <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
-          <Text style={[styles.fishNameText, { color: textColor, fontSize: lightText ? 16 : 14 }]}>{fishName || 'Finny'}</Text>
 
           <Button title="Edit" onPress={() => setModalVisible(true)} variant="secondary" />
 
           <FishModal
             visible={modalVisible}
-            initialText={fishName || 'Finny'}
+            initialText={fishName || ''}
             initialColor={fishColor}
             onSave={(newName, newColor) => handleSave(newName, newColor)}
             onCancel={() => setModalVisible(false)}
@@ -150,9 +154,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saveButtonText: {
-    fontWeight: '600',
+    fontWeight: 600,
   },
   fishNameText: {
     height: 36,
+    fontSize: 18,
+    fontWeight: 600,
   }
 });

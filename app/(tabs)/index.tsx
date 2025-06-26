@@ -1,6 +1,6 @@
 import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image } from 'react-native';
 import React, { useRef, useCallback } from 'react';
-import { TabBarIcon } from '@/components/Tabs/TabBar';
+import { Icon } from '@/components/Icon';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useProfile } from '@/context/ProfileContext';
 import { useStreaks } from '@/context/StreakContext';
@@ -60,7 +60,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Your personal stats</Text>
@@ -74,7 +74,7 @@ export default function HomeScreen() {
             <View style={styles.streakRow}>
               <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
                 <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
-                  <TabBarIcon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
+                  <Icon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
                 </View>
                 <Text style={styles.streakSubtitle}>Journaling</Text>
                 <Text testID="journal-streak" style={styles.cardDataStreaks}>
@@ -85,7 +85,7 @@ export default function HomeScreen() {
               </View>
               <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
                 <View style={[styles.iconWrapper, { backgroundColor: cardColor }]}>
-                  <TabBarIcon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={18} />
+                  <Icon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
                 </View>
                 <Text style={styles.streakSubtitle}>Breathing</Text>
                 <Text testID="breathing-streak" style={styles.cardDataStreaks}>
@@ -102,7 +102,7 @@ export default function HomeScreen() {
             <View style={styles.streakRow}>
               <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
                 <View style={styles.iconWrapper}>
-                  <TabBarIcon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={20} />
+                  <Icon name="clock" color={Colors.custom.blue} type="SimpleLineIcons" size={18} />
                 </View>
                 <Text style={styles.streakSubtitle}>Time</Text>
                 <Text style={styles.cardDataStreaks}>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   cardSubtitle: {
     fontSize: 16,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   streakTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 6,
     textAlign: 'center',
   },
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: '#ccc',
     paddingBottom: 2,
+    fontWeight: 500,
   },
   cardDataStreaks: {
     fontSize: 16,

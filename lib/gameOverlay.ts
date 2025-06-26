@@ -21,7 +21,7 @@ export function getOverlayMode(params: {
     return 'loading';
   }
 
-  const playsLeft = 3 - playCount;
+  const playsLeft = 5 - playCount;
 
   if (playsLeft <= 0) {
     return 'noPlaysLeft';

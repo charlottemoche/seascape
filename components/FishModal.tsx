@@ -39,7 +39,7 @@ export default function FishModal({
     colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.white;
   const modalOverlayColor =
     colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)';
-  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
   const [localName, setLocalName] = useState(initialText);
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: 'white',
-    fontWeight: '600',
+    fontWeight: 600,
   },
   colorRow: {
     flexDirection: 'row',

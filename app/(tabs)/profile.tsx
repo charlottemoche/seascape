@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -16,12 +16,14 @@ import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { Text, Button, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
+import { Icon } from '@/components/Icon';
+import { listIncomingRequests } from '@/lib/friendService';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
-import * as Clipboard from 'expo-clipboard';
 import AddByCode from '@/components/Friends/AddFriend';
 import IncomingRequests from '@/components/Friends/IncomingRequests';
 import FriendsList from '@/components/Friends/Friends';
+import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -33,15 +35,19 @@ export default function ProfileScreen() {
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
   const [friendSubTab, setFriendSubTab] = useState<'add' | 'requests' | 'list'>('add');
+  const [hasPending, setHasPending] = useState(false);
+  const [tapped, setTapped] = useState(false)
 
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
-  const footerColor = colorScheme === 'dark' ? Colors.dark.background : '#f8f8f8';
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
+  const selectedTextColor = colorScheme === 'dark' ? '#fff' : '#000';
   const linkColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.darkBlue;
-  const greyBorder = colorScheme === 'dark' ? '#292828' : Colors.custom.grey;
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
+  const selectedTab = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.white;
+  const unselectedTab = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.transparent;
 
   const highScore = profile?.high_score ?? 0;
 
@@ -139,33 +145,51 @@ export default function ProfileScreen() {
     }
   };
 
+  useEffect(() => {
+    let cancelled = false;
+    async function refresh() {
+      try {
+        const incoming = await listIncomingRequests();
+        if (!cancelled) setHasPending(incoming.length > 0);
+      } catch { /* ignore */ }
+    }
+    refresh();
+    return () => { cancelled = true; };
+  }, [friendRefreshTick]);
+
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView} keyboardShouldPersistTaps="handled">
         <View
           style={[
             styles.tabBar,
-            { borderColor: greyBorder, backgroundColor: backgroundColor, marginTop: 24 },
+            { borderColor: greyBorder, backgroundColor: Colors.custom.grey, marginTop: 24 },
           ]}
         >
           {(['profile', 'friends'] as const).map((key) => (
             <Pressable
               key={key}
-              onPress={() => setTab(key)}
+              onPress={() => { setTab(key); setTapped(true); }}
               style={[
                 styles.tab,
                 { borderColor: greyBorder },
-                tab === key && styles.tabActive,
+                tab === key ? { backgroundColor: selectedTab } : { backgroundColor: unselectedTab },
               ]}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: tab === key ? '#000' : textColor },
-                ]}
-              >
-                {key === 'profile' ? 'Profile' : 'Friends'}
-              </Text>
+
+              <View style={styles.tabs}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: tab === key ? selectedTextColor : textColor },
+                  ]}
+                >
+                  {key === 'profile' ? 'Profile' : 'Friends'}
+                </Text>
+
+                {hasPending && !tapped && key === 'friends' && <View style={styles.indicator} />}
+              </View>
+
             </Pressable>
           ))}
         </View>
@@ -184,10 +208,17 @@ export default function ProfileScreen() {
                     Friend Code
                   </Text>
 
-                  <Pressable onPress={copyCode}>
-                    <Text style={[styles.value, { color: textColor, textDecorationLine: 'underline' }]}>
+                  <Pressable onPress={copyCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.value, { color: textColor }]}>
                       {code}
                     </Text>
+                    <Icon
+                      type="Ionicons"
+                      name="copy-outline"
+                      color='#808080'
+                      size={16}
+                      style={{ marginLeft: 4 }}
+                    />
                   </Pressable>
                 </View>
 
@@ -203,43 +234,54 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.logoutWrapper}>
-                <Button title="Log out" onPress={handleLogout} variant="secondary" />
+                <Button title="Log out" onPress={handleLogout} variant="tertiary" />
                 <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
               </View>
             </>
           )}
           {tab === 'friends' && (
-            <>
+            <View>
               <View
                 style={[
                   styles.tabBar, styles.tabBarFriends,
-                  { borderColor: greyBorder, marginBottom: 20, }
+                  { borderColor: greyBorder, marginBottom: 30, }
                 ]}
               >
-                {(['add', 'requests', 'list'] as const).map((key) => (
+                {(['add', 'requests', 'list'] as const).map((key, idx, arr) => (
                   <Pressable
                     key={key}
-                    onPress={() => setFriendSubTab(key)}
+                    onPress={() => { setFriendSubTab(key); setTapped(true); }}
                     style={[
                       styles.tab,
                       { borderColor: greyBorder },
+
                       friendSubTab === key && styles.tabActiveFriends,
+
+                      idx !== arr.length - 1 && {
+                        borderRightWidth: 1,
+                        borderRightColor: greyBorder,
+                      },
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.tabText,
-                        { color: friendSubTab === key ? '#000' : textColor },
-                      ]}
-                    >
-                      {key === 'add'
-                        ? 'Add'
-                        : key === 'requests'
-                          ? 'Requests'
-                          : 'Friends'}
-                    </Text>
+                    <View style={styles.tabs}>
+                      <Text
+                        style={[
+                          styles.tabText,
+                          { color: friendSubTab === key ? '#000' : textColor },
+                        ]}
+                      >
+                        {key === 'add' ? 'Add'
+                          : key === 'requests' ? 'Requests'
+                            : 'Friends'}
+                      </Text>
+
+                      {hasPending && key === 'requests' && (
+                        <View style={styles.indicator} />
+                      )}
+                    </View>
                   </Pressable>
                 ))}
+
               </View>
 
               {friendSubTab === 'add' && (
@@ -271,19 +313,18 @@ export default function ProfileScreen() {
                   <FriendsList refreshSignal={friendRefreshTick} />
                 </View>
               )}
-            </>
+            </View>
           )}
         </View>
-
-        <View style={{ backgroundColor: footerColor }}>
-          <View style={[styles.footer, { backgroundColor: footerColor, borderColor: greyBorder }]}>
-            <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
-              <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
-            </Pressable>
-            <Text style={[styles.footerText, { color: textColor }]}>Version 1.5.7</Text>
-          </View>
-        </View>
       </ScrollView>
+      <View style={{ backgroundColor: cardColor, maxHeight: 50 }}>
+        <View style={[styles.footer, { backgroundColor: cardColor, borderColor: greyBorder }]}>
+          <Pressable onPress={() => Linking.openURL('https://seascapeapp.com')}>
+            <Text style={[styles.footerLink, { color: linkColor }]}>Privacy Policy</Text>
+          </Pressable>
+          <Text style={[styles.footerText, { color: textColor }]}>Version 1.5.8</Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -294,6 +335,10 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    paddingBottom: 24,
   },
   container: {
     padding: 24,
@@ -309,9 +354,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: 500,
     paddingBottom: 8,
+    textDecorationLine: 'underline',
   },
   value: {
     fontSize: 16,
@@ -341,6 +387,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    minHeight: 50,
   },
   footerLink: {
     fontSize: 14,
@@ -393,6 +440,20 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
+  },
+  tabs: {
+    position: 'relative',
+    paddingHorizontal: 4,
+    backgroundColor: 'transparent',
+  },
+  indicator: {
+    position: 'absolute',
+    top: '20%',
+    right: -10,
+    width: 8,
+    height: 8,
+    backgroundColor: 'red',
+    borderRadius: 4,
   },
 });
