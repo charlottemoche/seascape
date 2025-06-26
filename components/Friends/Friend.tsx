@@ -9,9 +9,10 @@ type Props = {
   fish_color?: string | FishColor | null;
   high_score?: number | null;
   labeled?: boolean;
+  smallText?: boolean;
 };
 
-export default function Friend({ fish_name, friend_code, fish_color, high_score, labeled }: Props) {
+export default function Friend({ fish_name, friend_code, fish_color, high_score, labeled, smallText }: Props) {
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
 
@@ -22,14 +23,14 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
     <View style={styles.wrapper}>
 
       <View style={styles.friendInfo}>
-        <Image source={fishImage} style={styles.image} />
-        <Text style={[styles.text, { color: textColor }, !labeled && { paddingTop: 6 }]}>
+        <Image source={fishImage} style={[styles.image]} />
+        <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor }]}>
           {fish_name || friend_code}
         </Text>
       </View>
 
       {labeled && high_score && high_score !== null && (
-        <Text style={[styles.text, { color: textColor, marginLeft: 12 }]}>
+        <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor, marginLeft: 12 }]}>
           High score: {high_score}
         </Text>
       )}
@@ -55,7 +56,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   text: {
-    fontSize: 16,
     fontWeight: 500,
+  },
+  largeText: {
+    fontSize: 16,
+  },
+  smallText: {
+    fontSize: 14,
   },
 });

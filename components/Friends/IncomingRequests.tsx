@@ -54,6 +54,8 @@ export default function IncomingRequests({ onAccepted }: { onAccepted: () => voi
           <Button
             title="Accept"
             onPress={() => handleAccept(item.requesterId)}
+            variant="secondary"
+            margin={false}
           />
         </View>
 

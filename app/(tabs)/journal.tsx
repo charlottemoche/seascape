@@ -471,6 +471,7 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 18,
     marginBottom: 10,
+    fontWeight: 500,
   },
   card: {
     borderRadius: 12,

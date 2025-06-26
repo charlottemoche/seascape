@@ -41,6 +41,7 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
             fish_color={f.fish_color}
             high_score={f.high_score}
             labeled
+            smallText
           />
         </View>
       ))}

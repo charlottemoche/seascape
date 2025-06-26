@@ -3,10 +3,9 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Colors from '@/constants/Colors';
-import { DarkTheme } from '@react-navigation/native';
 
 type ThemeProps = {
   lightColor?: string;
@@ -24,6 +23,7 @@ export type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   testID?: string;
+  margin?: boolean;
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger';
 };
 
@@ -62,6 +62,7 @@ export function Button({
   disabled,
   loading,
   textColor,
+  margin = true,
   variant = 'primary',
 }: ButtonProps & { textColor?: string }) {
 
@@ -116,6 +117,7 @@ export function Button({
           borderColor: border,
         },
         disabled && { opacity: 0.4 },
+        margin && { marginTop: 10 },
         style,
       ]}
       disabled={disabled || loading}
@@ -138,7 +140,6 @@ export function Input(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   button: {
-    marginTop: 10,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 8,
