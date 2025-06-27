@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from './UserContext';
+import { useSyncAndRefresh } from '@/hooks/useHighScore';
 
 type ProfileType = {
   fish_color?: string;
@@ -65,6 +66,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       if (!silent) setLoading(false);
     }
   }, [user?.id]);
+
+  useSyncAndRefresh(user?.id, () => refreshProfile({ silent: true }));
 
   useEffect(() => {
     refreshProfile();

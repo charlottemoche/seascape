@@ -34,7 +34,7 @@ export default function ProfileScreen() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
-  const [friendSubTab, setFriendSubTab] = useState<'list' | 'requests' | 'add'>('list');
+  const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>('list');
   const [hasPending, setHasPending] = useState(false);
   const [tapped, setTapped] = useState(false)
 
@@ -247,7 +247,7 @@ export default function ProfileScreen() {
                   { borderColor: greyBorder, marginBottom: 30, }
                 ]}
               >
-                {(['add', 'requests', 'list'] as const).map((key, idx, arr) => (
+                {(['list', 'add', 'requests'] as const).map((key, idx, arr) => (
                   <Pressable
                     key={key}
                     onPress={() => { setFriendSubTab(key); setTapped(true); }}
@@ -281,14 +281,18 @@ export default function ProfileScreen() {
                     </View>
                   </Pressable>
                 ))}
-
               </View>
 
               {friendSubTab === 'list' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
-                    Friends
-                  </Text>
+                  <View style={[styles.friendsLabelRow,{ borderBottomColor: greyBorder }]}>
+                    <Text style={styles.sectionTitle}>
+                      Friend
+                    </Text>
+                    <Text style={styles.sectionTitle}>
+                      High Score
+                    </Text>
+                  </View>
                   <FriendsList refreshSignal={friendRefreshTick} />
                 </View>
               )}
@@ -458,5 +462,12 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: 'red',
     borderRadius: 4,
+  },
+  friendsLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
   },
 });

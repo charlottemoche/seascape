@@ -31,6 +31,9 @@ export default {
             CFBundleURLSchemes: ['seascape'],
           },
         ],
+      },
+      entitlements: {
+        'com.apple.developer.push-notifications': true,
       }
     },
     android: {
@@ -46,7 +49,7 @@ export default {
       output: 'static',
       favicon: './assets/images/favicon.png',
     },
-    plugins: ['expo-router', 'expo-secure-store', 'expo-audio'],
+    plugins: ['expo-router', 'expo-secure-store', 'expo-audio', 'expo-notifications'],
     experiments: {
       typedRoutes: true,
     },
@@ -54,6 +57,7 @@ export default {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
       googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      expoPushAccessToken: process.env.EXPO_PUBLIC_EXPO_PUSH_ACCESS_TOKEN,
       eas: {
         'projectId': 'd38ddf75-e6f0-4ea2-b829-b732001a3f93'
       }

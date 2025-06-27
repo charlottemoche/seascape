@@ -27,7 +27,6 @@ export async function sendFriendRequest(addresseeId: string) {
 
   const currentUser = data.user;
   if (!currentUser) throw new Error('Not signed in');
-
   if (addresseeId === currentUser.id) {
     throw new Error("You can't add yourself as a friend.");
   }
@@ -36,19 +35,29 @@ export async function sendFriendRequest(addresseeId: string) {
     .from('friendships')
     .select('*', { count: 'exact', head: true })
     .or(
-      `and(requester.eq.${currentUser.id},addressee.eq.${addresseeId}),and(requester.eq.${addresseeId},addressee.eq.${currentUser.id})`
+      `and(requester.eq.${currentUser.id},addressee.eq.${addresseeId}),` +
+      `and(requester.eq.${addresseeId},addressee.eq.${currentUser.id})`
     );
-
   if (existsError) throw existsError;
   if ((count ?? 0) > 0) {
     throw new Error('Friend request sent or already friends.');
   }
 
-  const { error } = await supabase
+  const { error: frError } = await supabase
     .from('friendships')
     .insert({ addressee: addresseeId, requester: currentUser.id });
+  if (frError) throw frError;
 
-  if (error) throw error;
+  const { error: notifErr } = await supabase
+    .from('notifications')
+    .insert({
+      user_id: addresseeId,
+      body:
+        `${currentUser.user_metadata?.fish_name || 'Someone'} sent you a friend request!`,
+    });
+  if (notifErr) {
+    console.warn('[push] notification insert failed:', notifErr.message);
+  }
 }
 
 export async function acceptFriendRequest(requesterId: string) {

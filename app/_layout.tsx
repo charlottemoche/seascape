@@ -10,10 +10,21 @@ import { ProfileProvider } from '@/context/ProfileContext';
 import { StreakProvider } from '@/context/StreakContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { supabase } from '@/lib/supabase';
-import * as Linking from 'expo-linking/';
 import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
+import { useRegisterPush } from '@/hooks/user/useRegisterPush';
+import * as Linking from 'expo-linking/';
+import * as Notifications from 'expo-notifications';
 import 'react-native-reanimated';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const imagesToCache = [
   require('../assets/images/fish-yellow.png'),
@@ -52,7 +63,7 @@ export default function RootLayout() {
   });
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-
+  
   useEffect(() => {
     async function cacheImages() {
       const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
@@ -64,11 +75,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded && assetsLoaded) {
-      const timeout = setTimeout(() => {
-        SplashScreen.hideAsync();
-      }, 2000);
-
-      return () => clearTimeout(timeout);
+      SplashScreen.hideAsync();
     }
   }, [loaded, assetsLoaded]);
 
@@ -135,6 +142,7 @@ function useHandleRecovery() {
 
 function RootLayoutNav() {
   useHandleRecovery();
+  useRegisterPush();
 
   const colorScheme = useColorScheme();
 

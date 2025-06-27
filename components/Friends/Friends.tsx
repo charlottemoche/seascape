@@ -32,9 +32,12 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
     return <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>;
 
   return (
-    <View style={{ backgroundColor: 'transparent' }}>
-      {rows.map((f) => (
-        <View style={styles.row} key={f.id}>
+    <View style={styles.container}>
+      {rows.map((f, i) => (
+        <View
+          key={f.id}
+          style={styles.row}
+        >
           <Friend
             fish_name={f.fish_name}
             friend_code={f.friend_code}
@@ -46,6 +49,7 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
         </View>
       ))}
     </View>
+
   );
 }
 
@@ -57,11 +61,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 600
   },
+  container: {
+    backgroundColor: 'transparent',
+  },
   row: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingVertical: 10,
+    paddingTop: 16,
   },
 });

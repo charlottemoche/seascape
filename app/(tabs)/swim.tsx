@@ -16,7 +16,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Text } from '@/components/Themed';
 import { SwimGameOverlay } from '@/components/SwimGameOverlay';
 import { getOverlayMode } from '@/lib/gameOverlay';
-import { bumpHighScore } from '@/hooks/useLightSync';
+import { bumpHighScore } from '@/hooks/useHighScore';
 import { supabase } from '@/lib/supabase';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import predatorImg from '@/assets/images/predator.png';

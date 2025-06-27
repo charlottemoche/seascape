@@ -31,7 +31,7 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 
       {labeled && high_score && high_score !== null && (
         <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor, marginLeft: 12 }]}>
-          High score: {high_score}
+          {high_score}
         </Text>
       )}
     </View>
@@ -59,9 +59,9 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   largeText: {
-    fontSize: 16,
+    fontSize: 18,
   },
   smallText: {
-    fontSize: 14,
+    fontSize: 16,
   },
 });
