@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Tabs, usePathname } from 'expo-router';
 import { usePendingRequests } from '@/context/PendingContext';
 import { Icon } from '@/components/Icon';
@@ -13,6 +14,9 @@ export function TabLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar
+        style={colorScheme === 'dark' ? 'light' : 'dark'}
+      />
       <Logo />
       <Tabs
         screenOptions={{

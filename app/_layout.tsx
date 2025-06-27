@@ -39,7 +39,6 @@ const imagesToCache = [
   require('../assets/images/predator.png'),
   require('../assets/images/prey.png'),
   require('../assets/images/wave.png'),
-  require('../assets/images/waves.png'),
   require('../assets/images/sun.png'),
   require('../assets/images/moon.png'),
   require('../assets/images/rain.png'),
@@ -68,7 +67,16 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function cacheImages() {
-      const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
+      const cachePromises = imagesToCache.map(async (img) => {
+        const asset = Asset.fromModule(img);
+        try {
+          await asset.downloadAsync();
+          console.log('[asset] cached', asset.name, asset.localUri);
+        } catch (err) {
+          console.warn('[asset] failed', asset.name, err);
+        }
+      });
+
       await Promise.all(cachePromises);
       setAssetsLoaded(true);
     }
@@ -156,7 +164,7 @@ function RootLayoutNav() {
       const data = resp.notification.request.content.data;
       if (data?.type === 'friend_request') {
         setPending(true);
-        router.navigate({ pathname: '/profile', params: { tab: 'requests' } });
+        router.push({ pathname: '/profile', params: { tab: 'requests' } });
       }
     });
     return () => sub.remove();

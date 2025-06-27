@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Image, Alert, Dimensions, Easing, Animated } from 'react-native';
+import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
 import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useStreaks } from '@/context/StreakContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -12,11 +12,6 @@ import { Vibration } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import Colors from '@/constants/Colors';
-import waves from '@/assets/images/waves.png';
-
-const WAVE = waves;
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const translateX = new Animated.Value(0);
 
 export default function BreatheScreen() {
   const { user, loading } = useRequireAuth();
@@ -42,22 +37,6 @@ export default function BreatheScreen() {
       'Make sure your phone is not on silent to hear the session end.'
     );
   }, []);
-
-  useEffect(() => {
-    if (isRunning || sessionComplete) {
-      Animated.loop(
-        Animated.timing(translateX, {
-          toValue: -SCREEN_WIDTH,
-          duration: 20000,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ).start();
-    } else {
-      translateX.stopAnimation();
-      translateX.setValue(0);
-    }
-  }, [isRunning, sessionComplete]);
 
   const handleBreathComplete = () => {
     setSessionComplete(true);
@@ -100,57 +79,35 @@ export default function BreatheScreen() {
   };
 
   return (
-    <View style={{ flex: 1, overflow: 'hidden' }}>
-      <Animated.View
-        style={{
-          flexDirection: 'row',
-          width: SCREEN_WIDTH * 2,
-          height: '100%',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          transform: [{ translateX }],
-        }}
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('@/assets/images/wave.png')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
       >
-        <Image
-          source={WAVE}
-          style={{ width: SCREEN_WIDTH + 1, height: '100%' }}
-          resizeMode="cover"
-        />
-        <Image
-          source={WAVE}
-          style={{
-            width: SCREEN_WIDTH + 1,
-            height: '100%',
-            transform: [{ scaleX: -1 }],
-            marginLeft: -1,
-          }}
-          resizeMode="cover"
-        />
-      </Animated.View>
+        <View style={styles.overlay} />
 
-      <View style={styles.overlay} />
+        <View style={[styles.top, !isRunning && !sessionComplete && styles.centerInstruction]}>
+          {isRunning || sessionComplete ? (
+            <BreatheCircle sessionComplete={sessionComplete} />
+          ) : (
+            <Text style={styles.instruction}>
+              Choose a duration and press start to begin your breathing session.
+            </Text>
+          )}
+        </View>
 
-      <View style={[styles.top, !isRunning && !sessionComplete && styles.centerInstruction]}>
-        {isRunning || sessionComplete ? (
-          <BreatheCircle sessionComplete={sessionComplete} />
-        ) : (
-          <Text style={styles.instruction}>
-            Choose a duration and press start to begin your breathing session.
-          </Text>
-        )}
-      </View>
-
-      <View style={styles.bottom}>
-        <BreatheTimer
-          isRunning={isRunning}
-          setIsRunning={setIsRunning}
-          sessionComplete={sessionComplete}
-          setSessionComplete={setSessionComplete}
-          onComplete={handleBreathComplete}
-          onSessionEnd={handleSessionEnd}
-        />
-      </View>
+        <View style={styles.bottom}>
+          <BreatheTimer
+            isRunning={isRunning}
+            setIsRunning={setIsRunning}
+            sessionComplete={sessionComplete}
+            setSessionComplete={setSessionComplete}
+            onComplete={handleBreathComplete}
+            onSessionEnd={handleSessionEnd}
+          />
+        </View>
+      </ImageBackground>
     </View>
   );
 }
@@ -164,7 +121,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(2, 31, 63, 0.5)',
+    backgroundColor: 'rgba(0, 31, 51, 0.7)',
   },
   bottom: {
     paddingBottom: 48,

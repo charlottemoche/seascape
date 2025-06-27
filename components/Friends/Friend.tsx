@@ -34,7 +34,6 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
     });
 
     if (error) console.warn('[notif] rpc failed:', error);
-    console.log('[sendNudge] receiverId:', receiverId);
   }
   
   const colorScheme = useColorScheme();

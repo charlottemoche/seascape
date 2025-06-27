@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -15,14 +15,16 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { Text, Button, View } from '@/components/Themed';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Icon } from '@/components/Icon';
 import { usePendingRequests, useSetPendingRequests } from '@/context/PendingContext';
+import { registerForPushAsync } from '@/lib/pushService';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
 import AddByCode from '@/components/Friends/AddFriend';
 import IncomingRequests from '@/components/Friends/IncomingRequests';
 import FriendsList from '@/components/Friends/Friends';
+import Toggle from '@/components/Toggle';
 import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
@@ -35,9 +37,12 @@ export default function ProfileScreen() {
   const { setUser } = useUser();
   const { profile } = useProfile();
 
+  const qTab = useLocalSearchParams().tab;
+
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
+  const [pushEnabled, setPushEnabled] = useState<boolean>(false);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
     hasPending ? 'requests' : 'list'
   );
@@ -153,6 +158,44 @@ export default function ProfileScreen() {
     }
   }, [tab, hasPending]);
 
+  useEffect(() => {
+    if (qTab === 'requests') {
+      setTab('friends');
+      setFriendSubTab('requests');
+      setPending(true);
+    }
+  }, [qTab]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    (async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('expo_push_token')
+        .eq('user_id', user.id)
+        .single();
+
+      console.log('[profile] expo_push_token:', data?.expo_push_token, 'error:', error);
+      setPushEnabled(!!data?.expo_push_token);
+    })();
+  }, [user?.id]);
+
+  async function togglePush(next: boolean) {
+    if (!user?.id) return;
+
+    if (next) {
+      await registerForPushAsync(user.id);
+    } else {
+      await supabase
+        .from('profiles')
+        .update({ expo_push_token: null })
+        .eq('user_id', user.id);
+    }
+
+    setPushEnabled(next);
+  }
+
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView} keyboardShouldPersistTaps="handled">
@@ -227,6 +270,9 @@ export default function ProfileScreen() {
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
                   <Image source={preyImg} style={styles.fishImage} />
                 </View>
+
+                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
+                <Toggle value={pushEnabled} onChange={setPushEnabled} />
               </View>
 
               <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
