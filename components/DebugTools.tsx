@@ -10,7 +10,6 @@ export default function DebugTools() {
       <Button
         title="⇢ jump to Requests"
         onPress={() => {
-          console.log('[DEV] pushing → /profile?tab=requests');
           router.push({ pathname: '/profile', params: { tab: 'requests' } });
         }}
       />

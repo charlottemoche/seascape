@@ -47,6 +47,9 @@ export default function AddByCode() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.text}>
+        Ask a friend for their friend code
+      </Text>
       <Input
         value={code}
         onChangeText={setCode}
@@ -55,7 +58,7 @@ export default function AddByCode() {
         placeholderTextColor='#888'
         style={{ borderColor: greyBorder }}
       />
-      <Button title="Add" onPress={handleAdd} disabled={busy} />
+      <Button title="Send" onPress={handleAdd} disabled={busy} />
     </View>
   );
 }
@@ -63,5 +66,11 @@ export default function AddByCode() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
+  },
+  text: {
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#808080',
   },
 });

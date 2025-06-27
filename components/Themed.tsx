@@ -52,7 +52,7 @@ export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const backgroundColor = useThemeColor({}, 'background');
 
-  return <DefaultView style={[{ backgroundColor }, style, styles.view]} {...otherProps} />;
+  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
 
 export function Button({
@@ -165,8 +165,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 14,
     borderWidth: 1,
-  },
-  view: {
-    flex: 1,
   },
 });

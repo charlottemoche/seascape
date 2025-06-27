@@ -26,6 +26,8 @@ import IncomingRequests from '@/components/Friends/IncomingRequests';
 import FriendsList from '@/components/Friends/Friends';
 import Toggle from '@/components/Toggle';
 import * as Clipboard from 'expo-clipboard';
+import bubbles from '@/assets/images/bubbles.png';
+import starfish from '@/assets/images/starfish.png';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -34,7 +36,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
 
   const { user } = useRequireAuth();
-  const { setUser } = useUser();
+  const { setUser, pushEnabled, setPushEnabled } = useUser();
   const { profile } = useProfile();
 
   const qTab = useLocalSearchParams().tab;
@@ -42,7 +44,6 @@ export default function ProfileScreen() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
-  const [pushEnabled, setPushEnabled] = useState<boolean>(false);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
     hasPending ? 'requests' : 'list'
   );
@@ -66,6 +67,35 @@ export default function ProfileScreen() {
     await Clipboard.setStringAsync(code);
     Alert.alert('Copied', 'Friend code copied to clipboard.');
     setBusy(false);
+  }
+
+  function ActionLegend() {
+    return (
+      <View style={styles.actions}>
+        <View style={styles.actionWrapper}>
+          <Text>
+            <Image
+              source={starfish}
+              style={[styles.icon, { width: 20 }]}
+            />
+          </Text>
+          <Text>
+            Starfish hug
+          </Text>
+        </View>
+        <View style={styles.actionWrapper}>
+          <Text>
+            <Image
+              source={bubbles}
+              style={[styles.icon, { width: 18 }]}
+            />
+          </Text>
+          <Text>
+            Breathe reminder
+          </Text>
+        </View>
+      </View>
+    );
   }
 
   const handleDeleteAccount = async () => {
@@ -166,36 +196,6 @@ export default function ProfileScreen() {
     }
   }, [qTab]);
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    (async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('expo_push_token')
-        .eq('user_id', user.id)
-        .single();
-
-      console.log('[profile] expo_push_token:', data?.expo_push_token, 'error:', error);
-      setPushEnabled(!!data?.expo_push_token);
-    })();
-  }, [user?.id]);
-
-  async function togglePush(next: boolean) {
-    if (!user?.id) return;
-
-    if (next) {
-      await registerForPushAsync(user.id);
-    } else {
-      await supabase
-        .from('profiles')
-        .update({ expo_push_token: null })
-        .eq('user_id', user.id);
-    }
-
-    setPushEnabled(next);
-  }
-
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView} keyboardShouldPersistTaps="handled">
@@ -272,7 +272,22 @@ export default function ProfileScreen() {
                 </View>
 
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
-                <Toggle value={pushEnabled} onChange={setPushEnabled} />
+                {pushEnabled !== null && (
+                  <Toggle
+                    value={pushEnabled}
+                    onChange={async (next) => {
+                      if (next) {
+                        await registerForPushAsync(user!.id);
+                      } else {
+                        await supabase
+                          .from('profiles')
+                          .update({ expo_push_token: null })
+                          .eq('user_id', user!.id);
+                      }
+                      setPushEnabled(next);
+                    }}
+                  />
+                )}
               </View>
 
               <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
@@ -329,15 +344,17 @@ export default function ProfileScreen() {
                 ))}
               </View>
 
-              {friendSubTab === 'list' && (
-                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <FriendsList refreshSignal={friendRefreshTick} />
-                </View>
-              )}
+              <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
+                <ActionLegend />
+              </View>
+
+              <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
+                <FriendsList refreshSignal={friendRefreshTick} />
+              </View>
 
               {friendSubTab === 'add' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={styles.sectionTitle}>Add Friend</Text>
+                  <Text style={styles.sectionTitle}>Send request</Text>
                   <AddByCode />
                 </View>
               )}
@@ -421,7 +438,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 500,
     marginBottom: 12,
     textAlign: 'center',
@@ -500,5 +517,21 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: 'red',
     borderRadius: 4,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    gap: 24,
+    paddingBottom: 24,
+  },
+  actionWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  icon: {
+    height: 20,
   },
 });

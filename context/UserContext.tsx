@@ -8,6 +8,8 @@ type UserContextType = {
   setUser: (user: User | null) => void;
   loading: boolean;
   sessionChecked: boolean;
+  pushEnabled: boolean | null;
+  setPushEnabled: (b: boolean) => void;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -16,6 +18,29 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setPushEnabled(null);
+      return;
+    }
+
+    (async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('expo_push_token')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.warn('[UserProvider] expo_push_token fetch failed:', error);
+        setPushEnabled(false);
+      } else {
+        setPushEnabled(!!data?.expo_push_token);
+      }
+    })();
+  }, [user?.id]);
 
   useEffect(() => {
     // Start token auto-refresh
@@ -59,7 +84,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser,
     loading,
     sessionChecked,
-  }), [user, loading]);
+    pushEnabled,
+    setPushEnabled,
+  }), [user, loading, sessionChecked, pushEnabled]);
 
   return (
     <UserContext.Provider value={value}>

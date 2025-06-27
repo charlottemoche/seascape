@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
+type PageKey = `${number}-${number}`;
+
 export type IncomingRequest = {
   id: string;
   requesterId: string;
@@ -19,6 +21,8 @@ export type FriendRow = {
 
 let cachedFriends: FriendRow[] | null = null;
 let fetchedAt = 0;
+let pageCache: Record<PageKey, { rows: FriendRow[]; fetchedAt: number }> = {};
+
 const TTL = 5 * 60 * 1000;
 
 export async function sendFriendRequest(addresseeId: string) {
@@ -100,11 +104,17 @@ export async function listIncomingRequests(): Promise<IncomingRequest[]> {
   });
 }
 
-export async function listFriends(opts: { force?: boolean } = {}): Promise<FriendRow[]> {
+export async function listFriends(
+  opts: { page?: number; limit?: number; force?: boolean } = {},
+): Promise<FriendRow[]> {
+  const page = opts.page ?? 0;
+  const limit = opts.limit ?? 10;
+  const offset = page * limit;
+  const key: PageKey = `${offset}-${limit}`;
   const now = Date.now();
 
-  if (!opts.force && cachedFriends && now - fetchedAt < TTL) {
-    return cachedFriends;
+  if (!opts.force && pageCache[key]?.rows && now - pageCache[key].fetchedAt < TTL) {
+    return pageCache[key].rows;
   }
 
   const { data: authData, error: authErr } = await supabase.auth.getUser();
@@ -114,17 +124,20 @@ export async function listFriends(opts: { force?: boolean } = {}): Promise<Frien
 
   const { data, error } = await supabase
     .from('friendships')
-    .select(`
+    .select(
+      `
       id, requester, addressee,
-      requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score, expo_push_token ),
-      addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score, expo_push_token )
-    `)
+      requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score ),
+      addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score )
+      `,
+    )
     .eq('status', 'accepted')
-    .or(`requester.eq.${me.id},addressee.eq.${me.id}`);
+    .or(`requester.eq.${me.id},addressee.eq.${me.id}`)
+    .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
-  const friends: FriendRow[] = (data ?? []).map((row: any) => {
+  const rows: FriendRow[] = (data ?? []).map((row: any) => {
     const iAmRequester = row.requester === me.id;
     const profileArr = iAmRequester ? row.addressee_profile : row.requester_profile;
     const profile = Array.isArray(profileArr) ? profileArr[0] : profileArr;
@@ -138,9 +151,12 @@ export async function listFriends(opts: { force?: boolean } = {}): Promise<Frien
     };
   });
 
-  cachedFriends = friends;
-  fetchedAt = now;
-  return friends;
+  pageCache[key] = { rows, fetchedAt: now };
+  return rows;
+}
+
+export function clearFriendCache() {
+  pageCache = {};
 }
 
 export function listenForIncomingRequests(userId: string, cb: (hasAny: boolean) => void) {

@@ -7,6 +7,7 @@ import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
 import bubbles from '@/assets/images/bubbles.png';
 import starfish from '@/assets/images/starfish.png';
+import preyImg from '@/assets/images/prey.png';
 
 type Props = {
   fish_name?: string | null;
@@ -35,10 +36,12 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 
     if (error) console.warn('[notif] rpc failed:', error);
   }
-  
+
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
+  const greyTextColor = colorScheme === 'dark' ? '#aaa' : '#888';
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
+  const buttonBackground = colorScheme === 'dark' ? 'rgba(207, 233, 241, 0.7);' : 'rgba(123, 182, 212, 0.4)';
 
   const fallbackColor = (fish_color && fish_color in fishImages ? fish_color : 'blue') as FishColor;
   const fishImage = fishImages[fallbackColor];
@@ -46,33 +49,37 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
   return (
     <View>
       <View style={[styles.wrapper, { backgroundColor: cardColor }]}>
-        <View style={[styles.friendInfo, { backgroundColor: cardColor }]}>
-          <Image source={fishImage} style={[styles.image]} />
-          <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor }]}>
-            {fish_name || friend_code}
-          </Text>
+        <View style={styles.friendWrapper}>
+          <View style={[styles.friendInfo, { backgroundColor: cardColor }]}>
+            <Image source={fishImage} style={[styles.image]} />
+            <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor }]}>
+              {fish_name || friend_code}
+            </Text>
+          </View>
+          {showFullDetails && high_score && high_score !== null && (
+            <View style={[styles.highScore, { backgroundColor: cardColor }]}>
+              <Image source={preyImg} style={styles.fishImage} />
+              <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: greyTextColor, marginLeft: 4 }]}>
+                {high_score}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {showFullDetails && high_score && high_score !== null && (
-          <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor, marginLeft: 12 }]}>
-            {high_score}
-          </Text>
-        )}
+        {showFullDetails &&
+          <View style={[styles.actions, { backgroundColor: cardColor }]}>
+            <Pressable style={[styles.actionButton, { backgroundColor: buttonBackground }]} onPress={() => sendNudge('hug')}>
+              <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
+            </Pressable>
+            <Pressable style={[styles.actionButton, { backgroundColor: buttonBackground }]} onPress={() => sendNudge('breathe')}>
+              <Image
+                source={bubbles}
+                style={[styles.actionImage, { width: 20 }]}
+              />
+            </Pressable>
+          </View>
+        }
       </View>
-
-      {showFullDetails &&
-        <View style={[styles.actions, { backgroundColor: cardColor }]}>
-          <Pressable style={styles.actionButton} onPress={() => sendNudge('hug')}>
-            <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
-          </Pressable>
-          <Pressable style={styles.actionButton} onPress={() => sendNudge('breathe')}>
-            <Image
-              source={bubbles}
-              style={[styles.actionImage, { width: 20 }]}
-            />
-          </Pressable>
-        </View>
-      }
     </View>
   );
 }
@@ -80,13 +87,20 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: 'transparent',
+    gap: 12,
     width: '100%',
+  },
+  friendWrapper: {
+    paddingVertical: 16,
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
   },
   friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingRight: 20,
   },
   image: {
     width: 20,
@@ -104,24 +118,25 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     gap: 12,
-    paddingVertical: 12,
-    width: '100%',
   },
   actionButton: {
-    padding: 10,
-    height: 40,
-    alignSelf: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 8,
-    backgroundColor: 'rgba(123, 182, 212, 0.2)',
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignContent: 'center',
+    alignSelf: 'center',
   },
   actionImage: {
     height: 22,
     backgroundColor: 'transparent',
+  },
+  fishImage: {
+    width: 14,
+    height: 14,
+  },
+  highScore: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

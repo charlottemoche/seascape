@@ -53,6 +53,13 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   }, [profile?.fish_color]);
 
   const handleSave = async (newName: string, newColor: FishColor) => {
+    const trimmedName = newName.trim();
+
+    if (trimmedName.length > 12) {
+      Alert.alert('Name too long', 'Please use 12 characters or less.');
+      return;
+    }
+
     if (!user) return;
 
     setSaving(true);
