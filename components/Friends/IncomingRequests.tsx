@@ -6,15 +6,12 @@ import Friend from './Friend';
 import Colors from '@/constants/Colors';
 
 type Props = {
-  onChange: (opts: { switched: boolean }) => void;
+  onChange: (pendingCount: number, accepted?: boolean) => void;
 };
 
 export default function IncomingRequests({ onChange }: Props) {
   const [rows, setRows] = useState<IncomingRequest[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const prevCountRef = useRef(0);
-
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
@@ -25,12 +22,11 @@ export default function IncomingRequests({ onChange }: Props) {
     try {
       const updated = await listIncomingRequests();
       setRows(updated);
-      prevCountRef.current = updated.length;
+      onChange(updated.length);
     } finally {
       setLoading(false);
     }
   }
-
   useEffect(() => { refresh(); }, []);
 
   async function handleAccept(requesterId: string) {
@@ -40,12 +36,9 @@ export default function IncomingRequests({ onChange }: Props) {
 
       setRows(prev => {
         const next = prev.filter(r => r.requesterId !== requesterId);
-        if (next.length === 0) {
-          onChange({ switched: true });
-        }
+        onChange(next.length, true);
         return next;
       });
-
     } catch (e: any) {
       Alert.alert('Error', e.message);
     }

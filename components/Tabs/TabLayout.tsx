@@ -17,13 +17,18 @@ export function TabLayout() {
 
   useEffect(() => {
     if (!user) return;
+
     const stop = listenForIncomingRequests(user.id, () => {
-      if (!pathname.includes('/profile')) {
-        setIndicator(true);
-      }
+      if (!pathname.includes('/profile')) setIndicator(true);
     });
+
     return stop;
-  }, [user?.id]);
+  }, [user?.id, pathname]);
+
+  useEffect(() => {
+    if (pathname.includes('/profile')) setIndicator(false);
+  }, [pathname]);
+
 
   useEffect(() => {
     if (!user) return;
@@ -96,10 +101,8 @@ export function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View style={{ position: 'relative' }}>
                 {Icon({ name: 'user', color, type: 'AntDesign' })}
-                {indicator && (
-                  <View
-                    style={styles.indicator}
-                  />
+                {indicator && !pathname.includes('/profile') && (
+                  <View style={styles.indicator} />
                 )}
               </View>
             ),

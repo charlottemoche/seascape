@@ -318,10 +318,10 @@ export default function ProfileScreen() {
               {friendSubTab === 'requests' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
                   <IncomingRequests
-                    onChange={({ switched }) => {
-                      refreshHasPending();
+                    onChange={(pendingCount, accepted) => {
+                      setHasPending(pendingCount > 0);
                       setFriendRefreshTick(n => n + 1);
-                      if (switched && friendSubTab === 'requests') {
+                      if (accepted && pendingCount === 0 && friendSubTab === 'requests') {
                         setFriendSubTab('list');
                       }
                     }}
