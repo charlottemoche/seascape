@@ -116,8 +116,8 @@ export async function listFriends(opts: { force?: boolean } = {}): Promise<Frien
     .from('friendships')
     .select(`
       id, requester, addressee,
-      requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score ),
-      addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score )
+      requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score, expo_push_token ),
+      addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score, expo_push_token )
     `)
     .eq('status', 'accepted')
     .or(`requester.eq.${me.id},addressee.eq.${me.id}`);

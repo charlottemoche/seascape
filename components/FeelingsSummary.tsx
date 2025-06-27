@@ -2,11 +2,11 @@ import { useState, useRef, useCallback } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
-import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
 import { Loader } from '@/components/Loader';
+import { useFocusEffect } from '@react-navigation/native';
+import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
-import { useFocusEffect } from '@react-navigation/native';
 
 const feelingCategories = {
   positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
@@ -59,9 +59,9 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   }
 
   function imageForMood(category: string) {
-    if (category === 'positive') return require('@/assets/images/sun-2.png');
-    if (category === 'neutral') return require('@/assets/images/moon-2.png');
-    return require('@/assets/images/rain-2.png');
+    if (category === 'positive') return require('@/assets/images/sun.png');
+    if (category === 'neutral') return require('@/assets/images/moon.png');
+    return require('@/assets/images/rain.png');
   }
 
   const load = useCallback(async () => {
@@ -195,7 +195,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   );
 
   return (
-    <View style={styles.containerWrapper}>
+    <View>
       {loading && (
         <View style={[styles.loaderOverlay, { backgroundColor: loaderBackgroundColor }]}>
           <Loader />
@@ -281,10 +281,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderColor: 'rgba(123, 182, 212, 0.4)',
     borderWidth: 1,
-    // backgroundColor: 'transparent',
-  },
-  containerWrapper: {
-    // backgroundColor: 'transparent',
   },
   loaderOverlay: {
     ...StyleSheet.absoluteFillObject,

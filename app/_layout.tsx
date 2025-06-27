@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { useRegisterPush } from '@/hooks/user/useRegisterPush';
+import { PendingProvider, useSetPendingRequests } from '@/context/PendingContext';
 import * as Linking from 'expo-linking/';
 import * as Notifications from 'expo-notifications';
 import 'react-native-reanimated';
@@ -38,9 +39,10 @@ const imagesToCache = [
   require('../assets/images/predator.png'),
   require('../assets/images/prey.png'),
   require('../assets/images/wave.png'),
-  require('../assets/images/sun-2.png'),
-  require('../assets/images/moon-2.png'),
-  require('../assets/images/rain-2.png'),
+  require('../assets/images/waves.png'),
+  require('../assets/images/sun.png'),
+  require('../assets/images/moon.png'),
+  require('../assets/images/rain.png'),
   require('../assets/images/logo-light.png'),
   require('../assets/images/logo-dark.png'),
   require('../assets/images/splashscreen.png'),
@@ -63,7 +65,7 @@ export default function RootLayout() {
   });
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  
+
   useEffect(() => {
     async function cacheImages() {
       const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
@@ -89,14 +91,16 @@ export default function RootLayout() {
 
   return (
     <UserProvider>
-      <RootLayoutNav />
+      <PendingProvider>
+        <RootLayoutNav />
+      </PendingProvider>
     </UserProvider>
   );
 }
 
 function useHandleRecovery() {
-  const router = useRouter();
   const [handled, setHandled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleUrl = async (url: string | null) => {
@@ -141,8 +145,22 @@ function useHandleRecovery() {
 }
 
 function RootLayoutNav() {
+  const router = useRouter();
+  const setPending = useSetPendingRequests();
+
   useHandleRecovery();
   useRegisterPush();
+
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
+      const data = resp.notification.request.content.data;
+      if (data?.type === 'friend_request') {
+        setPending(true);
+        router.navigate({ pathname: '/profile', params: { tab: 'requests' } });
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   const colorScheme = useColorScheme();
 

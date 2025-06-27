@@ -33,7 +33,9 @@ export default function AddByCode() {
       setCode('');
     } catch (e: any) {
       console.error('[addFriend] failed:', e);
-      if(e.message.includes('Friend request sent or already friends.')) {
+      if (e.code === 'PGRST116') {
+        Alert.alert('Error', 'Could not find a user with that code.');
+      } else if (e.message?.includes('Friend request sent or already friends.')) {
         Alert.alert('Error', 'Friend request sent or already friends.');
       } else {
         Alert.alert('Error', 'Could not send friend request.');

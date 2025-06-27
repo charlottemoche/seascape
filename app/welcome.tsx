@@ -9,6 +9,9 @@ import { Logo } from '@/components/Nav/Logo';
 import { Icon } from '@/components/Icon';
 import Slide from '@/components/Slide';
 import Colors from '@/constants/Colors';
+import wave from '@/assets/images/wave.png';
+
+const WAVE = wave;
 
 const slides = [
   {
@@ -82,7 +85,7 @@ export default function OnboardingScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/wave.png')}
+      source={WAVE}
       style={styles.background}
       resizeMode="cover"
     >

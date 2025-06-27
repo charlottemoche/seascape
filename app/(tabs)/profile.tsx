@@ -8,7 +8,6 @@ import {
   useColorScheme,
   SafeAreaView,
   Linking,
-  AppState,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -16,9 +15,9 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { Text, Button, View } from '@/components/Themed';
-import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Icon } from '@/components/Icon';
-import { listIncomingRequests } from '@/lib/friendService';
+import { usePendingRequests, useSetPendingRequests } from '@/context/PendingContext';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
 import AddByCode from '@/components/Friends/AddFriend';
@@ -27,8 +26,11 @@ import FriendsList from '@/components/Friends/Friends';
 import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
-  const params = useLocalSearchParams();
   const router = useRouter();
+  const hasPending = usePendingRequests();
+  const setPending = useSetPendingRequests();
+  const colorScheme = useColorScheme();
+
   const { user } = useRequireAuth();
   const { setUser } = useUser();
   const { profile } = useProfile();
@@ -36,10 +38,9 @@ export default function ProfileScreen() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
-  const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>('list');
-  const [hasPending, setHasPending] = useState(false);
-
-  const colorScheme = useColorScheme();
+  const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
+    hasPending ? 'requests' : 'list'
+  );
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
@@ -146,35 +147,11 @@ export default function ProfileScreen() {
     }
   };
 
-  const refreshHasPending = async () => {
-    const incoming = await listIncomingRequests();
-    setHasPending(incoming.length > 0);
-  };
-
   useEffect(() => {
-    if (!user) return;
-    const sub = AppState.addEventListener('change', state => {
-      if (state === 'active') refreshHasPending();
-    });
-    return () => sub.remove();
-  }, [user?.id]);
-
-  useEffect(() => {
-    refreshHasPending();
-  }, [friendRefreshTick]);
-
-  useEffect(() => {
-    if (params.tab === 'requests') {
-      setTab('friends');
+    if (tab === 'friends' && hasPending && friendSubTab !== 'requests') {
       setFriendSubTab('requests');
     }
-  }, [params.tab]);
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshHasPending();
-    }, [user?.id])
-  );
+  }, [tab, hasPending]);
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
@@ -206,7 +183,11 @@ export default function ProfileScreen() {
                   {key === 'profile' ? 'Profile' : 'Friends'}
                 </Text>
 
-                {hasPending && key === 'friends' && <View style={styles.indicator} />}
+                {hasPending &&
+                  key === 'friends' &&
+                  !(tab === 'friends' && friendSubTab === 'requests') && (
+                    <View style={styles.indicator} />
+                  )}
               </View>
 
             </Pressable>
@@ -319,8 +300,8 @@ export default function ProfileScreen() {
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
                   <IncomingRequests
                     onChange={(pendingCount, accepted) => {
-                      setHasPending(pendingCount > 0);
                       setFriendRefreshTick(n => n + 1);
+                      setPending(pendingCount > 0);
                       if (accepted && pendingCount === 0 && friendSubTab === 'requests') {
                         setFriendSubTab('list');
                       }

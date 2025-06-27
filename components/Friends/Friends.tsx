@@ -51,14 +51,18 @@ export default function FriendsList({ refreshSignal }: Props) {
         {rows.map((f, i) => (
           <View
             key={f.id}
-            style={styles.row}
+            style={[
+              styles.row,
+              i !== rows.length - 1 && { borderBottomWidth: 1, borderBottomColor: greyBorder },
+            ]}
           >
             <Friend
               fish_name={f.fish_name}
               friend_code={f.friend_code}
               fish_color={f.fish_color}
               high_score={f.high_score}
-              labeled
+              receiverId={f.friendId}
+              showFullDetails
               smallText
             />
           </View>
