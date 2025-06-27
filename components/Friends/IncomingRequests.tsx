@@ -1,22 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, useColorScheme } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
 import { listIncomingRequests, acceptFriendRequest, IncomingRequest } from '@/lib/friendService';
 import Friend from './Friend';
 import Colors from '@/constants/Colors';
 
-export default function IncomingRequests({ onAccepted }: { onAccepted: () => void }) {
+type Props = {
+  onChange: (opts: { switched: boolean }) => void;
+};
+
+export default function IncomingRequests({ onChange }: Props) {
   const [rows, setRows] = useState<IncomingRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const prevCountRef = useRef(0);
 
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
 
   async function refresh() {
     setLoading(true);
     try {
-      setRows(await listIncomingRequests());
+      const updated = await listIncomingRequests();
+      setRows(updated);
+      prevCountRef.current = updated.length;
     } finally {
       setLoading(false);
     }
@@ -28,8 +37,15 @@ export default function IncomingRequests({ onAccepted }: { onAccepted: () => voi
     try {
       await acceptFriendRequest(requesterId);
       Alert.alert('Success', 'Friend added!');
-      onAccepted();
-      setRows((prev) => prev.filter((r) => r.requesterId !== requesterId));
+
+      setRows(prev => {
+        const next = prev.filter(r => r.requesterId !== requesterId);
+        if (next.length === 0) {
+          onChange({ switched: true });
+        }
+        return next;
+      });
+
     } catch (e: any) {
       Alert.alert('Error', e.message);
     }
@@ -41,26 +57,31 @@ export default function IncomingRequests({ onAccepted }: { onAccepted: () => voi
     return <Text style={[styles.empty, { color: textColor }]}>No friend requests</Text>;
 
   return (
-    <View style={{ backgroundColor: 'transparent', flexShrink: 1 }}>
-      {rows.map((item) => (
-        <View style={styles.row} key={item.id}>
-          <View style={{ flexShrink: 1, backgroundColor: 'transparent' }}>
-            <Friend
-              fish_name={item.fish_name}
-              friend_code={item.friend_code}
-              fish_color={item.fish_color}
+    <>
+      <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
+        Incoming Requests
+      </Text>
+      <View style={{ backgroundColor: 'transparent', flexShrink: 1 }}>
+        {rows.map((item) => (
+          <View style={styles.row} key={item.id}>
+            <View style={{ flexShrink: 1, backgroundColor: 'transparent' }}>
+              <Friend
+                fish_name={item.fish_name}
+                friend_code={item.friend_code}
+                fish_color={item.fish_color}
+              />
+            </View>
+            <Button
+              title="Accept"
+              onPress={() => handleAccept(item.requesterId)}
+              variant="secondary"
+              margin={false}
             />
           </View>
-          <Button
-            title="Accept"
-            onPress={() => handleAccept(item.requesterId)}
-            variant="secondary"
-            margin={false}
-          />
-        </View>
 
-      ))}
-    </View>
+        ))}
+      </View>
+    </>
   );
 }
 
@@ -80,5 +101,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingVertical: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 500,
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });

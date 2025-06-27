@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   useColorScheme,
   SafeAreaView,
   Linking,
+  AppState,
 } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import { useProfile } from '@/context/ProfileContext';
@@ -15,7 +16,7 @@ import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
 import { FishCustomizer } from '@/components/FishCustomizer';
 import { Text, Button, View } from '@/components/Themed';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Icon } from '@/components/Icon';
 import { listIncomingRequests } from '@/lib/friendService';
 import Colors from '@/constants/Colors';
@@ -26,6 +27,7 @@ import FriendsList from '@/components/Friends/Friends';
 import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
+  const params = useLocalSearchParams();
   const router = useRouter();
   const { user } = useRequireAuth();
   const { setUser } = useUser();
@@ -36,7 +38,6 @@ export default function ProfileScreen() {
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>('list');
   const [hasPending, setHasPending] = useState(false);
-  const [tapped, setTapped] = useState(false)
 
   const colorScheme = useColorScheme();
 
@@ -145,17 +146,35 @@ export default function ProfileScreen() {
     }
   };
 
+  const refreshHasPending = async () => {
+    const incoming = await listIncomingRequests();
+    setHasPending(incoming.length > 0);
+  };
+
   useEffect(() => {
-    let cancelled = false;
-    async function refresh() {
-      try {
-        const incoming = await listIncomingRequests();
-        if (!cancelled) setHasPending(incoming.length > 0);
-      } catch { /* ignore */ }
-    }
-    refresh();
-    return () => { cancelled = true; };
+    if (!user) return;
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') refreshHasPending();
+    });
+    return () => sub.remove();
+  }, [user?.id]);
+
+  useEffect(() => {
+    refreshHasPending();
   }, [friendRefreshTick]);
+
+  useEffect(() => {
+    if (params.tab === 'requests') {
+      setTab('friends');
+      setFriendSubTab('requests');
+    }
+  }, [params.tab]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshHasPending();
+    }, [user?.id])
+  );
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
@@ -169,7 +188,7 @@ export default function ProfileScreen() {
           {(['profile', 'friends'] as const).map((key) => (
             <Pressable
               key={key}
-              onPress={() => { setTab(key); setTapped(true); }}
+              onPress={() => { setTab(key) }}
               style={[
                 styles.tab,
                 { borderColor: greyBorder },
@@ -187,7 +206,7 @@ export default function ProfileScreen() {
                   {key === 'profile' ? 'Profile' : 'Friends'}
                 </Text>
 
-                {hasPending && !tapped && key === 'friends' && <View style={styles.indicator} />}
+                {hasPending && key === 'friends' && <View style={styles.indicator} />}
               </View>
 
             </Pressable>
@@ -250,7 +269,7 @@ export default function ProfileScreen() {
                 {(['list', 'add', 'requests'] as const).map((key, idx, arr) => (
                   <Pressable
                     key={key}
-                    onPress={() => { setFriendSubTab(key); setTapped(true); }}
+                    onPress={() => { setFriendSubTab(key); }}
                     style={[
                       styles.tab,
                       { borderColor: greyBorder },
@@ -285,14 +304,6 @@ export default function ProfileScreen() {
 
               {friendSubTab === 'list' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <View style={[styles.friendsLabelRow,{ borderBottomColor: greyBorder }]}>
-                    <Text style={styles.sectionTitle}>
-                      Friend
-                    </Text>
-                    <Text style={styles.sectionTitle}>
-                      High Score
-                    </Text>
-                  </View>
                   <FriendsList refreshSignal={friendRefreshTick} />
                 </View>
               )}
@@ -306,13 +317,13 @@ export default function ProfileScreen() {
 
               {friendSubTab === 'requests' && (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={[styles.sectionTitle, { borderBottomWidth: 1, borderBottomColor: greyBorder, paddingBottom: 12 }]}>
-                    Incoming Requests
-                  </Text>
                   <IncomingRequests
-                    onAccepted={() => {
-                      setFriendRefreshTick((n) => n + 1);
-                      setFriendSubTab('list');
+                    onChange={({ switched }) => {
+                      refreshHasPending();
+                      setFriendRefreshTick(n => n + 1);
+                      if (switched && friendSubTab === 'requests') {
+                        setFriendSubTab('list');
+                      }
                     }}
                   />
                 </View>
@@ -462,12 +473,5 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: 'red',
     borderRadius: 4,
-  },
-  friendsLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
   },
 });

@@ -32,7 +32,12 @@ export default function AddByCode() {
       Alert.alert('Success', 'Request sent.');
       setCode('');
     } catch (e: any) {
-      Alert.alert('Error', e.message);
+      console.error('[addFriend] failed:', e);
+      if(e.message.includes('Friend request sent or already friends.')) {
+        Alert.alert('Error', 'Friend request sent or already friends.');
+      } else {
+        Alert.alert('Error', 'Could not send friend request.');
+      }
     } finally {
       setBusy(false);
     }

@@ -3,8 +3,13 @@ import { ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { listFriends, FriendRow } from '@/lib/friendService';
 import Friend from './Friend';
+import Colors from '@/constants/Colors';
 
-export default function FriendsList({ refreshSignal }: { refreshSignal: number }) {
+type Props = {
+  refreshSignal: number;
+};
+
+export default function FriendsList({ refreshSignal }: Props) {
   const [rows, setRows] = useState<FriendRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +30,7 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
+  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
 
   if (loading) return <ActivityIndicator style={{ padding: 4 }} />;
 
@@ -32,24 +38,33 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
     return <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>;
 
   return (
-    <View style={styles.container}>
-      {rows.map((f, i) => (
-        <View
-          key={f.id}
-          style={styles.row}
-        >
-          <Friend
-            fish_name={f.fish_name}
-            friend_code={f.friend_code}
-            fish_color={f.fish_color}
-            high_score={f.high_score}
-            labeled
-            smallText
-          />
-        </View>
-      ))}
-    </View>
-
+    <>
+      <View style={[styles.friendsLabelRow, { borderBottomColor: greyBorder }]}>
+        <Text style={styles.sectionTitle}>
+          Friend
+        </Text>
+        <Text style={styles.sectionTitle}>
+          High Score
+        </Text>
+      </View>
+      <View style={styles.container}>
+        {rows.map((f, i) => (
+          <View
+            key={f.id}
+            style={styles.row}
+          >
+            <Friend
+              fish_name={f.fish_name}
+              friend_code={f.friend_code}
+              fish_color={f.fish_color}
+              high_score={f.high_score}
+              labeled
+              smallText
+            />
+          </View>
+        ))}
+      </View>
+    </>
   );
 }
 
@@ -70,5 +85,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingTop: 16,
+  },
+  friendsLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 500,
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });

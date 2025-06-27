@@ -43,21 +43,11 @@ export async function sendFriendRequest(addresseeId: string) {
     throw new Error('Friend request sent or already friends.');
   }
 
-  const { error: frError } = await supabase
+  const { error } = await supabase
     .from('friendships')
-    .insert({ addressee: addresseeId, requester: currentUser.id });
-  if (frError) throw frError;
+    .insert({ requester: currentUser.id, addressee: addresseeId });
 
-  const { error: notifErr } = await supabase
-    .from('notifications')
-    .insert({
-      user_id: addresseeId,
-      body:
-        `${currentUser.user_metadata?.fish_name || 'Someone'} sent you a friend request!`,
-    });
-  if (notifErr) {
-    console.warn('[push] notification insert failed:', notifErr.message);
-  }
+  if (error) throw error;
 }
 
 export async function acceptFriendRequest(requesterId: string) {
@@ -151,4 +141,21 @@ export async function listFriends(opts: { force?: boolean } = {}): Promise<Frien
   cachedFriends = friends;
   fetchedAt = now;
   return friends;
+}
+
+export function listenForIncomingRequests(userId: string, cb: (hasAny: boolean) => void) {
+  const channel = supabase.channel('incoming-friends')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'friendships',
+        filter: `addressee=eq.${userId},status=eq.pending`,
+      },
+      () => cb(true)
+    )
+    .subscribe();
+
+  return () => { supabase.removeChannel(channel); };
 }

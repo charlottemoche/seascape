@@ -1,24 +1,48 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Tabs } from 'expo-router';
+import { View, StyleSheet, AppState } from 'react-native';
+import { Tabs, usePathname } from 'expo-router';
 import { Icon } from '@/components/Icon';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Logo } from '@/components/Nav/Logo';
-import { listIncomingRequests } from '@/lib/friendService';
+import { useUser } from '@/context/UserContext';
+import { listenForIncomingRequests, listIncomingRequests } from '@/lib/friendService';
 import Colors from '@/constants/Colors';
 
 export function TabLayout() {
+  const pathname = usePathname();
+  const { user } = useUser();
   const colorScheme = useColorScheme();
   const [indicator, setIndicator] = useState(false);
 
   useEffect(() => {
-    async function checkRequests() {
-      const requests = await listIncomingRequests();
-      setIndicator(!!requests.length);
-    }
-    checkRequests();
-  }, []);
+    if (!user) return;
+    const stop = listenForIncomingRequests(user.id, () => {
+      if (!pathname.includes('/profile')) {
+        setIndicator(true);
+      }
+    });
+    return stop;
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const refetch = async () => {
+      const req = await listIncomingRequests();
+      setIndicator(req.length > 0);
+    };
+
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') refetch();
+    });
+
+    refetch();
+
+    return () => {
+      sub.remove();
+    };
+  }, [user?.id]);
 
   return (
     <View style={{ flex: 1 }}>
