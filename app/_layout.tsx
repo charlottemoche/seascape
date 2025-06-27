@@ -67,16 +67,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function cacheImages() {
-      const cachePromises = imagesToCache.map(async (img) => {
-        const asset = Asset.fromModule(img);
-        try {
-          await asset.downloadAsync();
-          console.log('[asset] cached', asset.name, asset.localUri);
-        } catch (err) {
-          console.warn('[asset] failed', asset.name, err);
-        }
-      });
-
+      const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
       await Promise.all(cachePromises);
       setAssetsLoaded(true);
     }
