@@ -18,8 +18,7 @@ export function useRequireAuth() {
       !user &&
       !pathname.startsWith('/login')
     ) {
-      supabase.auth.signOut();
-      router.replace('/login');
+      //
     }
   }, [user, sessionChecked, hasMounted, pathname, router]);
 

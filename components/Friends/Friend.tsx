@@ -41,7 +41,8 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const greyTextColor = colorScheme === 'dark' ? '#aaa' : '#888';
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
-  const buttonBackground = colorScheme === 'dark' ? 'rgba(207, 233, 241, 0.7);' : 'rgba(123, 182, 212, 0.4)';
+  const bubbleBackground = colorScheme === 'dark' ? 'rgba(207, 233, 241, 0.7);' : 'rgba(123, 182, 212, 0.4)';
+  const starFishBackground = colorScheme === 'dark' ? 'rgba(198, 250, 178, 0.6)' : 'rgba(75, 144, 50, 0.3)';
 
   const fallbackColor = (fish_color && fish_color in fishImages ? fish_color : 'blue') as FishColor;
   const fishImage = fishImages[fallbackColor];
@@ -68,10 +69,10 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 
         {showFullDetails &&
           <View style={[styles.actions, { backgroundColor: cardColor }]}>
-            <Pressable style={[styles.actionButton, { backgroundColor: buttonBackground }]} onPress={() => sendNudge('hug')}>
+            <Pressable style={[styles.actionButton, { backgroundColor: starFishBackground }]} onPress={() => sendNudge('hug')}>
               <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
             </Pressable>
-            <Pressable style={[styles.actionButton, { backgroundColor: buttonBackground }]} onPress={() => sendNudge('breathe')}>
+            <Pressable style={[styles.actionButton, { backgroundColor: bubbleBackground }]} onPress={() => sendNudge('breathe')}>
               <Image
                 source={bubbles}
                 style={[styles.actionImage, { width: 20 }]}
@@ -93,14 +94,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   friendWrapper: {
-    paddingVertical: 16,
+    paddingVertical: 18,
     backgroundColor: 'transparent',
     flexDirection: 'row',
   },
   friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 20,
+    paddingRight: 10,
   },
   image: {
     width: 20,

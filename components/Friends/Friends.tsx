@@ -84,7 +84,7 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
           loading ? (
             <ActivityIndicator style={{ paddingVertical: 12 }} />
           ) : (
-            <Button title="Load more" onPress={loadMore} variant="secondary" />
+            <Button title="Load more" onPress={loadMore} variant="secondary" style={styles.loadMoreButton} />
           )
         ) : null}
       </View>
@@ -134,7 +134,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loadMoreButton: {
-    paddingVertical: 12,
-    opacity: 0.8,
+    marginBottom: 20,
   },
 });

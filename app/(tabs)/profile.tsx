@@ -27,13 +27,25 @@ import FriendsList from '@/components/Friends/Friends';
 import Toggle from '@/components/Toggle';
 import * as Clipboard from 'expo-clipboard';
 import bubbles from '@/assets/images/bubbles.png';
+import whiteBubbles from '@/assets/images/white-bubbles.png';
 import starfish from '@/assets/images/starfish.png';
+import whiteStarfish from '@/assets/images/white-starfish.png';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const hasPending = usePendingRequests();
   const setPending = useSetPendingRequests();
   const colorScheme = useColorScheme();
+
+  const starfish =
+    colorScheme === 'dark'
+      ? require('@/assets/images/white-starfish.png')
+      : require('@/assets/images/starfish.png');
+
+  const bubbles =
+    colorScheme === 'dark'
+      ? require('@/assets/images/white-bubbles.png')
+      : require('@/assets/images/bubbles.png');
 
   const { user } = useRequireAuth();
   const { setUser, pushEnabled, setPushEnabled } = useUser();
