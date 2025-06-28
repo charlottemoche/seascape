@@ -1,4 +1,3 @@
-// lib/nudgeService.ts
 import { Alert } from 'react-native';
 import { supabase } from '@/lib/supabase';
 
@@ -10,8 +9,8 @@ export async function sendNudge(receiverId: string, type: NudgeType) {
 
   const { error } = await supabase.rpc('send_notification', {
     _receiver: receiverId,
-    _sender:   user.id,
-    _type:     type,
+    _sender: user.id,
+    _type: type,
   });
 
   if (error) {

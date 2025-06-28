@@ -36,6 +36,7 @@ export default function NudgeModal() {
   const text = colorScheme === 'dark' ? '#fff' : '#000';
   const icon = nudge.type === 'hug' ? starfishImage : bubblesImage;
   const verb = nudge.type === 'hug' ? 'a starfish hug' : 'a breathe reminder';
+  const showExclamation = nudge.type === 'hug';
 
   return (
     <Modal transparent animationType="fade" visible>
@@ -46,7 +47,7 @@ export default function NudgeModal() {
       <View style={[styles.card, { backgroundColor: bg }]}>
         <Image source={icon} style={styles.icon} />
         <Text style={[styles.title, { color: text }]}>
-          {nudge.sender} sent you {verb}
+          {`${nudge.sender} sent you ${verb}` + (showExclamation ? '!' : '')}
         </Text>
 
         {nudge.senderId && (
