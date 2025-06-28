@@ -14,10 +14,10 @@ import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { useRegisterPush } from '@/hooks/user/useRegisterPush';
 import { PendingProvider, useSetPendingRequests } from '@/context/PendingContext';
+import NudgeModal from '@/components/NudgeModal';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking/';
 import * as Notifications from 'expo-notifications';
-import NudgeModal from '@/components/NudgeModal';
 import 'react-native-reanimated';
 
 Notifications.setNotificationHandler({
@@ -156,24 +156,34 @@ function RootLayoutNav() {
   useRegisterPush();
 
   useEffect(() => {
-    const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
-      const data = resp.notification.request.content.data;
-      if (data?.type === 'friend_request') {
+    const handle = (data: any) => {
+      if (!data) return;
+
+      if (data.type === 'friend_request') {
         setPending(true);
         router.push({ pathname: '/profile', params: { tab: 'requests' } });
       }
-      if (data?.type === 'hug' || data?.type === 'breathe') {
+
+      if (data.type === 'hug' || data.type === 'breathe') {
         setNudge({
-          sender: typeof data.sender_name === 'string' && data.sender_name.trim()
-            ? data.sender_name
-            : 'Someone',
-          senderId: typeof data.sender_id === 'string' ? data.sender_id : undefined,
-          type: data.type === 'hug' || data.type === 'breathe' ? data.type : 'hug',
+          sender: data.sender_name?.trim() || 'Someone',
+          senderId: data.sender_id,
+          type: data.type,
         });
       }
-    });
+    };
+
+    (async () => {
+      const initial = await Notifications.getLastNotificationResponseAsync();
+      handle(initial?.notification.request.content.data);
+    })();
+
+    const sub = Notifications.addNotificationResponseReceivedListener(
+      resp => handle(resp.notification.request.content.data)
+    );
+
     return () => sub.remove();
-  }, []);
+  }, [router, setPending, setNudge]);
 
   const colorScheme = useColorScheme();
 
@@ -187,7 +197,7 @@ function RootLayoutNav() {
             <Stack.Screen name="welcome" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
-          <NudgeModal /> 
+          <NudgeModal />
         </ThemeProvider>
       </StreakProvider>
     </ProfileProvider>

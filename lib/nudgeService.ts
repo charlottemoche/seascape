@@ -18,6 +18,6 @@ export async function sendNudge(receiverId: string, type: NudgeType) {
     Alert.alert('Error', 'Failed to send nudge.');
   } else {
     const verb = type === 'hug' ? 'starfish hug' : 'breathe reminder';
-    Alert.alert('Sent!', `Your ${verb} was sent.`);
+    Alert.alert('Success', `Your ${verb} was sent.`);
   }
 }
