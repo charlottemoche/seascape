@@ -2,20 +2,22 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { UserProvider } from '@/context/UserContext';
 import { ProfileProvider } from '@/context/ProfileContext';
 import { StreakProvider } from '@/context/StreakContext';
+import { NudgeProvider, useNudge } from '@/context/NudgeContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { useRegisterPush } from '@/hooks/user/useRegisterPush';
 import { PendingProvider, useSetPendingRequests } from '@/context/PendingContext';
+import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking/';
 import * as Notifications from 'expo-notifications';
+import NudgeModal from '@/components/NudgeModal';
 import 'react-native-reanimated';
 
 Notifications.setNotificationHandler({
@@ -91,7 +93,9 @@ export default function RootLayout() {
   return (
     <UserProvider>
       <PendingProvider>
-        <RootLayoutNav />
+        <NudgeProvider>
+          <RootLayoutNav />
+        </NudgeProvider>
       </PendingProvider>
     </UserProvider>
   );
@@ -146,6 +150,7 @@ function useHandleRecovery() {
 function RootLayoutNav() {
   const router = useRouter();
   const setPending = useSetPendingRequests();
+  const { setNudge } = useNudge();
 
   useHandleRecovery();
   useRegisterPush();
@@ -156,6 +161,15 @@ function RootLayoutNav() {
       if (data?.type === 'friend_request') {
         setPending(true);
         router.push({ pathname: '/profile', params: { tab: 'requests' } });
+      }
+      if (data?.type === 'hug' || data?.type === 'breathe') {
+        setNudge({
+          sender: typeof data.sender_name === 'string' && data.sender_name.trim()
+            ? data.sender_name
+            : 'Someone',
+          senderId: typeof data.sender_id === 'string' ? data.sender_id : undefined,
+          type: data.type === 'hug' || data.type === 'breathe' ? data.type : 'hug',
+        });
       }
     });
     return () => sub.remove();
@@ -173,6 +187,7 @@ function RootLayoutNav() {
             <Stack.Screen name="welcome" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
+          <NudgeModal /> 
         </ThemeProvider>
       </StreakProvider>
     </ProfileProvider>

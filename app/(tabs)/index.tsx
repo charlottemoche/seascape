@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/FeelingsSummary';
 import Colors from '@/constants/Colors';
+import NudgeModal from '@/components/NudgeModal';
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 

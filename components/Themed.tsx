@@ -84,12 +84,12 @@ export function Button({
     primary: {
       bg:   c.primaryBg,
       text: c.primaryText,
-      border: Colors.custom.blue,
+      border: 'rgba(123,182,212,0.1)',
     },
     secondary: {
       bg:   c.secondaryBg,
       text: textColor ?? c.secondaryText,
-      border: Colors.custom.blue,
+      border: 'rgba(123,182,212,0.1)',
     },
     danger: {
       bg:   c.dangerBg,
@@ -113,10 +113,10 @@ export function Button({
         {
           backgroundColor: bg,
           opacity: pressed ? 0.7 : 1,
-          borderWidth: 2,
+          borderWidth: 1,
           borderColor: border,
         },
-        disabled && { opacity: 0.4 },
+        disabled && { opacity: 0.7 },
         margin && { marginTop: 10 },
         style,
       ]}

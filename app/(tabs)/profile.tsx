@@ -37,15 +37,15 @@ export default function ProfileScreen() {
   const setPending = useSetPendingRequests();
   const colorScheme = useColorScheme();
 
-  const starfish =
+  const starfishImage =
     colorScheme === 'dark'
-      ? require('@/assets/images/white-starfish.png')
-      : require('@/assets/images/starfish.png');
+      ? whiteStarfish
+      : starfish;
 
-  const bubbles =
+  const bubblesImage =
     colorScheme === 'dark'
-      ? require('@/assets/images/white-bubbles.png')
-      : require('@/assets/images/bubbles.png');
+      ? whiteBubbles
+      : bubbles;
 
   const { user } = useRequireAuth();
   const { setUser, pushEnabled, setPushEnabled } = useUser();
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
         <View style={styles.actionWrapper}>
           <Text>
             <Image
-              source={starfish}
+              source={starfishImage}
               style={[styles.icon, { width: 20 }]}
             />
           </Text>
@@ -98,7 +98,7 @@ export default function ProfileScreen() {
         <View style={styles.actionWrapper}>
           <Text>
             <Image
-              source={bubbles}
+              source={bubblesImage}
               style={[styles.icon, { width: 18 }]}
             />
           </Text>

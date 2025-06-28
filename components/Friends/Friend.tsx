@@ -3,6 +3,7 @@ import { Image, StyleSheet, useColorScheme, Pressable } from 'react-native';
 import { FishColor } from '@/constants/fishMap';
 import { View, Text } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
+import { sendNudge } from '@/lib/nudgeService';
 import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
 import bubbles from '@/assets/images/bubbles.png';
@@ -19,24 +20,7 @@ type Props = {
   receiverId?: string;
 };
 
-type Nudge = 'hug' | 'breathe';
-
 export default function Friend({ fish_name, friend_code, fish_color, high_score, showFullDetails, smallText, receiverId }: Props) {
-
-  async function sendNudge(type: Nudge) {
-    if (!receiverId) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase.rpc('send_notification', {
-      _receiver: receiverId,
-      _sender: user.id,
-      _type: type,
-    });
-
-    if (error) console.warn('[notif] rpc failed:', error);
-  }
-
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
   const greyTextColor = colorScheme === 'dark' ? '#aaa' : '#888';
@@ -69,10 +53,26 @@ export default function Friend({ fish_name, friend_code, fish_color, high_score,
 
         {showFullDetails &&
           <View style={[styles.actions, { backgroundColor: cardColor }]}>
-            <Pressable style={[styles.actionButton, { backgroundColor: starFishBackground }]} onPress={() => sendNudge('hug')}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: starFishBackground, opacity: pressed ? 0.7 : 1 }
+              ]}
+              onPress={() => {
+                if (receiverId) sendNudge(receiverId, 'hug');
+              }}
+            >
               <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
             </Pressable>
-            <Pressable style={[styles.actionButton, { backgroundColor: bubbleBackground }]} onPress={() => sendNudge('breathe')}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: bubbleBackground, opacity: pressed ? 0.7 : 1 }
+              ]}
+              onPress={() => {
+                if (receiverId) sendNudge(receiverId, 'breathe');
+              }}
+            >
               <Image
                 source={bubbles}
                 style={[styles.actionImage, { width: 20 }]}

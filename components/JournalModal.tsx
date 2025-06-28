@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Modal,
   View,
@@ -106,16 +106,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     minHeight: 100,
     width: '100%',
-  },
-  closeButton: {
-    marginTop: 12,
-    backgroundColor: '#2196F3',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: 'white',
-    fontWeight: 600,
   },
 });
