@@ -35,6 +35,7 @@ export default function NudgeModal() {
   const fog = colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)';
   const text = colorScheme === 'dark' ? '#fff' : '#000';
   const icon = nudge.type === 'hug' ? starfishImage : bubblesImage;
+  const hug = nudge.type === 'hug'
   const verb = nudge.type === 'hug' ? 'a starfish hug' : 'a breathe reminder';
   const showExclamation = nudge.type === 'hug';
 
@@ -50,7 +51,7 @@ export default function NudgeModal() {
           {`${nudge.sender} sent you ${verb}` + (showExclamation ? '!' : '')}
         </Text>
 
-        {nudge.senderId && (
+        {nudge.senderId && hug && (
           <Button
             title="Send one back"
             onPress={async () => {
