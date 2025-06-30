@@ -12,14 +12,6 @@ export function useAuthRedirect() {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log('[useAuthRedirect]', {
-      ready,
-      pathname,
-      user: user?.id || null,
-      done,
-      profileFlag: profile?.onboarding_completed,
-    });
-
     if (!ready || done === null) return;
 
     if (!user) {
