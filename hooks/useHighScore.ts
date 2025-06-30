@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 import { useEffect } from 'react';
 
-const LOCAL_HS = 'localHighScore';
+const LOCAL_HS = 'local_high_score';
 
 export async function bumpHighScore(score: number) {
   const prev = Number(await AsyncStorage.getItem(LOCAL_HS)) || 0;

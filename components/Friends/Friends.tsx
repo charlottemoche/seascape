@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    fontWeight: 600
+    fontWeight: 500
   },
   container: {
     backgroundColor: 'transparent',
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
     marginBottom: 12,
     textAlign: 'center',

@@ -83,7 +83,7 @@ export default function FishModal({
               <Input
                 value={localName}
                 onChangeText={setLocalName}
-                placeholder="Finny"
+                placeholder="Fin"
                 placeholderTextColor="#888"
                 autoFocus
                 style={{
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: 'white',
-    fontWeight: 600,
+    fontWeight: 500,
   },
   colorRow: {
     flexDirection: 'row',

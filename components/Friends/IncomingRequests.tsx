@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   text: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
     marginTop: 4,
   },

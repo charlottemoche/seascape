@@ -65,7 +65,7 @@ export default function NudgeModal() {
           <Button
             title="Close"
             onPress={() => setNudge(null)}
-            variant="tertiary"
+            variant="plain"
           />
         </View>
       </View>

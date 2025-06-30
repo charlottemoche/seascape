@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { registerForPushAsync } from '@/lib/pushService';
-import { useUser } from '@/context/UserContext';
+import { useSession } from '@/context/SessionContext';
 
 export function useRegisterPush() {
-  const { user, sessionChecked } = useUser();
+  const { user, sessionChecked } = useSession();
 
   useEffect(() => {
     if (!sessionChecked) return;

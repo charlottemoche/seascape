@@ -3,20 +3,20 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
-import { UserProvider } from '@/context/UserContext';
-import { ProfileProvider } from '@/context/ProfileContext';
+import { SessionProvider } from '@/context/SessionContext';
 import { StreakProvider } from '@/context/StreakContext';
-import { NudgeProvider, useNudge } from '@/context/NudgeContext';
+import { NudgeProvider } from '@/context/NudgeContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { supabase } from '@/lib/supabase';
-import { useRouter } from 'expo-router';
+import { OnboardingProvider, useOnboarding } from '@/context/OnboardingContext';
 import { Asset } from 'expo-asset';
 import { useRegisterPush } from '@/hooks/user/useRegisterPush';
-import { PendingProvider, useSetPendingRequests } from '@/context/PendingContext';
-import NudgeModal from '@/components/NudgeModal';
+import { PendingProvider } from '@/context/PendingContext';
+import { useNotificationNavigation } from '@/hooks/useNotificationNavigation';
+import { useAuthRedirect } from '@/hooks/user/useAuthRedirect';
+import { useHandleRecovery } from '@/hooks/useHandleRecovery';
+import { useAuthReady } from '@/hooks/user/useAuthReady';
+import NudgeModal from '@/components/Modals/NudgeModal';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Linking from 'expo-linking/';
 import * as Notifications from 'expo-notifications';
 import 'react-native-reanimated';
 
@@ -49,157 +49,79 @@ const imagesToCache = [
   require('../assets/images/splashscreen.png'),
 ];
 
-export {
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  initialRouteName: '(tabs)',
-};
+export { ErrorBoundary } from 'expo-router';
+export const unstable_settings = { initialRouteName: '(tabs)' };
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
-
   const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
-    async function cacheImages() {
-      const cachePromises = imagesToCache.map(img => Asset.fromModule(img).downloadAsync());
-      await Promise.all(cachePromises);
+    (async () => {
+      const tasks = imagesToCache.map((img) =>
+        Asset.fromModule(img).downloadAsync()
+      );
+      await Promise.all(tasks);
       setAssetsLoaded(true);
-    }
-    cacheImages();
+    })();
   }, []);
 
-  useEffect(() => {
-    if (loaded && assetsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, assetsLoaded]);
-
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  if (!loaded || !assetsLoaded) {
-    return null;
-  }
+  if (fontError) throw fontError;
+  if (!fontsLoaded || !assetsLoaded) return null;
 
   return (
-    <UserProvider>
+    <SessionProvider>
+      <OnboardingProvider>
       <PendingProvider>
         <NudgeProvider>
-          <RootLayoutNav />
+          <AuthGate />
         </NudgeProvider>
       </PendingProvider>
-    </UserProvider>
+      </OnboardingProvider>
+    </SessionProvider>
   );
 }
 
-function useHandleRecovery() {
-  const [handled, setHandled] = useState(false);
-  const router = useRouter();
+function AuthGate() {
+  const authReady = useAuthReady();
+  const { done }  = useOnboarding();
 
   useEffect(() => {
-    const handleUrl = async (url: string | null) => {
-      if (!url || handled) return;
+    if (authReady && done !== null) {
+      SplashScreen.hideAsync();
+    }
+  }, [authReady, done]);
 
-      try {
-        const parsed = new URL(url);
-
-        const fragmentParams = new URLSearchParams(parsed.hash.slice(1));
-
-        const access_token = fragmentParams.get('access_token');
-        const refresh_token = fragmentParams.get('refresh_token');
-        const type = fragmentParams.get('type');
-
-        if (type === 'recovery' && access_token && refresh_token) {
-          const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
-
-          if (error) {
-            console.error('setSession failed:', error.message, error);
-            Alert.alert('Error', 'Failed to set session: ' + error.message);
-          } else {
-            setHandled(true);
-            router.replace('/password');
-          }
-        } else if (type === 'recovery') {
-          console.warn('Incomplete recovery params', { type, access_token, refresh_token });
-        }
-      } catch (err) {
-        console.error('Error parsing URL:', err);
-        Alert.alert('Error', 'Failed to parse recovery URL.');
-      }
-    };
-
-    Linking.getInitialURL().then(handleUrl);
-
-    const sub = Linking.addEventListener('url', (event: { url: string | null }) => {
-      handleUrl(event.url);
-    });
-
-    return () => sub.remove();
-  }, [handled]);
+  if (!authReady || done === null) return null;
+  return <RootLayoutNav />;
 }
 
 function RootLayoutNav() {
-  const router = useRouter();
-  const setPending = useSetPendingRequests();
-  const { setNudge } = useNudge();
-
   useHandleRecovery();
   useRegisterPush();
+  useAuthRedirect();
+  useNotificationNavigation();
 
-  useEffect(() => {
-    const handle = (data: any) => {
-      if (!data) return;
-
-      if (data.type === 'friend_request') {
-        setPending(true);
-        router.push({ pathname: '/profile', params: { tab: 'requests' } });
-      }
-
-      if (data.type === 'hug' || data.type === 'breathe') {
-        setNudge({
-          sender: data.sender_name?.trim() || 'Someone',
-          senderId: data.sender_id,
-          type: data.type,
-        });
-      }
-    };
-
-    (async () => {
-      const initial = await Notifications.getLastNotificationResponseAsync();
-      handle(initial?.notification.request.content.data);
-    })();
-
-    const sub = Notifications.addNotificationResponseReceivedListener(
-      resp => handle(resp.notification.request.content.data)
-    );
-
-    return () => sub.remove();
-  }, [router, setPending, setNudge]);
-
+  const ready = useAuthReady();
   const colorScheme = useColorScheme();
+  if (!ready) return null;
 
   return (
-    <ProfileProvider>
-      <StreakProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="welcome" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          </Stack>
-          <NudgeModal />
-        </ThemeProvider>
-      </StreakProvider>
-    </ProfileProvider>
+    <StreakProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+        <NudgeModal />
+      </ThemeProvider>
+    </StreakProvider>
   );
 }

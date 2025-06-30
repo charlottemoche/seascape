@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 20,
     textAlign: 'center',
-    fontSize: 16
+    fontSize: 15
   },
   eye: {
     position: 'absolute',

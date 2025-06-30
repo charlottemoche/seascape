@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from 'react';
 import { fetchStreaks } from '@/lib/streakService';
-import { useUser } from './UserContext';
+import { useSession } from './SessionContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type StreakContextType = {
@@ -32,15 +32,15 @@ const StreakContext = createContext<StreakContextType>({
 });
 
 export const StreakProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useUser();
-  const userId = user?.id;
-
   const [lastActive, setLastActive] = useState<string | null>(null);
   const [didJournal, setDidJournal] = useState(false);
   const [didBreathe, setDidBreathe] = useState(false);
   const [journalStreak, setJournalStreak] = useState(0);
   const [breathStreak, setBreathStreak] = useState(0);
   const [streaksLoading, setStreaksLoading] = useState(true);
+
+  const { user } = useSession();
+  const userId = user?.id;
 
   useEffect(() => {
     if (!userId) return;

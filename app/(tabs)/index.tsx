@@ -1,24 +1,23 @@
 import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image, Pressable } from 'react-native';
 import React, { useRef, useCallback } from 'react';
 import { Icon } from '@/components/Icon';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
-import { useProfile } from '@/context/ProfileContext';
 import { useStreaks } from '@/context/StreakContext';
-import { View, Text } from '@/components/Themed';
+import { View, Text, Button } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { FishColor } from '@/constants/fishMap';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import { useSession } from '@/context/SessionContext';
 import fishImages from '@/constants/fishMap';
-import FeelingsSummary from '@/components/FeelingsSummary';
+import FeelingsSummary from '@/components/Feelings/FeelingsSummary';
+import FeelingsPlaceholder from '@/components/Feelings/FeelingsPlaceholder';
 import Colors from '@/constants/Colors';
-import NudgeModal from '@/components/NudgeModal';
+import DebugTools from '@/components/DebugTools';
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export default function HomeScreen() {
-  const { user, loading } = useRequireAuth();
-  const { profile, loading: profileLoading } = useProfile();
+  const { user, profile, loading } = useSession();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
 
   const router = useRouter();
@@ -43,10 +42,10 @@ export default function HomeScreen() {
     }, [refreshStreaks])
   );
 
-  if (loading || profileLoading || streaksLoading || !user || !profile) {
-    return (
-      <Loader />
-    );
+  const isLoggedIn = !!user;
+
+  if (isLoggedIn && (loading || streaksLoading)) {
+    return <Loader />;
   }
 
   function formatTime(totalMinutes: number) {
@@ -61,12 +60,11 @@ export default function HomeScreen() {
     }
   }
 
-  const { total_minutes } = profile;
-
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
+          <DebugTools />
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Your personal stats</Text>
           <View style={styles.colorOptions}>
@@ -83,11 +81,13 @@ export default function HomeScreen() {
                     <Icon name="pencil" color={Colors.custom.red} type="SimpleLineIcons" size={18} />
                   </View>
                   <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Journaling</Text>
-                  <Text testID="journal-streak" style={styles.cardDataStreaks}>
-                    {typeof journalStreak === 'number'
-                      ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
-                      : 'No data'}
-                  </Text>
+                  {isLoggedIn && (
+                    <Text testID="journal-streak" style={styles.cardDataStreaks}>
+                      {typeof journalStreak === 'number'
+                        ? `${journalStreak} day${journalStreak === 1 ? '' : 's'}`
+                        : 'No data'}
+                    </Text>
+                  )}
                 </View>
               </Pressable>
               <Pressable onPress={() => router.push('/breathe')} style={[styles.streakItem, { backgroundColor: cardColor }]}>
@@ -96,14 +96,21 @@ export default function HomeScreen() {
                     <Icon name="leaf-outline" color={Colors.custom.green} type="Ionicons" size={20} />
                   </View>
                   <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Breathing</Text>
-                  <Text testID="breathing-streak" style={styles.cardDataStreaks}>
-                    {typeof breathStreak === 'number'
-                      ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
-                      : 'No data'}
-                  </Text>
+                  {isLoggedIn && (
+                    <Text testID="breathing-streak" style={styles.cardDataStreaks}>
+                      {typeof breathStreak === 'number'
+                        ? `${breathStreak} day${breathStreak === 1 ? '' : 's'}`
+                        : 'No data'}
+                    </Text>
+                  )}
                 </View>
               </Pressable>
             </View>
+              {!isLoggedIn && (
+                <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                  <Button title="Log in to track" onPress={() => router.push('/login')} variant="tertiary" style={{ marginTop: 20 }} />
+                </View>
+              )}
           </View>
 
           <View style={[styles.card, { backgroundColor: cardColor }]}>
@@ -115,8 +122,8 @@ export default function HomeScreen() {
                 </View>
                 <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Time</Text>
                 <Text style={styles.cardDataStreaks}>
-                  {typeof total_minutes === 'number' && total_minutes > 0
-                    ? formatTime(total_minutes)
+                  {typeof profile?.total_minutes === 'number' && profile.total_minutes > 0
+                    ? formatTime(profile.total_minutes)
                     : 'No time logged yet'}
                 </Text>
               </View>
@@ -124,7 +131,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.feelingsWrapper}>
             <View style={{ maxWidth: 500 }}>
-              <FeelingsSummary userId={user.id} />
+              {user ? <FeelingsSummary userId={user.id} /> : <FeelingsPlaceholder />}
             </View>
           </View>
         </View>
@@ -162,10 +169,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
     textAlign: 'center',
-    fontWeight: 600,
+    fontWeight: 500,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -180,18 +187,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: 600,
+    fontSize: 15,
+    fontWeight: 500,
   },
   cardSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
   },
   cardData: {
-    fontSize: 16,
+    fontSize: 15,
   },
   streakTitle: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: 500,
     marginBottom: 6,
     textAlign: 'center',
   },
@@ -203,12 +210,12 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   cardDataStreaks: {
-    fontSize: 16,
+    fontSize: 15,
     paddingTop: 4,
     marginTop: 8,
   },
   cardLink: {
-    fontSize: 16,
+    fontSize: 15,
     textDecorationLine: 'underline',
   },
   streakRow: {

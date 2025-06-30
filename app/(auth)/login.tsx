@@ -36,7 +36,7 @@ export default function LoginScreen() {
 
   const router = useRouter();
 
-  const { reset, deleted, logout } = useLocalSearchParams();
+  const { reset } = useLocalSearchParams();
 
   const logoImage =
     colorScheme === 'dark'
@@ -171,18 +171,6 @@ export default function LoginScreen() {
           {reset === 'true' && (
             <Text style={[styles.message, { backgroundColor: messageColor }]}>
               Password reset. Please log in.
-            </Text>
-          )}
-
-          {deleted === 'true' && (
-            <Text style={[styles.message, { backgroundColor: messageColor }]}>
-              Your account has been deleted.
-            </Text>
-          )}
-
-          {logout === 'true' && (
-            <Text style={[styles.message, { backgroundColor: messageColor }]}>
-              You have been logged out.
             </Text>
           )}
 
@@ -349,7 +337,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   message: {
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 40,
     textAlign: 'center',
     color: 'white',

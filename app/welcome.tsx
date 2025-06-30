@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { View, Button, Alert, StyleSheet, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
-import { FishCustomizer } from '@/components/FishCustomizer';
-import { useProfile } from '@/context/ProfileContext';
+import { FishCustomizer } from '@/components/Fish/FishCustomizer';
+import { useSession } from '@/context/SessionContext';
 import { supabase } from '@/lib/supabase';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { Logo } from '@/components/Nav/Logo';
 import { Icon } from '@/components/Icon';
 import Slide from '@/components/Slide';
 import Colors from '@/constants/Colors';
 import wave from '@/assets/images/wave.png';
+import { useOnboarding } from '@/context/OnboardingContext';
 
 const WAVE = wave;
 
@@ -47,8 +47,9 @@ const slides = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { refreshProfile } = useProfile();
-  const { user } = useRequireAuth();
+
+  const { user, refreshProfile } = useSession();
+  const { markDone } = useOnboarding();
 
   const [page, setPage] = useState(0);
 
@@ -57,10 +58,11 @@ export default function OnboardingScreen() {
 
   const onNext = async () => {
     if (!isLastPage) {
-      setPage((prev) => prev + 1);
-    } else {
-      if (!user) return;
+      setPage(prev => prev + 1);
+      return;
+    }
 
+    if (user) {
       const { error } = await supabase
         .from('profiles')
         .update({ onboarding_completed: true })
@@ -73,8 +75,12 @@ export default function OnboardingScreen() {
       }
 
       await refreshProfile();
-      router.replace('/');
+      await markDone();
+    } else {
+      await markDone();
     }
+
+    router.replace('/');
   };
 
   const onBack = () => {

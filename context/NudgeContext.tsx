@@ -19,7 +19,7 @@ export const NudgeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 };
 
 export const useNudge = () => {
-  const c = useContext(Context);
-  if (!c) throw new Error('useNudge must be inside NudgeProvider');
-  return c;
+  const context = useContext(Context);
+  if (!context) throw new Error('useNudge must be inside NudgeProvider');
+  return context;
 };

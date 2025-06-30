@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSession } from '@/context/SessionContext';
 import { useStreaks } from '@/context/StreakContext';
-import { useProfile } from '@/context/ProfileContext';
 import { useAudioPlayer } from 'expo-audio';
 import { updateStreak } from '@/lib/streakService';
 import { Text } from '@/components/Themed';
@@ -12,31 +12,28 @@ import { Vibration } from 'react-native';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BreatheScreen() {
-  const { user, loading } = useRequireAuth();
+  const { user, loading, refreshProfileQuiet } = useSession();
+  const { refreshStreaks } = useStreaks();
+
+
   const [isRunning, setIsRunning] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
-  const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
-  const { refreshStreaks } = useStreaks();
-  const { refreshProfile } = useProfile();
 
+  const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
+  const isLoggedIn = !!user;
+  const shownRef = useRef(false);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
-
-  if (!user) return null;
-
-  useEffect(() => {
-    Alert.alert(
-      'Check mute switch',
-      'Make sure your phone is not on silent to hear the session end.'
-    );
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (shownRef.current) return;
+      shownRef.current = true;
+      Alert.alert('Check mute switch', 'Make sure your phone is not on silent to hear the session end.');
+    }, [])
+  );
 
   const handleBreathComplete = () => {
     setSessionComplete(true);
@@ -52,31 +49,37 @@ export default function BreatheScreen() {
     player.seekTo(0);
     player.loop = false;
 
-    const { error } = await supabase.from('breaths').insert({
-      user_id: user.id,
-      duration,
-    });
+    if (isLoggedIn) {
+      const { error } = await supabase
+        .from('breaths')
+        .insert({ user_id: user!.id, duration });
 
-    if (error) {
-      alert('Error saving session');
-      console.error(error);
-      return;
-    }
-
-    try {
-      const result = await updateStreak(user.id, 'breath', userTimezone, duration);
-      if (result.success) {
-        Alert.alert('Success', 'Breathing session saved.');
-        Promise.all([refreshStreaks(), refreshProfile({ silent: true })]);
-      } else {
-        console.warn('Breath streak update failed, skipping refresh');
+      if (error) {
+        Alert.alert('Error', 'Failed to save session');
+        console.error(error);
+        return;
       }
-    } catch (e) {
-      console.error('Unexpected error updating breath streak:', e);
+
+      try {
+        const result = await updateStreak(user!.id, 'breath', userTimezone, duration);
+        if (result.success) {
+          Alert.alert('Success', 'Breathing session saved.');
+          await Promise.all([refreshStreaks(), refreshProfileQuiet()]);
+        }
+      } catch (e) {
+        console.error('Unexpected error updating breath streak:', e);
+      }
+    } else {
+      await AsyncStorage.setItem('has_breathed', 'true');
+      const totalMinutes = Number(await AsyncStorage.getItem('total_minutes')) || 0;
+      await AsyncStorage.setItem('total_minutes', (totalMinutes + duration).toString());
+      Alert.alert('Success', 'Breathing session saved.');
     }
 
     setSessionComplete(false);
   };
+
+  if (loading) return <Loader />;
 
   return (
     <View style={styles.container}>

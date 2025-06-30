@@ -12,12 +12,13 @@ import {
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { Icon } from '@/components/Icon';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
+import { useSession } from '@/context/SessionContext';
 import { useStreaks } from '@/context/StreakContext';
 import { updateStreak } from '@/lib/streakService';
 import { View, Button, Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
-import JournalModal from '@/components/JournalModal';
+import { useRouter } from 'expo-router';
+import JournalModal from '@/components/Modals/JournalModal';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -44,6 +45,7 @@ const pageSize = 6;
 
 export default function JournalScreen() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
@@ -51,7 +53,7 @@ export default function JournalScreen() {
   const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
 
-  const { user, loading: authLoading } = useRequireAuth();
+  const { user, loading: authLoading } = useSession();
   const { refreshStreaks } = useStreaks();
 
   const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
@@ -270,15 +272,17 @@ export default function JournalScreen() {
 
   if (!user) {
     return (
-      <View>
-        <Text>You must be logged in to view journal entries.</Text>
+      <View style={styles.guestView}>
+        <Text style={styles.logInText}>You must log in or create an account</Text>
+        <Text style={styles.logInText}>to access your journal.</Text>
+        <Button title="Log in" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
       </View>
     );
   }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: backgroundColor }]}>
-      <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); if(modalVisible) setModalVisible(false);}} accessible={false}>
+      <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); if (modalVisible) setModalVisible(false); }} accessible={false}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <View style={styles.inner}>
@@ -458,10 +462,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
     textAlign: 'center',
-    fontWeight: 600,
+    fontWeight: 500,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -519,7 +523,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(123, 182, 212, 0.4)',
   },
   entriesTitle: {
-    fontSize: 16,
+    fontSize: 15,
     marginTop: 40,
     textAlign: 'center',
   },
@@ -544,13 +548,13 @@ const styles = StyleSheet.create({
     color: '#808080',
   },
   noEntries: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#808080',
     textAlign: 'center',
     marginTop: 20,
   },
   lockedText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#808080',
     textAlign: 'center',
     marginTop: 20,
@@ -582,7 +586,18 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
+  },
+  guestView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logInText: {
+    fontSize: 15,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+    lineHeight: 20,
   },
 });

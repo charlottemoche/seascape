@@ -12,7 +12,7 @@ import {
   Keyboard,
   useColorScheme,
 } from 'react-native';
-import { Button } from './Themed';
+import { Button } from '../Themed';
 import { JournalModalProps } from '@/types/Journal';
 import Colors from '@/constants/Colors';
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     textAlignVertical: 'top',
-    fontSize: 16,
+    fontSize: 15,
     minHeight: 100,
     width: '100%',
   },

@@ -24,7 +24,7 @@ export type ButtonProps = {
   loading?: boolean;
   testID?: string;
   margin?: boolean;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
 };
 
 export function useThemeColor(
@@ -101,6 +101,11 @@ export function Button({
       text: textColor ?? c.tertiaryText,
       border: '#6a6a6a',
     },
+    plain: {
+      bg:   'transparent',
+      text: textColor ?? c.tertiaryText,
+      border: 'transparent',
+    },
   } as const;
 
   const { bg, text, border } = variants[variant];
@@ -140,8 +145,8 @@ export function Input(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 7,
     borderRadius: 8,
     alignItems: 'center',
     alignSelf: 'center',
@@ -149,8 +154,8 @@ const styles = StyleSheet.create({
     width: 150,
   },
   text: {
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: 15,
+    fontWeight: 400,
   },
   input: {
     borderWidth: 1,

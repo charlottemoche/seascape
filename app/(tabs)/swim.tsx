@@ -8,10 +8,9 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { useProfile } from '@/context/ProfileContext';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { useSwimGame, environments } from '@/hooks/useSwimGame';
 import { useCanPlay } from '@/hooks/user/useCanPlayToday';
+import { useSession } from '@/context/SessionContext';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Text } from '@/components/Themed';
 import { SwimGameOverlay } from '@/components/SwimGameOverlay';
@@ -23,8 +22,7 @@ import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 
 export default function SwimScreen() {
-  const { user, loading } = useRequireAuth();
-  const { profile, refreshProfile } = useProfile();
+  const { user, profile, loading, refreshProfile } = useSession();
 
   const [envMessage, setEnvMessage] = useState<string | null>(null);
   const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<number | null>(null);
@@ -334,8 +332,8 @@ const styles = StyleSheet.create({
   },
   counterText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: 600,
+    fontSize: 15,
+    fontWeight: 500,
   },
   invincibleIndicator: {
     position: 'absolute',
@@ -354,7 +352,7 @@ const styles = StyleSheet.create({
   invincibleText: {
     color: '#000',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 15,
   },
   envMessageOverlay: {
     position: 'absolute',
@@ -371,7 +369,7 @@ const styles = StyleSheet.create({
   envMessageText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 600,
+    fontWeight: 500,
     textAlign: 'center',
   },
 });

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
-import { useUser } from '@/context/UserContext';
+import { useSession } from '@/context/SessionContext';
 import { listenForIncomingRequests, listIncomingRequests } from '@/lib/friendService';
 import * as Notifications from 'expo-notifications';
 
@@ -12,10 +12,12 @@ type Context = {
 const PendingContext = createContext<Context>({ hasPending: false, setPending: () => { } });
 
 export function PendingProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
+  const { user } = useSession();
   const [hasPending, setPending] = useState(false);
 
   useEffect(() => {
+    setPending(false);
+    
     if (!user) return;
 
     const stop = listenForIncomingRequests(user.id, async () => {
@@ -50,6 +52,7 @@ export function PendingProvider({ children }: { children: React.ReactNode }) {
       sub.remove();
       receivedSub.remove();
       responseSub.remove();
+      setPending(false);
     };
   }, [user?.id]);
 

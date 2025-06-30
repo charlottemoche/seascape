@@ -9,11 +9,9 @@ import {
   SafeAreaView,
   Linking,
 } from 'react-native';
-import { useUser } from '@/context/UserContext';
-import { useProfile } from '@/context/ProfileContext';
-import { useRequireAuth } from '@/hooks/user/useRequireAuth';
 import { supabase } from '@/lib/supabase';
-import { FishCustomizer } from '@/components/FishCustomizer';
+import { FishCustomizer } from '@/components/Fish/FishCustomizer';
+import { useSession } from '@/context/SessionContext';
 import { Text, Button, View } from '@/components/Themed';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Icon } from '@/components/Icon';
@@ -25,11 +23,12 @@ import AddByCode from '@/components/Friends/AddFriend';
 import IncomingRequests from '@/components/Friends/IncomingRequests';
 import FriendsList from '@/components/Friends/Friends';
 import Toggle from '@/components/Toggle';
-import * as Clipboard from 'expo-clipboard';
 import bubbles from '@/assets/images/bubbles.png';
 import whiteBubbles from '@/assets/images/white-bubbles.png';
 import starfish from '@/assets/images/starfish.png';
 import whiteStarfish from '@/assets/images/white-starfish.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -47,15 +46,14 @@ export default function ProfileScreen() {
       ? whiteBubbles
       : bubbles;
 
-  const { user } = useRequireAuth();
-  const { setUser, pushEnabled, setPushEnabled } = useUser();
-  const { profile } = useProfile();
+  const { user, profile } = useSession();
 
   const qTab = useLocalSearchParams().tab;
 
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
+  const [localHighScore, setLocalHighScore] = useState<number>(0);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
     hasPending ? 'requests' : 'list'
   );
@@ -69,9 +67,13 @@ export default function ProfileScreen() {
   const selectedTab = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.white;
   const unselectedTab = colorScheme === 'dark' ? Colors.dark.background : Colors.custom.transparent;
 
-  const highScore = profile?.high_score ?? 0;
-
   const code = profile?.friend_code ?? '';
+
+  const isLoggedIn = !!user;
+
+  const pushEnabled = profile?.expo_push_token !== null;
+
+  const highScore = profile?.high_score ?? localHighScore;
 
   async function copyCode() {
     if (!code || busy) return;
@@ -158,8 +160,9 @@ export default function ProfileScreen() {
     }
 
     await supabase.auth.signOut();
-    setUser(null);
-    router.replace('/login?deleted=true');
+    await AsyncStorage.clear();
+    Alert.alert('Success', 'Your account has been deleted.');
+    router.replace('/');
   };
 
   const handleLogout = async () => {
@@ -181,17 +184,10 @@ export default function ProfileScreen() {
   };
 
   const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error && error.name !== 'AuthSessionMissingError') {
-        Alert.alert('Error', 'Failed to log out. Please try again.');
-        return;
-      }
-      router.replace('/login?logout=true');
-      setUser(null);
-    } catch {
-      setUser(null);
-    }
+    await supabase.auth.signOut();
+    await AsyncStorage.clear();
+    Alert.alert('Success', 'You have been logged out.');
+    router.replace('/');
   };
 
   useEffect(() => {
@@ -207,6 +203,18 @@ export default function ProfileScreen() {
       setPending(true);
     }
   }, [qTab]);
+
+  useEffect(() => {
+    if (profile) return;
+    AsyncStorage.getItem('local_high_score')
+      .then(val => {
+        const parsed = parseInt(val ?? '0', 10);
+        if (!isNaN(parsed)) {
+          setLocalHighScore(parsed);
+        }
+      })
+      .catch(() => setLocalHighScore(0));
+  }, [profile]);
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
@@ -252,136 +260,157 @@ export default function ProfileScreen() {
         <View style={styles.container}>
           {tab === 'profile' && (
             <>
-              <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                <View style={styles.textRow}>
-                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>Email</Text>
-                  <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
-                </View>
+              {isLoggedIn ? (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <View style={styles.textRow}>
+                    <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>Email</Text>
+                    <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
+                  </View>
 
-                <View style={styles.textRow}>
-                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>
-                    Friend Code
-                  </Text>
-
-                  <Pressable onPress={copyCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={[styles.value, { color: textColor }]}>
-                      {code}
+                  <View style={styles.textRow}>
+                    <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>
+                      Friend Code
                     </Text>
-                    <Icon
-                      type="Ionicons"
-                      name="copy-outline"
-                      color='#808080'
-                      size={16}
-                      style={{ marginLeft: 4 }}
+
+                    <Pressable onPress={copyCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={[styles.value, { color: textColor }]}>
+                        {code}
+                      </Text>
+                      <Icon
+                        type="Ionicons"
+                        name="copy-outline"
+                        color='#808080'
+                        size={16}
+                        style={{ marginLeft: 4 }}
+                      />
+                    </Pressable>
+                  </View>
+
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
+                  <View style={styles.highScoreRow}>
+                    <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
+                    <Image source={preyImg} style={styles.fishImage} />
+                  </View>
+
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
+                  {pushEnabled !== null && (
+                    <Toggle
+                      value={pushEnabled}
+                      onChange={async (next) => {
+                        if (next) {
+                          await registerForPushAsync(user!.id);
+                        } else {
+                          await supabase
+                            .from('profiles')
+                            .update({ expo_push_token: null })
+                            .eq('user_id', user!.id);
+                        }
+                      }}
                     />
-                  </Pressable>
+                  )}
                 </View>
-
-                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
-                <View style={styles.highScoreRow}>
-                  <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                  <Image source={preyImg} style={styles.fishImage} />
+              ) : (
+                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>High Score</Text>
+                  <View style={styles.highScoreRow}>
+                    <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
+                    <Image source={preyImg} style={styles.fishImage} />
+                  </View>
                 </View>
-
-                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
-                {pushEnabled !== null && (
-                  <Toggle
-                    value={pushEnabled}
-                    onChange={async (next) => {
-                      if (next) {
-                        await registerForPushAsync(user!.id);
-                      } else {
-                        await supabase
-                          .from('profiles')
-                          .update({ expo_push_token: null })
-                          .eq('user_id', user!.id);
-                      }
-                      setPushEnabled(next);
-                    }}
-                  />
-                )}
-              </View>
+              )}
 
               <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
                 <FishCustomizer />
               </View>
 
-              <View style={styles.logoutWrapper}>
-                <Button title="Log out" onPress={handleLogout} variant="tertiary" />
-                <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
-              </View>
+              {isLoggedIn ? (
+                <View style={styles.logoutWrapper}>
+                  <Button title="Log out" onPress={handleLogout} variant="tertiary" />
+                  <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
+                </View>
+              ) : (
+                <Button title="Log in" onPress={() => router.push('/login')} />
+              )}
             </>
           )}
           {tab === 'friends' && (
             <View>
-              <View
-                style={[
-                  styles.tabBar, styles.tabBarFriends,
-                  { borderColor: greyBorder, marginBottom: 30, }
-                ]}
-              >
-                {(['list', 'add', 'requests'] as const).map((key, idx, arr) => (
-                  <Pressable
-                    key={key}
-                    onPress={() => { setFriendSubTab(key); }}
+              {isLoggedIn ? (
+                <>
+                  <View
                     style={[
-                      styles.tab,
-                      { borderColor: greyBorder },
-
-                      friendSubTab === key && styles.tabActiveFriends,
-
-                      idx !== arr.length - 1 && {
-                        borderRightWidth: 1,
-                        borderRightColor: greyBorder,
-                      },
+                      styles.tabBar, styles.tabBarFriends,
+                      { borderColor: greyBorder, marginBottom: 30, }
                     ]}
                   >
-                    <View style={styles.tabs}>
-                      <Text
+                    {(['list', 'add', 'requests'] as const).map((key, idx, arr) => (
+                      <Pressable
+                        key={key}
+                        onPress={() => { setFriendSubTab(key); }}
                         style={[
-                          styles.tabText,
-                          { color: friendSubTab === key ? '#000' : textColor },
+                          styles.tab,
+                          { borderColor: greyBorder },
+
+                          friendSubTab === key && styles.tabActiveFriends,
+
+                          idx !== arr.length - 1 && {
+                            borderRightWidth: 1,
+                            borderRightColor: greyBorder,
+                          },
                         ]}
                       >
-                        {key === 'add' ? 'Add'
-                          : key === 'requests' ? 'Requests'
-                            : 'Friends'}
-                      </Text>
+                        <View style={styles.tabs}>
+                          <Text
+                            style={[
+                              styles.tabText,
+                              { color: friendSubTab === key ? '#000' : textColor },
+                            ]}
+                          >
+                            {key === 'add' ? 'Add'
+                              : key === 'requests' ? 'Requests'
+                                : 'Friends'}
+                          </Text>
 
-                      {hasPending && key === 'requests' && (
-                        <View style={styles.indicator} />
-                      )}
+                          {hasPending && key === 'requests' && (
+                            <View style={styles.indicator} />
+                          )}
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
+                    <ActionLegend />
+                  </View>
+
+                  <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
+                    <FriendsList refreshSignal={friendRefreshTick} />
+                  </View>
+
+                  {friendSubTab === 'add' && (
+                    <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                      <Text style={styles.sectionTitle}>Send request</Text>
+                      <AddByCode />
                     </View>
-                  </Pressable>
-                ))}
-              </View>
+                  )}
 
-              <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
-                <ActionLegend />
-              </View>
-
-              <View style={{ display: friendSubTab === 'list' ? 'flex' : 'none' }}>
-                <FriendsList refreshSignal={friendRefreshTick} />
-              </View>
-
-              {friendSubTab === 'add' && (
+                  {friendSubTab === 'requests' && (
+                    <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                      <IncomingRequests
+                        onChange={(pendingCount, accepted) => {
+                          setFriendRefreshTick(n => n + 1);
+                          setPending(pendingCount > 0);
+                          if (accepted && pendingCount === 0 && friendSubTab === 'requests') {
+                            setFriendSubTab('list');
+                          }
+                        }}
+                      />
+                    </View>
+                  )}
+                </>
+              ) : (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={styles.sectionTitle}>Send request</Text>
-                  <AddByCode />
-                </View>
-              )}
-
-              {friendSubTab === 'requests' && (
-                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <IncomingRequests
-                    onChange={(pendingCount, accepted) => {
-                      setFriendRefreshTick(n => n + 1);
-                      setPending(pendingCount > 0);
-                      if (accepted && pendingCount === 0 && friendSubTab === 'requests') {
-                        setFriendSubTab('list');
-                      }
-                    }}
-                  />
+                  <Text style={{ textAlign: 'center', fontSize: 15, color: textColor }}>Log in to manage friends.</Text>
                 </View>
               )}
             </View>
@@ -434,7 +463,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   value: {
-    fontSize: 16,
+    fontSize: 15,
   },
   highScoreRow: {
     flexDirection: 'row',
@@ -450,7 +479,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
     marginBottom: 12,
     textAlign: 'center',
@@ -486,7 +515,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
     borderRadius: 8,
     padding: 10,
@@ -513,8 +542,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.custom.grey,
   },
   tabText: {
-    fontSize: 16,
-    fontWeight: 600,
+    fontSize: 15,
+    fontWeight: 500,
   },
   tabs: {
     position: 'relative',

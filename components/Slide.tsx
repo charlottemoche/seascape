@@ -70,13 +70,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 600,
+    fontWeight: 500,
     color: Colors.custom.white,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
     color: Colors.custom.white,
     textAlign: 'center',

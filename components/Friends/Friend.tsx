@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   smallText: {
-    fontSize: 16,
+    fontSize: 15,
   },
   actions: {
     flexDirection: 'row',
