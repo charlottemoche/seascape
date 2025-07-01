@@ -17,7 +17,7 @@ import DebugTools from '@/components/DebugTools';
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export default function HomeScreen() {
-  const { user, profile, loading } = useSession();
+  const { user, profile } = useSession();
   const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
 
   const router = useRouter();
@@ -43,10 +43,6 @@ export default function HomeScreen() {
   );
 
   const isLoggedIn = !!user;
-
-  if (isLoggedIn && (loading || streaksLoading)) {
-    return <Loader />;
-  }
 
   function formatTime(totalMinutes: number) {
     if (totalMinutes < 60) {
@@ -108,7 +104,7 @@ export default function HomeScreen() {
             </View>
               {!isLoggedIn && (
                 <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
-                  <Button title="Log in to track" onPress={() => router.push('/login')} variant="tertiary" style={{ marginTop: 20 }} />
+                  <Button title="Log in to track" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
                 </View>
               )}
           </View>

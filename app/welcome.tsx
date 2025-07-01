@@ -123,7 +123,7 @@ export default function OnboardingScreen() {
 
         <View style={styles.buttons}>
           {!isFirstPage && (
-            <Button title="Back" onPress={onBack} color={Colors.custom.blue} />
+            <Button title="Back" onPress={onBack} color={Colors.custom.lightBlue} />
           )}
           <View style={styles.nextButtonWrapper}>
             <Button

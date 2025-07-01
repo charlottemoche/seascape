@@ -2,7 +2,6 @@ import React from 'react';
 import { Image, StyleSheet, useColorScheme, Pressable } from 'react-native';
 import { FishColor } from '@/constants/fishMap';
 import { View, Text } from '@/components/Themed';
-import { supabase } from '@/lib/supabase';
 import { sendNudge } from '@/lib/nudgeService';
 import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';

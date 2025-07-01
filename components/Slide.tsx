@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: Colors.custom.white,
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
   icon: {
     width: 50,
@@ -89,7 +90,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   imageIcon: {
     width: '100%',
     height: '100%',

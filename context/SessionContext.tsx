@@ -100,6 +100,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) {
+      setProfile(null);
       setLoading(false);
       return;
     }

@@ -5,11 +5,13 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Animated,
+  useColorScheme,
 } from 'react-native';
 import { Button, Text, Input, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
+import Colors from '@/constants/Colors';
 
 export default function ResetRequestScreen() {
   const [email, setEmail] = useState('');
@@ -17,6 +19,10 @@ export default function ResetRequestScreen() {
   const [error, setError] = useState('');
 
   const shiftAnim = useKeyboardShift();
+
+  const colorScheme = useColorScheme();
+
+  const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
 
   const router = useRouter();
 
@@ -38,9 +44,9 @@ export default function ResetRequestScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Animated.View style={[styles.wrapper, { transform: [{ translateY: shiftAnim }] }]}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
-          <View style={styles.inner}>
+          <View>
             <Text style={styles.label}>Enter your email to reset your password</Text>
             <Input
               value={email}
@@ -66,17 +72,11 @@ export default function ResetRequestScreen() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
   container: {
+    flex: 1,
     padding: 24,
-  },
-  inner: {
-    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
   },
   label: {
     marginBottom: 20,

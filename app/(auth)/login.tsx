@@ -80,7 +80,6 @@ export default function LoginScreen() {
           setLoading(false);
           return;
         } else {
-          // No session returned, fallback login
           const { error: loginError } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -267,16 +266,16 @@ export default function LoginScreen() {
           {isSignUp ? (
             <Button
               onPress={handleAuth}
-              title='Sign up'
+              title="Sign up"
               loading={loading}
               disabled={loading}
-              variant='secondary'
+              variant="primary"
               style={{ marginTop: 20 }}
             />
           ) : (
             <Button
               onPress={handleAuth}
-              title='Log in'
+              title="Log in"
               loading={loading}
               disabled={loading}
             />

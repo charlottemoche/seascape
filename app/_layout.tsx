@@ -7,14 +7,12 @@ import { SessionProvider } from '@/context/SessionContext';
 import { StreakProvider } from '@/context/StreakContext';
 import { NudgeProvider } from '@/context/NudgeContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { OnboardingProvider, useOnboarding } from '@/context/OnboardingContext';
+import { OnboardingProvider } from '@/context/OnboardingContext';
 import { Asset } from 'expo-asset';
 import { useRegisterPush } from '@/hooks/user/useRegisterPush';
 import { PendingProvider } from '@/context/PendingContext';
 import { useNotificationNavigation } from '@/hooks/useNotificationNavigation';
-import { useAuthRedirect } from '@/hooks/user/useAuthRedirect';
 import { useHandleRecovery } from '@/hooks/useHandleRecovery';
-import { useAuthReady } from '@/hooks/user/useAuthReady';
 import NudgeModal from '@/components/Modals/NudgeModal';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
@@ -71,45 +69,36 @@ export default function RootLayout() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (fontsLoaded && assetsLoaded) {
+      SplashScreen.hideAsync().catch(() => { });
+    }
+  }, [fontsLoaded, assetsLoaded]);
+
   if (fontError) throw fontError;
-  if (!fontsLoaded || !assetsLoaded) return null;
+  if (!fontsLoaded || !assetsLoaded) {
+    return null;
+  }
 
   return (
     <SessionProvider>
       <OnboardingProvider>
-      <PendingProvider>
-        <NudgeProvider>
-          <AuthGate />
-        </NudgeProvider>
-      </PendingProvider>
+        <PendingProvider>
+          <NudgeProvider>
+            <RootLayoutNav />
+          </NudgeProvider>
+        </PendingProvider>
       </OnboardingProvider>
     </SessionProvider>
   );
 }
 
-function AuthGate() {
-  const authReady = useAuthReady();
-  const { done }  = useOnboarding();
-
-  useEffect(() => {
-    if (authReady && done !== null) {
-      SplashScreen.hideAsync();
-    }
-  }, [authReady, done]);
-
-  if (!authReady || done === null) return null;
-  return <RootLayoutNav />;
-}
-
 function RootLayoutNav() {
   useHandleRecovery();
   useRegisterPush();
-  useAuthRedirect();
   useNotificationNavigation();
 
-  const ready = useAuthReady();
   const colorScheme = useColorScheme();
-  if (!ready) return null;
 
   return (
     <StreakProvider>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, StyleSheet, useColorScheme } from 'react-native';
-import Colors from '@/constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Colors from '@/constants/Colors';
 
 export function Logo() {
   const colorScheme = useColorScheme();

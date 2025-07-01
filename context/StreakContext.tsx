@@ -43,7 +43,10 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
   const userId = user?.id;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setStreaksLoading(false);
+      return;
+    }
 
     (async () => {
       const cached = await AsyncStorage.getItem(`streaks:${userId}`);

@@ -7,12 +7,12 @@ import {
   Keyboard,
   useColorScheme,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSession } from '@/context/SessionContext';
 import { supabase } from '@/lib/supabase';
 import { FishColor } from '@/constants/fishMap';
 import { Button } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import fishImages from '@/constants/fishMap';
 import FishModal from './FishModal';
 
@@ -35,6 +35,15 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
+    console.log('[FishCustomizer] mounted');
+    return () => console.log('[FishCustomizer] unmounted');
+  }, []);
+
+  useEffect(() => {
+    console.log('[FishImg] source', fishImages[fishColor]);
+  }, [fishColor]);
+
+  useEffect(() => {
     if (user) {
       setFishName(profile?.fish_name ?? '');
       setFishColor(
@@ -43,6 +52,8 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
           : 'blue'
       );
     } else {
+      setFishName('');
+      setFishColor('blue');
       (async () => {
         const storedName = await AsyncStorage.getItem('fish_name');
         const storedColor = await AsyncStorage.getItem('fish_color');
@@ -86,7 +97,6 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
     setModalVisible(false);
     setFishName(trimmedName);
     setFishColor(newColor);
-    Alert.alert('Success', 'Fish updated.');
     onSaved?.();
   };
 
@@ -110,7 +120,7 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
 
         <Image source={fishImages[fishColor]} style={styles.bigFish} />
 
-        <Button title="Edit" onPress={() => setModalVisible(true)} variant="secondary" />
+        <Button title="Edit" onPress={() => setModalVisible(true)} variant={transparent ? 'primary' : 'secondary'} />
 
         <FishModal
           visible={modalVisible}

@@ -1,20 +1,17 @@
-import { View, ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import { View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 
 export function Loader() {
-  const colorScheme = useColorScheme();
-  const color = colorScheme === 'dark' ? Colors.custom.lightBlue : Colors.custom.blue;
-
   return (
     <View style={styles.loading}>
-      <ActivityIndicator size="large" color={color} />
+      <ActivityIndicator size="large" color={Colors.custom.blue} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   loading: {
-    backgroundColor: 'transparent',
     flex: 1,
     padding: 20,
     alignItems: 'center',

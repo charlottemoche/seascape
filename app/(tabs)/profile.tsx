@@ -17,6 +17,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Icon } from '@/components/Icon';
 import { usePendingRequests, useSetPendingRequests } from '@/context/PendingContext';
 import { registerForPushAsync } from '@/lib/pushService';
+import { Loader } from '@/components/Loader';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
 import AddByCode from '@/components/Friends/AddFriend';
@@ -46,7 +47,7 @@ export default function ProfileScreen() {
       ? whiteBubbles
       : bubbles;
 
-  const { user, profile } = useSession();
+  const { user, profile, loading: userLoading, sessionChecked } = useSession();
 
   const qTab = useLocalSearchParams().tab;
 
@@ -74,6 +75,8 @@ export default function ProfileScreen() {
   const pushEnabled = profile?.expo_push_token !== null;
 
   const highScore = profile?.high_score ?? localHighScore;
+
+  const profileStillLoading = userLoading || !sessionChecked || (user && !profile);
 
   async function copyCode() {
     if (!code || busy) return;
@@ -159,10 +162,8 @@ export default function ProfileScreen() {
       return;
     }
 
-    await supabase.auth.signOut();
-    await AsyncStorage.clear();
+    await removeStorageAndSession();
     Alert.alert('Success', 'Your account has been deleted.');
-    router.replace('/');
   };
 
   const handleLogout = async () => {
@@ -184,9 +185,14 @@ export default function ProfileScreen() {
   };
 
   const logout = async () => {
+    await removeStorageAndSession();
+    Alert.alert('Success', 'You have been logged out.');
+  };
+
+  const removeStorageAndSession = async () => {
     await supabase.auth.signOut();
     await AsyncStorage.clear();
-    Alert.alert('Success', 'You have been logged out.');
+    setLocalHighScore(0);
     router.replace('/');
   };
 
@@ -215,6 +221,8 @@ export default function ProfileScreen() {
       })
       .catch(() => setLocalHighScore(0));
   }, [profile]);
+
+  if (profileStillLoading) return <Loader />;
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
@@ -258,82 +266,80 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.container}>
-          {tab === 'profile' && (
-            <>
-              {isLoggedIn ? (
-                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <View style={styles.textRow}>
-                    <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>Email</Text>
-                    <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
-                  </View>
-
-                  <View style={styles.textRow}>
-                    <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>
-                      Friend Code
-                    </Text>
-
-                    <Pressable onPress={copyCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={[styles.value, { color: textColor }]}>
-                        {code}
-                      </Text>
-                      <Icon
-                        type="Ionicons"
-                        name="copy-outline"
-                        color='#808080'
-                        size={16}
-                        style={{ marginLeft: 4 }}
-                      />
-                    </Pressable>
-                  </View>
-
-                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
-                  <View style={styles.highScoreRow}>
-                    <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <Image source={preyImg} style={styles.fishImage} />
-                  </View>
-
-                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
-                  {pushEnabled !== null && (
-                    <Toggle
-                      value={pushEnabled}
-                      onChange={async (next) => {
-                        if (next) {
-                          await registerForPushAsync(user!.id);
-                        } else {
-                          await supabase
-                            .from('profiles')
-                            .update({ expo_push_token: null })
-                            .eq('user_id', user!.id);
-                        }
-                      }}
-                    />
-                  )}
-                </View>
-              ) : (
-                <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>High Score</Text>
-                  <View style={styles.highScoreRow}>
-                    <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <Image source={preyImg} style={styles.fishImage} />
-                  </View>
-                </View>
-              )}
-
+          <View style={{ display: tab === 'profile' ? 'flex' : 'none' }}>
+            {isLoggedIn ? (
               <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                <FishCustomizer />
-              </View>
-
-              {isLoggedIn ? (
-                <View style={styles.logoutWrapper}>
-                  <Button title="Log out" onPress={handleLogout} variant="tertiary" />
-                  <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
+                <View style={styles.textRow}>
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>Email</Text>
+                  <Text style={[styles.value, { color: textColor }]}>{user?.email ?? 'No email'}</Text>
                 </View>
-              ) : (
-                <Button title="Log in" onPress={() => router.push('/login')} />
-              )}
-            </>
-          )}
-          {tab === 'friends' && (
+
+                <View style={styles.textRow}>
+                  <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>
+                    Friend Code
+                  </Text>
+
+                  <Pressable onPress={copyCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.value, { color: textColor }]}>
+                      {code}
+                    </Text>
+                    <Icon
+                      type="Ionicons"
+                      name="copy-outline"
+                      color='#808080'
+                      size={16}
+                      style={{ marginLeft: 4 }}
+                    />
+                  </Pressable>
+                </View>
+
+                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
+                <View style={styles.highScoreRow}>
+                  <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
+                    <Image source={preyImg} style={styles.fishImage} />
+                </View>
+
+                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
+                {pushEnabled !== null && (
+                  <Toggle
+                    value={pushEnabled}
+                    onChange={async (next) => {
+                      if (next) {
+                        await registerForPushAsync(user!.id);
+                      } else {
+                        await supabase
+                          .from('profiles')
+                          .update({ expo_push_token: null })
+                          .eq('user_id', user!.id);
+                      }
+                    }}
+                  />
+                )}
+              </View>
+            ) : (
+              <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+                <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>High Score</Text>
+                <View style={styles.highScoreRow}>
+                  <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
+                    <Image source={preyImg} style={styles.fishImage} />
+                </View>
+              </View>
+            )}
+
+            <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+              <FishCustomizer />
+            </View>
+
+            {isLoggedIn ? (
+              <View style={styles.logoutWrapper}>
+                <Button title="Log out" onPress={handleLogout} variant="tertiary" />
+                <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
+              </View>
+            ) : (
+              <Button title="Log in" onPress={() => router.push('/login')} />
+            )}
+          </View>
+          <View style={{ display: tab === 'friends' ? 'flex' : 'none' }}>
             <View>
               {isLoggedIn ? (
                 <>
@@ -414,7 +420,7 @@ export default function ProfileScreen() {
                 </View>
               )}
             </View>
-          )}
+          </View>
         </View>
       </ScrollView>
       <View style={{ backgroundColor: cardColor, maxHeight: 50 }}>
