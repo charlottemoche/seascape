@@ -162,7 +162,6 @@ export default function LoginScreen() {
         nonce,
       });
 
-      console.log(error, data);
       if (error) throw error;
       router.replace('/');
     } catch (error: any) {
