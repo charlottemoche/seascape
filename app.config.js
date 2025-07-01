@@ -25,8 +25,8 @@ export default {
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
       },
       entitlements: {
-        'com.apple.developer.push-notifications': true,
-      }
+        'aps-environment': 'production'
+      },
     },
     android: {
       adaptiveIcon: {
