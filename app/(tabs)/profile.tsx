@@ -3,13 +3,13 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-  Image,
   ScrollView,
   useColorScheme,
   SafeAreaView,
   Linking,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
+import { FadeImage } from '@/components/FadeImage';
 import { FishCustomizer } from '@/components/Fish/FishCustomizer';
 import { useSession } from '@/context/SessionContext';
 import { Text, Button, View } from '@/components/Themed';
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
       <View style={styles.actions}>
         <View style={styles.actionWrapper}>
           <Text>
-            <Image
+            <FadeImage
               source={starfishImage}
               style={[styles.icon, { width: 20 }]}
             />
@@ -102,7 +102,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.actionWrapper}>
           <Text>
-            <Image
+            <FadeImage
               source={bubblesImage}
               style={[styles.icon, { width: 18 }]}
             />
@@ -193,7 +193,7 @@ export default function ProfileScreen() {
     await supabase.auth.signOut();
     await AsyncStorage.clear();
     setLocalHighScore(0);
-    router.replace('/');
+    router.replace('/welcome');
   };
 
   useEffect(() => {
@@ -296,7 +296,7 @@ export default function ProfileScreen() {
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
                 <View style={styles.highScoreRow}>
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <Image source={preyImg} style={styles.fishImage} />
+                    <FadeImage source={preyImg} style={styles.fishImage} />
                 </View>
 
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
@@ -321,7 +321,7 @@ export default function ProfileScreen() {
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>High Score</Text>
                 <View style={styles.highScoreRow}>
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <Image source={preyImg} style={styles.fishImage} />
+                    <FadeImage source={preyImg} style={styles.fishImage} />
                 </View>
               </View>
             )}
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   fishImage: {
     width: 24,
     height: 24,
-    marginLeft: 8,
+    marginLeft: 2,
   },
   sectionTitle: {
     fontSize: 15,

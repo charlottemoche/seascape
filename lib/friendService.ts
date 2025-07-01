@@ -159,8 +159,11 @@ export function clearFriendCache() {
   pageCache = {};
 }
 
-export function listenForIncomingRequests(userId: string, cb: (hasAny: boolean) => void) {
-  const channel = supabase.channel('incoming-friends')
+export function listenForIncomingRequests(userId: string,
+  cb: (hasAny: boolean) => void) {
+
+  const channel = supabase
+    .channel(`incoming-friends-${userId}`)
     .on(
       'postgres_changes',
       {
@@ -169,9 +172,12 @@ export function listenForIncomingRequests(userId: string, cb: (hasAny: boolean) 
         table: 'friendships',
         filter: `addressee=eq.${userId},status=eq.pending`,
       },
-      () => cb(true)
+      () => cb(true),
     )
     .subscribe();
 
-  return () => { supabase.removeChannel(channel); };
+  return () => {
+    console.log('[friends] unsub');
+    channel.unsubscribe();
+  };
 }

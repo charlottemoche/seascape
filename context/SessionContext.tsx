@@ -5,6 +5,14 @@ import { syncGuestDataToProfile } from '@/lib/syncGuestData';
 import type { User } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const GUEST_KEYS = [
+  'onboarding_completed',
+  'fish_name',
+  'fish_color',
+  'local_high_score',
+  'total_minutes',
+] as const;
+
 type Profile = {
   fish_color?: string;
   fish_name?: string;
@@ -110,18 +118,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   useEffect(() => {
-    if (!user || hasSyncedRef.current) return;
+    if (!user) {
+      AsyncStorage.multiRemove(GUEST_KEYS).catch(() => { });
+      hasSyncedRef.current = false;
+      return;
+    }
+
+    if (hasSyncedRef.current) return;
 
     (async () => {
       try {
         await syncGuestDataToProfile(user.id);
-        hasSyncedRef.current = true;
         await refreshProfileQuiet();
       } catch (err) {
-        console.warn('[SessionProvider] guest->profile sync failed', err);
+        console.warn('[SessionProvider] guest→profile sync failed', err);
+      } finally {
+        hasSyncedRef.current = true;
       }
     })();
-  }, [user?.id]);
+  }, [user]);
 
   useEffect(() => {
     if (profile?.onboarding_completed) {

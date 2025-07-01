@@ -1,13 +1,14 @@
-import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Image, Pressable } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView, useColorScheme, Pressable } from 'react-native';
 import React, { useRef, useCallback } from 'react';
 import { Icon } from '@/components/Icon';
 import { useStreaks } from '@/context/StreakContext';
 import { View, Text, Button } from '@/components/Themed';
-import { Loader } from '@/components/Loader';
 import { FishColor } from '@/constants/fishMap';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useSession } from '@/context/SessionContext';
+import { useGuestBreath } from '@/hooks/useGuestBreath';
+import { FadeImage } from '@/components/FadeImage';
 import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/Feelings/FeelingsSummary';
 import FeelingsPlaceholder from '@/components/Feelings/FeelingsPlaceholder';
@@ -18,7 +19,8 @@ const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export default function HomeScreen() {
   const { user, profile } = useSession();
-  const { breathStreak, journalStreak, streaksLoading, refreshStreaks } = useStreaks();
+  const { breathStreak, journalStreak, refreshStreaks } = useStreaks();
+  const { totalMinutes } = useGuestBreath();
 
   const router = useRouter();
 
@@ -64,8 +66,14 @@ export default function HomeScreen() {
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Your personal stats</Text>
           <View style={styles.colorOptions}>
-            {availableColors.map((color) => (
-              <Image source={fishImages[color]} key={color} style={styles.smallFish} />
+            {availableColors.map(color => (
+              <FadeImage
+                key={color}
+                source={fishImages[color]}
+                style={styles.smallFish}
+                placeholderColor={colorScheme === 'dark' ? '#444' : '#eee'}
+                resizeMode="contain"
+              />
             ))}
           </View>
           <View style={[styles.card, { backgroundColor: cardColor }]}>
@@ -102,11 +110,11 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             </View>
-              {!isLoggedIn && (
-                <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
-                  <Button title="Log in to track" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
-                </View>
-              )}
+            {!isLoggedIn && (
+              <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
+                <Button title="Log in to track" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
+              </View>
+            )}
           </View>
 
           <View style={[styles.card, { backgroundColor: cardColor }]}>
@@ -118,9 +126,13 @@ export default function HomeScreen() {
                 </View>
                 <Text style={[styles.streakSubtitle, { borderBottomColor: greyBorder }]}>Time</Text>
                 <Text style={styles.cardDataStreaks}>
-                  {typeof profile?.total_minutes === 'number' && profile.total_minutes > 0
-                    ? formatTime(profile.total_minutes)
-                    : 'No time logged yet'}
+                  {isLoggedIn ? (
+                    typeof profile?.total_minutes === 'number' && profile.total_minutes > 0
+                      ? formatTime(profile.total_minutes)
+                      : 'No time logged yet'
+                  ) : (
+                    Number(totalMinutes) > 0 ? formatTime(Number(totalMinutes)) : 'No time logged yet'
+                  )}
                 </Text>
               </View>
             </View>

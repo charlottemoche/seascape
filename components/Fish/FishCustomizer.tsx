@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Alert,
-  Image,
   TouchableWithoutFeedback,
   Keyboard,
   useColorScheme,
 } from 'react-native';
+import { FadeImage } from '../FadeImage';
 import { useSession } from '@/context/SessionContext';
 import { supabase } from '@/lib/supabase';
 import { FishColor } from '@/constants/fishMap';
@@ -109,7 +109,7 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
           </Text>
         )}
 
-        <Image source={fishImages[fishColor]} style={styles.bigFish} />
+        <FadeImage source={fishImages[fishColor]} style={styles.bigFish} />
 
         <Button title="Edit" onPress={() => setModalVisible(true)} variant={transparent ? 'primary' : 'secondary'} />
 

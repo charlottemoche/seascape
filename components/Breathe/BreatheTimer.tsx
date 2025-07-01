@@ -21,12 +21,12 @@ export default function BreatheTimer({
   onSessionEnd,
 }: BreatheTimerProps) {
   const [duration, setDuration] = useState(3);
-  const [timeLeft, setTimeLeft] = useState(3 * 60);
+  const [timeLeft, setTimeLeft] = useState(3);
   const [showTime, setShowTime] = useState(true);
 
   useEffect(() => {
     if (!isRunning) {
-      setTimeLeft(duration * 60);
+      setTimeLeft(duration);
     }
   }, [duration, isRunning]);
 
@@ -55,7 +55,7 @@ export default function BreatheTimer({
   }, [timeLeft, isRunning]);
 
   const handleStart = () => {
-    setTimeLeft(duration * 60);
+    setTimeLeft(duration);
     setIsRunning(true);
     setShowTime(false);
   };

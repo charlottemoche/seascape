@@ -1,7 +1,8 @@
-import React from 'react';
-import { Image, StyleSheet, useColorScheme, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, useColorScheme, Pressable, ActivityIndicator } from 'react-native';
 import { FishColor } from '@/constants/fishMap';
 import { View, Text } from '@/components/Themed';
+import { FadeImage } from '@/components/FadeImage';
 import { sendNudge } from '@/lib/nudgeService';
 import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
@@ -19,66 +20,92 @@ type Props = {
   receiverId?: string;
 };
 
-export default function Friend({ fish_name, friend_code, fish_color, high_score, showFullDetails, smallText, receiverId }: Props) {
+export default function Friend({
+  fish_name,
+  friend_code,
+  fish_color,
+  high_score,
+  showFullDetails,
+  smallText,
+  receiverId,
+}: Props) {
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
-  const greyTextColor = colorScheme === 'dark' ? '#aaa' : '#888';
+  const greyText = colorScheme === 'dark' ? '#aaa' : '#888';
   const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
-  const bubbleBackground = colorScheme === 'dark' ? 'rgba(207, 233, 241, 0.7);' : 'rgba(123, 182, 212, 0.4)';
-  const starFishBackground = colorScheme === 'dark' ? 'rgba(198, 250, 178, 0.6)' : 'rgba(75, 144, 50, 0.3)';
+  const bubbleBg = colorScheme === 'dark' ? 'rgba(207,233,241,0.7)' : 'rgba(123,182,212,0.4)';
+  const starBg = colorScheme === 'dark' ? 'rgba(198,250,178,0.6)' : 'rgba(75,144,50,0.3)';
 
   const fallbackColor = (fish_color && fish_color in fishImages ? fish_color : 'blue') as FishColor;
   const fishImage = fishImages[fallbackColor];
+
+  const [ready, setReady] = useState(false);
 
   return (
     <View>
       <View style={[styles.wrapper, { backgroundColor: cardColor }]}>
         <View style={styles.friendWrapper}>
-          <View style={[styles.friendInfo, { backgroundColor: cardColor }]}>
-            <Image source={fishImage} style={[styles.image]} />
-            <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: textColor }]}>
+          <View style={styles.friendInfo}>
+            <FadeImage
+              source={fishImage}
+              style={[
+                styles.image,
+                !ready && { position: 'absolute', opacity: 0 },
+              ]}
+              onLoadEnd={() => setReady(true)}
+              fadeDuration={150}
+            />
+
+            <Text
+              style={[
+                styles.text,
+                smallText ? styles.smallText : styles.largeText,
+                { color: textColor },
+              ]}
+            >
               {fish_name || friend_code}
             </Text>
           </View>
-          {showFullDetails && high_score && high_score !== null && (
+
+          {showFullDetails && high_score != null && (
             <View style={[styles.highScore, { backgroundColor: cardColor }]}>
-              <Image source={preyImg} style={styles.fishImage} />
-              <Text style={[styles.text, smallText ? styles.smallText : styles.largeText, { color: greyTextColor, marginLeft: 4 }]}>
+              <FadeImage source={preyImg} style={styles.fishImage} />
+              <Text
+                style={[
+                  styles.text,
+                  smallText ? styles.smallText : styles.largeText,
+                  { color: greyText, marginLeft: 4 },
+                ]}
+              >
                 {high_score}
               </Text>
             </View>
           )}
         </View>
 
-        {showFullDetails &&
+        {showFullDetails && (
           <View style={[styles.actions, { backgroundColor: cardColor }]}>
             <Pressable
               style={({ pressed }) => [
                 styles.actionButton,
-                { backgroundColor: starFishBackground, opacity: pressed ? 0.7 : 1 }
+                { backgroundColor: starBg, opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => {
-                if (receiverId) sendNudge(receiverId, 'hug');
-              }}
+              onPress={() => receiverId && sendNudge(receiverId, 'hug')}
             >
               <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
             </Pressable>
+
             <Pressable
               style={({ pressed }) => [
                 styles.actionButton,
-                { backgroundColor: bubbleBackground, opacity: pressed ? 0.7 : 1 }
+                { backgroundColor: bubbleBg, opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => {
-                if (receiverId) sendNudge(receiverId, 'breathe');
-              }}
+              onPress={() => receiverId && sendNudge(receiverId, 'breathe')}
             >
-              <Image
-                source={bubbles}
-                style={[styles.actionImage, { width: 20 }]}
-              />
+              <Image source={bubbles} style={[styles.actionImage, { width: 20 }]} />
             </Pressable>
           </View>
-        }
+        )}
       </View>
     </View>
   );
@@ -101,6 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 10,
+    backgroundColor: 'transparent',
   },
   image: {
     width: 20,

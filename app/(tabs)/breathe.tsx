@@ -9,15 +9,19 @@ import { Text } from '@/components/Themed';
 import { Loader } from '@/components/Loader';
 import { supabase } from '@/lib/supabase';
 import { Vibration } from 'react-native';
+import { useGuestBreath } from '@/hooks/useGuestBreath';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import wave from '@/assets/images/wave.png';
+
+const WAVE = wave;
 
 export default function BreatheScreen() {
   const { user, loading, refreshProfileQuiet } = useSession();
   const { refreshStreaks } = useStreaks();
-
+  const { recordSession } = useGuestBreath();
 
   const [isRunning, setIsRunning] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
@@ -70,9 +74,7 @@ export default function BreatheScreen() {
         console.error('Unexpected error updating breath streak:', e);
       }
     } else {
-      await AsyncStorage.setItem('has_breathed', 'true');
-      const totalMinutes = Number(await AsyncStorage.getItem('total_minutes')) || 0;
-      await AsyncStorage.setItem('total_minutes', (totalMinutes + duration).toString());
+      await recordSession(duration);
       Alert.alert('Success', 'Breathing session saved.');
     }
 
@@ -84,7 +86,7 @@ export default function BreatheScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('@/assets/images/wave.png')}
+        source={WAVE}
         style={{ flex: 1 }}
         resizeMode="cover"
       >

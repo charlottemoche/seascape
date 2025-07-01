@@ -1,12 +1,19 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getPlayCount, resetPlayCount, incrementPlayCount } from '@/lib/playCount';
 import { useStreaks } from '@/context/StreakContext';
+import { useSession } from '@/context/SessionContext';
+import { useGuestBreath } from '@/hooks/useGuestBreath';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function useCanPlay() {
   const { didBreathe, didJournal, lastActive } = useStreaks();
+  const { user } = useSession();
+  const { didToday: didGuestBreatheToday } = useGuestBreath();
+  
+  const isLoggedIn = !!user;
 
-  const [count, setCount] = useState<number>(0);
-  const [loading, setLoad]  = useState(false);
+  const [count, setCount] = useState(0);
+  const [loading, setLoad]  = useState(true);
 
   useEffect(() => {
     let cancel = false;
@@ -17,16 +24,25 @@ export function useCanPlay() {
     return () => { cancel = true; };
   }, []);
 
-  const bump = async () => setCount(await incrementPlayCount());
+  const bump  = async () => setCount(await incrementPlayCount());
   const reset = async () => { await resetPlayCount(); setCount(0); };
 
-  const didOneToday = useMemo(() => {
-    if (!lastActive) return false;
-    const today = new Date().toLocaleDateString('en-CA');
-    return today === lastActive && (didBreathe || didJournal);
-  }, [lastActive, didBreathe, didJournal]);
+  const today = new Date().toLocaleDateString('en-CA');
 
-  const canPlay = didOneToday && (count ?? 0) < 5;
+  const didOneToday = useMemo(() => {
+    return isLoggedIn
+      ? today === lastActive && (didBreathe || didJournal)
+      : didGuestBreatheToday;
+  }, [
+    isLoggedIn,
+    today,
+    lastActive,
+    didBreathe,
+    didJournal,
+    didGuestBreatheToday,
+  ]);
+
+  const canPlay = didOneToday && count < 5;
 
   return { canPlay, loading, count, setCount, bump, reset };
 }

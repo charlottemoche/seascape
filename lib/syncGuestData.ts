@@ -16,13 +16,33 @@ export async function syncGuestDataToProfile(userId: string) {
     AsyncStorage.getItem('total_minutes'),
   ]);
 
-  if (
-    !onboarded &&
-    !fishName &&
-    !fishColor &&
-    !localHigh &&
-    !localMinutes
-  ) {
+  if (!onboarded && !fishName && !fishColor && !localHigh && !localMinutes) {
+    return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('onboarding_completed, fish_name, fish_color, high_score, total_minutes')
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
+    console.warn('[syncGuestData] profile fetch failed', error);
+    return;
+  }
+
+  const isFresh =
+    profile?.high_score == null &&
+    (profile?.total_minutes ?? 0) === 0;
+
+  if (!isFresh) {
+    await AsyncStorage.multiRemove([
+      'onboarding_completed',
+      'fish_name',
+      'fish_color',
+      'local_high_score',
+      'total_minutes',
+    ]);
     return;
   }
 
