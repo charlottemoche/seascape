@@ -3,7 +3,6 @@ import { updateStreak } from '@/lib/streakService';
 import { Alert } from 'react-native';
 
 jest.mock('@/lib/supabase');
-jest.mock('@/lib/streakService');
 
 beforeEach(() => {
   jest.clearAllMocks();
