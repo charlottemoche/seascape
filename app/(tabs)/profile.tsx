@@ -337,8 +337,23 @@ export default function ProfileScreen() {
                 <Button title="Delete account" onPress={handleDeleteAccount} variant="danger" />
               </View>
             ) : (
-              <Button title="Log in" onPress={() => router.push('/login')} />
+              <View style={styles.logoutWrapper}>
+                <Button title="Log in" onPress={() => router.push('/login')} />
+              </View>
             )}
+
+            <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+              <Text>
+                This app was made by one person, slowly and with love. No subscriptions. No locked features. Just a tiny project from me to you. Tips help me keep it alive!
+              </Text>
+              <Button
+                title="Buy me a coffee"
+                onPress={() => Linking.openURL('https://www.buymeacoffee.com/charlottebmoche')}
+                variant="tertiary"
+                style={{ marginTop: 18 }}
+              />
+            </View>
+
           </View>
           <View style={{ display: tab === 'friends' ? 'flex' : 'none' }}>
             <View>
@@ -421,18 +436,6 @@ export default function ProfileScreen() {
                 </View>
               )}
             </View>
-          </View>
-
-          <View style={[styles.profileSection, { backgroundColor: cardColor, marginTop: 32 }]}>
-            <Text>
-              This app was made by one person, slowly and with love. No subscriptions. No locked features. Just a tiny project from me to you. Tips help me keep it alive!
-            </Text>
-            <Button
-              title="Buy me a coffee"
-              onPress={() => Linking.openURL('https://www.buymeacoffee.com/charlottebmoche')}
-              variant="tertiary"
-              style={{ marginTop: 18 }}
-            />
           </View>
         </View>
       </ScrollView>
@@ -519,7 +522,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   logoutWrapper: {
-    paddingVertical: 12,
+    marginBottom: 32,
     alignItems: 'center',
     flexDirection: 'column',
     gap: 8,
