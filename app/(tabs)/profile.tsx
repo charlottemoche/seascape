@@ -349,7 +349,7 @@ export default function ProfileScreen() {
               <Button
                 title="Buy me a coffee"
                 onPress={() => Linking.openURL('https://www.buymeacoffee.com/charlottebmoche')}
-                variant="tertiary"
+                variant="secondary"
                 style={{ marginTop: 18 }}
               />
             </View>

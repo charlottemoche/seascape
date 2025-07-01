@@ -81,8 +81,8 @@ export function Button({
     dangerBg: useThemeColor({}, 'danger'),
     dangerText: useThemeColor({}, 'white'),
 
-    tertiaryBg: useThemeColor({}, 'transparent'),
-    tertiaryBorder: useThemeColor({light: '#ddd', dark: '#121212'}, 'transparent'),
+    tertiaryBg: useThemeColor({light: '#fff', dark: '#121212'}, 'transparent'),
+    tertiaryBorder: useThemeColor({light: '#ddd', dark: '#6a6a6a'}, 'transparent'),
     tertiaryText: useThemeColor({}, 'text'),
   };
 
