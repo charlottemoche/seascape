@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, useColorScheme, Pressable, ActivityIndicator } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  Animated,
+  StyleSheet,
+  useColorScheme,
+} from 'react-native';
 import { FishColor } from '@/constants/fishMap';
-import { View, Text } from '@/components/Themed';
-import { FadeImage } from '@/components/FadeImage';
 import { sendNudge } from '@/lib/nudgeService';
-import fishImages from '@/constants/fishMap';
 import Colors from '@/constants/Colors';
+import fishImages from '@/constants/fishMap';
 import bubbles from '@/assets/images/bubbles.png';
 import starfish from '@/assets/images/starfish.png';
 import preyImg from '@/assets/images/prey.png';
+import { useImagesReady } from '@/hooks/useImagesReady';
 
-type Props = {
+export type Props = {
   fish_name?: string | null;
   friend_code: string;
   fish_color?: string | FishColor | null;
@@ -39,23 +46,31 @@ export default function Friend({
   const fallbackColor = (fish_color && fish_color in fishImages ? fish_color : 'blue') as FishColor;
   const fishImage = fishImages[fallbackColor];
 
-  const [ready, setReady] = useState(false);
+  const totalImgs = showFullDetails && high_score != null ? 2 : 1;
+  const { done, onImgLoad } = useImagesReady(totalImgs);
+
+  const opacityRow = useRef(new Animated.Value(0)).current;
+  const opacitySkel = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (done) {
+      Animated.parallel([
+        Animated.timing(opacityRow, { toValue: 1, duration: 150, useNativeDriver: true }),
+        Animated.timing(opacitySkel, { toValue: 0, duration: 150, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [done]);
 
   return (
-    <View>
-      <View style={[styles.wrapper, { backgroundColor: cardColor }]}>
+    <View style={{ position: 'relative' }}>
+      {/* Skeleton overlay */}
+      <Animated.View style={[styles.wrapper, styles.skeleton, { backgroundColor: 'rgba(204,204,204,0.2)', opacity: opacitySkel }]} />
+
+      {/* Actual content */}
+      <Animated.View style={[styles.wrapper, { backgroundColor: cardColor, opacity: opacityRow }]}>
         <View style={styles.friendWrapper}>
           <View style={styles.friendInfo}>
-            <FadeImage
-              source={fishImage}
-              style={[
-                styles.image,
-                !ready && { position: 'absolute', opacity: 0 },
-              ]}
-              onLoadEnd={() => setReady(true)}
-              fadeDuration={150}
-            />
-
+            <Image source={fishImage} style={styles.image} onLoadEnd={onImgLoad} />
             <Text
               style={[
                 styles.text,
@@ -69,7 +84,7 @@ export default function Friend({
 
           {showFullDetails && high_score != null && (
             <View style={[styles.highScore, { backgroundColor: cardColor }]}>
-              <FadeImage source={preyImg} style={styles.fishImage} />
+              <Image source={preyImg} style={styles.fishImage} onLoadEnd={onImgLoad} />
               <Text
                 style={[
                   styles.text,
@@ -106,7 +121,7 @@ export default function Friend({
             </Pressable>
           </View>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -118,9 +133,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     gap: 12,
     width: '100%',
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  skeleton: {
+    ...StyleSheet.absoluteFillObject,
+    marginVertical: 18,
   },
   friendWrapper: {
-    paddingVertical: 18,
     backgroundColor: 'transparent',
     flexDirection: 'row',
   },
@@ -136,7 +157,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   text: {
-    fontWeight: 500,
+    fontWeight: '500',
   },
   largeText: {
     fontSize: 18,
@@ -147,13 +168,13 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: 12,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   actionButton: {
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 8,
-    alignContent: 'center',
-    alignSelf: 'center',
   },
   actionImage: {
     height: 22,

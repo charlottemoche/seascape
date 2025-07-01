@@ -17,20 +17,19 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
     setLoading(true);
     clearFriendCache();
     const first = await listFriends({ page: 0, limit: PAGE_SIZE, force: true });
-    setRows(first);
+    setRows(first.rows);
     setPage(0);
-    setEndReached(first.length < PAGE_SIZE);
+    setEndReached(!first.hasMore);
     setLoading(false);
   }, []);
-
 
   const loadMore = useCallback(async () => {
     if (endReached || loading) return;
     setLoading(true);
     const nextPage = page + 1;
     const next = await listFriends({ page: nextPage, limit: PAGE_SIZE });
-    if (!next.length || next.length < PAGE_SIZE) setEndReached(true);
-    setRows(prev => [...prev, ...next]);
+    if (!next.hasMore) setEndReached(true);
+    setRows(prev => [...prev, ...next.rows]);
     setPage(nextPage);
     setLoading(false);
   }, [endReached, loading, page]);
@@ -47,7 +46,11 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
   if (loading && !rows.length) return <ActivityIndicator style={{ padding: 8 }} />;
 
   if (!rows.length)
-    return <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>;
+    return (
+    <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+      <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>
+    </View>
+    )
 
   return (
     <View style={[styles.profileSection, { backgroundColor: cardColor, paddingBottom: !rows.length ? 16 : 0 }]}>
@@ -80,13 +83,11 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
           </View>
         ))}
 
-        {!endReached ? (
-          loading ? (
-            <ActivityIndicator style={{ paddingVertical: 12 }} />
-          ) : (
-            <Button title="Load more" onPress={loadMore} variant="secondary" style={styles.loadMoreButton} />
-          )
-        ) : null}
+        {!endReached && (
+          loading
+            ? <ActivityIndicator style={{ paddingVertical: 12 }} />
+            : <Button title="Load more" onPress={loadMore} variant="secondary" style={{ marginBottom: 16 }} />
+        )}
       </View>
     </View>
   );

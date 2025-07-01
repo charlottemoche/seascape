@@ -13,7 +13,6 @@ import { useGuestBreath } from '@/hooks/useGuestBreath';
 import BreatheCircle from '@/components/Breathe/BreatheCircle';
 import BreatheTimer from '@/components/Breathe/BreatheTimer';
 import Colors from '@/constants/Colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import wave from '@/assets/images/wave.png';
 
 const WAVE = wave;

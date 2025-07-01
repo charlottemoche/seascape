@@ -145,7 +145,7 @@ export function Input(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 7,
+    paddingVertical: 9,
     paddingHorizontal: 7,
     borderRadius: 8,
     alignItems: 'center',

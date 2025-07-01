@@ -7,6 +7,7 @@ import {
   useColorScheme,
   SafeAreaView,
   Linking,
+  Image,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { FadeImage } from '@/components/FadeImage';
@@ -91,7 +92,7 @@ export default function ProfileScreen() {
       <View style={styles.actions}>
         <View style={styles.actionWrapper}>
           <Text>
-            <FadeImage
+            <Image
               source={starfishImage}
               style={[styles.icon, { width: 20 }]}
             />
@@ -102,7 +103,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.actionWrapper}>
           <Text>
-            <FadeImage
+            <Image
               source={bubblesImage}
               style={[styles.icon, { width: 18 }]}
             />

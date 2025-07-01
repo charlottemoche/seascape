@@ -19,11 +19,21 @@ export type FriendRow = {
   high_score?: number | null;
 };
 
+type FriendsCacheEntry = {
+  rows: FriendRow[];
+  hasMore: boolean;
+  fetchedAt: number;
+};
+
+type FriendsPage = {
+  rows: FriendRow[];
+  hasMore: boolean;
+};
+
 let cachedFriends: FriendRow[] | null = null;
 let fetchedAt = 0;
-let pageCache: Record<PageKey, { rows: FriendRow[]; fetchedAt: number }> = {};
-
-const TTL = 5 * 60 * 1000;
+let pageCache: Record<PageKey, FriendsCacheEntry> = {};
+const TTL = 5 * 60 * 1_000;
 
 export async function sendFriendRequest(addresseeId: string) {
   const { data, error: userError } = await supabase.auth.getUser();
@@ -106,15 +116,27 @@ export async function listIncomingRequests(): Promise<IncomingRequest[]> {
 
 export async function listFriends(
   opts: { page?: number; limit?: number; force?: boolean } = {},
-): Promise<FriendRow[]> {
+): Promise<FriendsPage> {
   const page = opts.page ?? 0;
   const limit = opts.limit ?? 10;
   const offset = page * limit;
   const key: PageKey = `${offset}-${limit}`;
   const now = Date.now();
 
-  if (!opts.force && pageCache[key]?.rows && now - pageCache[key].fetchedAt < TTL) {
-    return pageCache[key].rows;
+  if (!opts.force && pageCache[key] && now - pageCache[key].fetchedAt < TTL) {
+    const { rows, hasMore } = pageCache[key];
+    return { rows, hasMore };
+  }
+
+  if (
+    !opts.force &&
+    cachedFriends &&
+    now - fetchedAt < TTL &&
+    cachedFriends.length >= offset + 1
+  ) {
+    const slice = cachedFriends.slice(offset, offset + limit);
+    const hasMore = cachedFriends.length > offset + limit;
+    return { rows: slice, hasMore };
   }
 
   const { data: authData, error: authErr } = await supabase.auth.getUser();
@@ -122,22 +144,21 @@ export async function listFriends(
   const me = authData.user;
   if (!me) throw new Error('Not signed in');
 
+  const upper = offset + limit;
   const { data, error } = await supabase
     .from('friendships')
-    .select(
-      `
+    .select(`
       id, requester, addressee,
       requester_profile:profiles!requester ( fish_name, friend_code, fish_color, high_score ),
       addressee_profile:profiles!addressee ( fish_name, friend_code, fish_color, high_score )
-      `,
-    )
+    `)
     .eq('status', 'accepted')
     .or(`requester.eq.${me.id},addressee.eq.${me.id}`)
-    .range(offset, offset + limit - 1);
+    .range(offset, upper);
 
   if (error) throw error;
 
-  const rows: FriendRow[] = (data ?? []).map((row: any) => {
+  const mapped: FriendRow[] = (data ?? []).map((row: any) => {
     const iAmRequester = row.requester === me.id;
     const profileArr = iAmRequester ? row.addressee_profile : row.requester_profile;
     const profile = Array.isArray(profileArr) ? profileArr[0] : profileArr;
@@ -151,11 +172,24 @@ export async function listFriends(
     };
   });
 
-  pageCache[key] = { rows, fetchedAt: now };
-  return rows;
+  const hasMore = mapped.length > limit;
+  const rows = hasMore ? mapped.slice(0, limit) : mapped;
+
+  if (page === 0) {
+    cachedFriends = rows;
+    fetchedAt = now;
+  } else if (cachedFriends) {
+    cachedFriends = [...cachedFriends, ...rows];
+  }
+
+  pageCache[key] = { rows, hasMore, fetchedAt: now };
+  console.log(rows)
+  return { rows, hasMore };
 }
 
 export function clearFriendCache() {
+  cachedFriends = null;
+  fetchedAt = 0;
   pageCache = {};
 }
 
