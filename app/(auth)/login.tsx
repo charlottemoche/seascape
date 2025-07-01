@@ -354,7 +354,7 @@ export default function LoginScreen() {
             title="Continue with Google"
             loading={loading}
             disabled={loading}
-            variant="tertiary"
+            variant="themed"
             width={200}
           />
 

@@ -25,7 +25,7 @@ export type ButtonProps = {
   loading?: boolean;
   testID?: string;
   margin?: boolean;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger' | 'themed';
   width?: number;
   icon?: React.ReactNode;
 };
@@ -85,6 +85,8 @@ export function Button({
     tertiaryText: useThemeColor({}, 'text'),
   };
 
+  const themedBg = useThemeColor({light: '#fff', dark: '#121212'}, 'button');
+
   const variants = {
     primary: {
       bg: c.primaryBg,
@@ -110,6 +112,11 @@ export function Button({
       bg: 'transparent',
       text: textColor ?? c.tertiaryText,
       border: 'transparent',
+    },
+    themed: {
+      bg: themedBg,
+      text: textColor ?? c.tertiaryText,
+      border: '#ccc',
     },
   } as const;
 
