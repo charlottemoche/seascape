@@ -45,6 +45,7 @@ export default {
       'expo-secure-store',
       'expo-audio',
       'expo-notifications',
+      'expo-web-browser',
       [
         '@react-native-google-signin/google-signin',
         {
