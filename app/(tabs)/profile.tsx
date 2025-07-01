@@ -297,7 +297,7 @@ export default function ProfileScreen() {
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>High Score</Text>
                 <View style={styles.highScoreRow}>
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <FadeImage source={preyImg} style={styles.fishImage} />
+                  <FadeImage source={preyImg} style={styles.fishImage} />
                 </View>
 
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor, paddingTop: 20 }]}>Push Notifications</Text>
@@ -322,7 +322,7 @@ export default function ProfileScreen() {
                 <Text style={[styles.label, { borderBottomColor: greyBorder, color: textColor }]}>High Score</Text>
                 <View style={styles.highScoreRow}>
                   <Text style={[styles.value, { color: textColor }]}>{highScore}</Text>
-                    <FadeImage source={preyImg} style={styles.fishImage} />
+                  <FadeImage source={preyImg} style={styles.fishImage} />
                 </View>
               </View>
             )}
@@ -421,6 +421,18 @@ export default function ProfileScreen() {
                 </View>
               )}
             </View>
+          </View>
+
+          <View style={[styles.profileSection, { backgroundColor: cardColor, marginTop: 32 }]}>
+            <Text>
+              This app was made by one person, slowly and with love. No subscriptions. No locked features. Just a tiny project from me to you. Tips help me keep it alive!
+            </Text>
+            <Button
+              title="Buy me a coffee"
+              onPress={() => Linking.openURL('https://www.buymeacoffee.com/charlottebmoche')}
+              variant="tertiary"
+              style={{ marginTop: 18 }}
+            />
           </View>
         </View>
       </ScrollView>

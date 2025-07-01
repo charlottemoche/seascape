@@ -25,7 +25,7 @@ export type ButtonProps = {
   loading?: boolean;
   testID?: string;
   margin?: boolean;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger' | 'themed';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
   width?: number;
   icon?: React.ReactNode;
 };
@@ -76,16 +76,15 @@ export function Button({
     primaryText: useThemeColor({}, 'buttonText'),
 
     secondaryBg: useThemeColor({}, 'buttonSecondary'),
-    secondaryText: useThemeColor({}, 'buttonText'),
+    secondaryText: useThemeColor({light: '#000', dark: '#fff'}, 'buttonText'),
 
     dangerBg: useThemeColor({}, 'danger'),
     dangerText: useThemeColor({}, 'white'),
 
     tertiaryBg: useThemeColor({}, 'transparent'),
+    tertiaryBorder: useThemeColor({light: '#ddd', dark: '#121212'}, 'transparent'),
     tertiaryText: useThemeColor({}, 'text'),
   };
-
-  const themedBg = useThemeColor({light: '#fff', dark: '#121212'}, 'button');
 
   const variants = {
     primary: {
@@ -94,9 +93,9 @@ export function Button({
       border: 'rgba(123,182,212,0.1)',
     },
     secondary: {
-      bg: c.secondaryBg,
+      bg: 'rgba(123,182,212,0.1)',
       text: textColor ?? c.secondaryText,
-      border: 'rgba(123,182,212,0.1)',
+      border: 'rgba(123,182,212,0.4)',
     },
     danger: {
       bg: c.dangerBg,
@@ -106,17 +105,12 @@ export function Button({
     tertiary: {
       bg: c.tertiaryBg,
       text: textColor ?? c.tertiaryText,
-      border: '#6a6a6a',
+      border: c.tertiaryBorder,
     },
     plain: {
       bg: 'transparent',
       text: textColor ?? c.tertiaryText,
       border: 'transparent',
-    },
-    themed: {
-      bg: themedBg,
-      text: textColor ?? c.tertiaryText,
-      border: '#ccc',
     },
   } as const;
 
