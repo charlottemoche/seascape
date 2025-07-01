@@ -20,7 +20,7 @@ export default {
       bundleIdentifier: 'com.cbm.seascape',
       buildNumber: '1',
       infoPlist: {
-        ITSAppUsesNonExemptEncryption: true,
+        ITSAppUsesNonExemptEncryption: false,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
       },
       entitlements: {
