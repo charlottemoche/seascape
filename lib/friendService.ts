@@ -183,7 +183,6 @@ export async function listFriends(
   }
 
   pageCache[key] = { rows, hasMore, fetchedAt: now };
-  console.log(rows)
   return { rows, hasMore };
 }
 
@@ -211,7 +210,6 @@ export function listenForIncomingRequests(userId: string,
     .subscribe();
 
   return () => {
-    console.log('[friends] unsub');
     channel.unsubscribe();
   };
 }

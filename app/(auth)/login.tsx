@@ -15,8 +15,10 @@ import { Button, Input, Text } from '@/components/Themed';
 import { useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
+import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -33,6 +35,7 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
+  const greyColor = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
 
   const router = useRouter();
 
@@ -141,6 +144,44 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo: any = await GoogleSignin.signIn();
+      const idToken = userInfo?.data?.idToken;
+
+      if (!idToken) throw new Error('no ID token present!');
+
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+
+      console.log(error, data);
+      if (error) throw error;
+      router.replace('/');
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // already signing in
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // play services issue
+      } else {
+        console.error('Google sign-in error', error);
+        setError('Google sign-in failed. Please try again.');
+      }
+    }
+  };
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: Constants.expoConfig?.extra?.googleWebClientId,
+      iosClientId: Constants.expoConfig?.extra?.googleIosClientId,
+      scopes: ['profile', 'email'],
+    });
+  }, []);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -263,6 +304,17 @@ export default function LoginScreen() {
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
+          {/* <Pressable
+            onPress={() => {
+              setIsSignUp(!isSignUp);
+              setError('');
+            }}
+          >
+            <Text style={styles.switchText}>
+              {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+            </Text>
+          </Pressable> */}
+
           {isSignUp ? (
             <Button
               onPress={handleAuth}
@@ -278,19 +330,32 @@ export default function LoginScreen() {
               title="Log in"
               loading={loading}
               disabled={loading}
+              width={200}
             />
           )}
 
-          <Pressable
-            onPress={() => {
-              setIsSignUp(!isSignUp);
-              setError('');
-            }}
-          >
-            <Text style={styles.switchText}>
-              {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
-            </Text>
-          </Pressable>
+          <View style={styles.divider}>
+            <View style={[styles.line, { backgroundColor: greyColor }]} />
+            <Text style={[styles.dividerText, { color: greyColor }]}>Or</Text>
+            <View style={[styles.line, { backgroundColor: greyColor }]} />
+          </View>
+
+          <Button
+            onPress={handleGoogleLogin}
+            title="Log in with Google"
+            loading={loading}
+            disabled={loading}
+            variant="tertiary"
+            width={200}
+          />
+
+          <Button
+            title={isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+            onPress={() => { setIsSignUp(!isSignUp); setError('') }}
+            variant="plain"
+            style={{ marginTop: 20 }}
+          />
+
 
         </View>
       </Animated.View>
@@ -307,7 +372,8 @@ const styles = StyleSheet.create({
   },
   switchText: {
     textAlign: 'center',
-    marginTop: 30,
+    marginBottom: 10,
+    marginTop: 10,
   },
   forgotPasswordContainer: {
     flexDirection: 'row',
@@ -351,5 +417,19 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+    width: '90%',
+  },
+  line: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#ccc',
   },
 });

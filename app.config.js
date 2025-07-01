@@ -23,14 +23,6 @@ export default {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: true,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
-        CFBundleURLTypes: [
-          {
-            CFBundleURLSchemes: ['seascape', 'com.cbm.seascape'],
-          },
-          {
-            CFBundleURLSchemes: ['seascape'],
-          },
-        ],
       },
       entitlements: {
         'com.apple.developer.push-notifications': true,
@@ -49,7 +41,18 @@ export default {
       output: 'static',
       favicon: './assets/images/favicon.png',
     },
-    plugins: ['expo-router', 'expo-secure-store', 'expo-audio', 'expo-notifications'],
+    plugins: [
+      'expo-router',
+      'expo-secure-store',
+      'expo-audio',
+      'expo-notifications',
+      [
+        '@react-native-google-signin/google-signin',
+        {
+          iosUrlScheme: 'com.googleusercontent.apps.1756789639-53rm9l38v3nshkh0o750j31hqhncpcjk'
+        }
+      ]
+    ],
     experiments: {
       typedRoutes: true,
     },

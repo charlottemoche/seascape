@@ -25,6 +25,7 @@ export type ButtonProps = {
   testID?: string;
   margin?: boolean;
   variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
+  width?: any;
 };
 
 export function useThemeColor(
@@ -64,6 +65,7 @@ export function Button({
   textColor,
   margin = true,
   variant = 'primary',
+  width = 150,
 }: ButtonProps & { textColor?: string }) {
 
   const c = {
@@ -127,7 +129,7 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      <Text style={[styles.text, { color: text }]}>
+      <Text style={[styles.text, { color: text, width }]}>
         {loading ? 'Loading...' : title}
       </Text>
     </Pressable>
@@ -149,13 +151,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     borderRadius: 8,
     alignItems: 'center',
-    alignSelf: 'center',
     maxWidth: 500,
-    width: 150,
   },
   text: {
     fontSize: 15,
     fontWeight: 400,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
