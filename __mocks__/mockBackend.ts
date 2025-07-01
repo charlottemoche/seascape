@@ -63,5 +63,9 @@ function calculateStreak(dateSet: Set<string>): number {
   const todayStr = new Date().toISOString().split('T')[0];
   const mostRecent = sorted[sorted.length - 1];
 
+  console.log('[now]', new Date().toISOString());
+  console.log('[todayStr]', todayStr);
+  console.log('[mostRecent]', mostRecent);
+
   return todayStr === mostRecent ? streak : 0;
 }

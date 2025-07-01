@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import JournalScreen from '@/app/(tabs)/journal';
-import { MockUserProvider, ProfileProvider } from '@/__mocks__/authMocks';
+import { MockUserProvider } from '@/__mocks__/authMocks';
 import { Alert } from 'react-native';
 import { StreakProvider } from '@/context/StreakContext';
 import { advanceTo, clear } from 'jest-date-mock';
+import JournalScreen from '@/app/(tabs)/journal';
 import * as streakModule from '@/lib/streakService';
 
 jest.mock('@/lib/supabase');
@@ -48,11 +48,9 @@ const mockUpdateStreak = () =>
 const getJournalScreen = async () => {
   const utils = render(
     <MockUserProvider>
-      <ProfileProvider>
-        <StreakProvider>
-          <JournalScreen />
-        </StreakProvider>
-      </ProfileProvider>
+      <StreakProvider>
+        <JournalScreen />
+      </StreakProvider>
     </MockUserProvider>
   );
 
