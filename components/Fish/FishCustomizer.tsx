@@ -35,15 +35,6 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log('[FishCustomizer] mounted');
-    return () => console.log('[FishCustomizer] unmounted');
-  }, []);
-
-  useEffect(() => {
-    console.log('[FishImg] source', fishImages[fishColor]);
-  }, [fishColor]);
-
-  useEffect(() => {
     if (user) {
       setFishName(profile?.fish_name ?? '');
       setFishColor(
