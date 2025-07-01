@@ -15,7 +15,8 @@ import { Button, Input, Text } from '@/components/Themed';
 import { useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useKeyboardShift } from '@/hooks/useKeyboardShift';
-import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { Icon } from '@/components/Icon';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
@@ -35,7 +36,7 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
 
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.background : Colors.light.background;
-  const greyColor = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
+  const greyColor = colorScheme === 'dark' ? Colors.custom.darkGrey : '#aaa';
 
   const router = useRouter();
 
@@ -153,9 +154,12 @@ export default function LoginScreen() {
 
       if (!idToken) throw new Error('no ID token present!');
 
+      const nonce = decodeNonce(idToken);
+
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
         token: idToken,
+        nonce,
       });
 
       console.log(error, data);
@@ -175,9 +179,15 @@ export default function LoginScreen() {
     }
   };
 
+  function decodeNonce(idToken: string): string | undefined {
+    const [, payload] = idToken.split('.');
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = JSON.parse(atob(base64));
+    return json.nonce;
+  }
+
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: Constants.expoConfig?.extra?.googleWebClientId,
       iosClientId: Constants.expoConfig?.extra?.googleIosClientId,
       scopes: ['profile', 'email'],
     });
@@ -304,17 +314,6 @@ export default function LoginScreen() {
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* <Pressable
-            onPress={() => {
-              setIsSignUp(!isSignUp);
-              setError('');
-            }}
-          >
-            <Text style={styles.switchText}>
-              {isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
-            </Text>
-          </Pressable> */}
-
           {isSignUp ? (
             <Button
               onPress={handleAuth}
@@ -323,6 +322,7 @@ export default function LoginScreen() {
               disabled={loading}
               variant="primary"
               style={{ marginTop: 20 }}
+              width={200}
             />
           ) : (
             <Button
@@ -334,6 +334,14 @@ export default function LoginScreen() {
             />
           )}
 
+          <Button
+            title={isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+            onPress={() => { setIsSignUp(!isSignUp); setError('') }}
+            variant="plain"
+            style={{ marginTop: 20 }}
+            width={300}
+          />
+
           <View style={styles.divider}>
             <View style={[styles.line, { backgroundColor: greyColor }]} />
             <Text style={[styles.dividerText, { color: greyColor }]}>Or</Text>
@@ -342,18 +350,12 @@ export default function LoginScreen() {
 
           <Button
             onPress={handleGoogleLogin}
-            title="Log in with Google"
+            icon={<Icon type="Google" name="google" color={greyColor} size={20} />}
+            title="Continue with Google"
             loading={loading}
             disabled={loading}
             variant="tertiary"
             width={200}
-          />
-
-          <Button
-            title={isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
-            onPress={() => { setIsSignUp(!isSignUp); setError('') }}
-            variant="plain"
-            style={{ marginTop: 20 }}
           />
 
 
@@ -381,7 +383,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   forgotPasswordText: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   error: {
     color: 'red',
@@ -422,7 +424,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 20,
-    width: '90%',
+    width: '80%',
   },
   line: {
     flex: 1,

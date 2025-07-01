@@ -5,6 +5,7 @@
 
 import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Icon } from './Icon';
 import Colors from '@/constants/Colors';
 
 type ThemeProps = {
@@ -25,7 +26,8 @@ export type ButtonProps = {
   testID?: string;
   margin?: boolean;
   variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
-  width?: any;
+  width?: number;
+  icon?: React.ReactNode;
 };
 
 export function useThemeColor(
@@ -66,45 +68,46 @@ export function Button({
   margin = true,
   variant = 'primary',
   width = 150,
+  icon = null,
 }: ButtonProps & { textColor?: string }) {
 
   const c = {
-    primaryBg:   useThemeColor({}, 'button'),
+    primaryBg: useThemeColor({}, 'button'),
     primaryText: useThemeColor({}, 'buttonText'),
 
     secondaryBg: useThemeColor({}, 'buttonSecondary'),
     secondaryText: useThemeColor({}, 'buttonText'),
 
-    dangerBg:    useThemeColor({}, 'danger'),
-    dangerText:  useThemeColor({}, 'white'),
+    dangerBg: useThemeColor({}, 'danger'),
+    dangerText: useThemeColor({}, 'white'),
 
-    tertiaryBg:  useThemeColor({}, 'transparent'), 
+    tertiaryBg: useThemeColor({}, 'transparent'),
     tertiaryText: useThemeColor({}, 'text'),
   };
 
   const variants = {
     primary: {
-      bg:   c.primaryBg,
+      bg: c.primaryBg,
       text: c.primaryText,
       border: 'rgba(123,182,212,0.1)',
     },
     secondary: {
-      bg:   c.secondaryBg,
+      bg: c.secondaryBg,
       text: textColor ?? c.secondaryText,
       border: 'rgba(123,182,212,0.1)',
     },
     danger: {
-      bg:   c.dangerBg,
+      bg: c.dangerBg,
       text: c.dangerText,
       border: '#dd0b0b',
     },
     tertiary: {
-      bg:   c.tertiaryBg,
+      bg: c.tertiaryBg,
       text: textColor ?? c.tertiaryText,
       border: '#6a6a6a',
     },
     plain: {
-      bg:   'transparent',
+      bg: 'transparent',
       text: textColor ?? c.tertiaryText,
       border: 'transparent',
     },
@@ -117,6 +120,7 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        width && { width, maxWidth: width },
         {
           backgroundColor: bg,
           opacity: pressed ? 0.7 : 1,
@@ -129,8 +133,10 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      <Text style={[styles.text, { color: text, width }]}>
-        {loading ? 'Loading...' : title}
+      {icon && <View style={styles.icon}>{icon}</View>}
+
+      <Text style={[styles.text, { color: text }]}>
+        {loading ? 'Loading…' : title}
       </Text>
     </Pressable>
   );
@@ -150,13 +156,19 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     paddingHorizontal: 7,
     borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     maxWidth: 500,
   },
   text: {
     fontSize: 15,
-    fontWeight: 400,
+    fontWeight: '400',
     textAlign: 'center',
+  },
+  icon: {
+    marginRight: 6,
   },
   input: {
     borderWidth: 1,
