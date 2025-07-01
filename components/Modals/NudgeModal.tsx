@@ -36,8 +36,7 @@ export default function NudgeModal() {
   const text = colorScheme === 'dark' ? '#fff' : '#000';
   const icon = nudge.type === 'hug' ? starfishImage : bubblesImage;
   const hug = nudge.type === 'hug'
-  const verb = nudge.type === 'hug' ? 'a starfish hug' : 'a breathe reminder';
-  const showExclamation = nudge.type === 'hug';
+  const verb = hug ? 'a starfish hug' : 'a breathe reminder';
 
   return (
     <Modal transparent animationType="fade" visible>
@@ -47,8 +46,8 @@ export default function NudgeModal() {
 
       <View style={[styles.card, { backgroundColor: bg }]}>
         <Image source={icon} style={styles.icon} />
-        <Text style={[styles.title, { color: text }]}>
-          {`${nudge.sender} sent you ${verb}` + (showExclamation ? '!' : '')}
+        <Text style={[styles.title, { color: text, marginBottom: hug ? 12 : 0 }]}>
+          {`${nudge.sender} sent you ${verb}` + (hug ? '!' : '')}
         </Text>
 
         {nudge.senderId && hug && (
@@ -61,7 +60,7 @@ export default function NudgeModal() {
           />
         )}
 
-        <View style={{ marginTop: 10 }}>
+        <View>
           <Button
             title="Close"
             onPress={() => setNudge(null)}
@@ -101,7 +100,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 24,
     textAlign: 'center',
-    marginBottom: 20
   },
   replyText: {
     fontWeight: '500'
