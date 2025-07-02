@@ -32,6 +32,7 @@ import whiteBubbles from '@/assets/images/white-bubbles.png';
 import starfish from '@/assets/images/starfish.png';
 import whiteStarfish from '@/assets/images/white-starfish.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TipCard from '@/components/TipCard';
 import * as Clipboard from 'expo-clipboard';
 
 export default function ProfileScreen() {
@@ -368,15 +369,7 @@ export default function ProfileScreen() {
             )}
 
             <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-              <Text>
-                This app was made by one person, slowly and with love. No subscriptions. No locked features. Just a tiny project from me to you. Tips help me keep it alive!
-              </Text>
-              <Button
-                title="Buy me a coffee"
-                onPress={() => Linking.openURL('https://www.buymeacoffee.com/charlottebmoche')}
-                variant="secondary"
-                style={{ marginTop: 18 }}
-              />
+              <TipCard />
             </View>
 
           </View>
@@ -622,4 +615,5 @@ const styles = StyleSheet.create({
   icon: {
     height: 20,
   },
+
 });
