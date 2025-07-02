@@ -21,7 +21,7 @@ export default function TipCard() {
         This app was made by one person, slowly and with love. No subscriptions, just a tiny project from me to you. Tips help me keep it alive!
       </Text>
       <Text style={styles.text}>
-        Your gift will unlock two new fish colors.
+        If you are logged in, your gift will unlock two new fish colors.
       </Text>
       <View style={styles.imageContainer}>
         <Image source={COLORED_FISH} style={styles.image} />

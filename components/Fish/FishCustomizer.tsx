@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   Alert,
@@ -21,10 +21,17 @@ type FishCustomizerProps = {
   onSaved?: () => void;
 };
 
-const availableColors: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
+const BASE_COLORS: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 
 export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const { user, profile } = useSession();
+
+  const availableColors: FishColor[] = useMemo(() => {
+    if (profile?.has_tipped) {
+      return [...BASE_COLORS, 'rainbow', 'colored'];
+    }
+    return BASE_COLORS;
+  }, [profile?.has_tipped]);
 
   const colorScheme = useColorScheme();
   const textColor = transparent || colorScheme === 'dark' ? '#fff' : '#000';
@@ -43,18 +50,21 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
           : 'blue'
       );
     } else {
-      setFishName('');
-      setFishColor('blue');
       (async () => {
-        const storedName = await AsyncStorage.getItem('fish_name');
-        const storedColor = await AsyncStorage.getItem('fish_color');
-        if (storedName) setFishName(storedName);
+        const [storedName, storedColor] = await AsyncStorage.multiGet([
+          'fish_name',
+          'fish_color',
+        ]).then(entries => entries.map(([, v]) => v));
+
+        setFishName(storedName ?? '');
         if (storedColor && availableColors.includes(storedColor as FishColor)) {
           setFishColor(storedColor as FishColor);
+        } else {
+          setFishColor('blue');
         }
       })();
     }
-  }, [user, profile]);
+  }, [user, profile, availableColors]);
 
   const handleSave = async (newName: string, newColor: FishColor) => {
     const trimmedName = newName.trim();

@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   smallFish: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
   },
   selectedFish: {
     borderBottomColor: '#808080',

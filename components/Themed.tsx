@@ -81,9 +81,9 @@ export function Button({
     dangerBg: useThemeColor({}, 'danger'),
     dangerText: useThemeColor({ light: '#000', dark: '#fff' }, 'white'),
 
-    tertiaryBg: useThemeColor({ light: '#fff', dark: '#121212' }, 'transparent'),
-    tertiaryBorder: useThemeColor({ light: '#ddd', dark: '#6a6a6a' }, 'transparent'),
-    tertiaryText: useThemeColor({}, 'text'),
+    tertiaryBg: useThemeColor({ light: '#fff', dark: '#545454' }, 'transparent'),
+    tertiaryBorder: useThemeColor({ light: '#ddd', dark: '#2a2a2a' }, 'transparent'),
+    tertiaryText: useThemeColor({ light: '#000', dark: '#000' }, 'text'),
   };
 
   const variants = {
@@ -109,7 +109,7 @@ export function Button({
     },
     plain: {
       bg: 'transparent',
-      text: textColor ?? c.tertiaryText,
+      text: textColor ?? c.secondaryText,
       border: 'transparent',
     },
   } as const;
@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
     width: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
     backgroundColor: 'transparent',
   },
   labelWrap: {

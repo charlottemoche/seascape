@@ -411,6 +411,7 @@ export default function LoginScreen() {
               title="Continue with Apple"
               variant="tertiary"
               width={200}
+              style={{ marginTop: 16 }}
             />
           )}
 
