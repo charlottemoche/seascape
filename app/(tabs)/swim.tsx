@@ -68,7 +68,6 @@ export default function SwimScreen() {
     }
   };
 
-
   const {
     position,
     gameOver,

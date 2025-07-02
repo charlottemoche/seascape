@@ -13,8 +13,8 @@ export async function bumpHighScore(score: number) {
 }
 
 export function useSyncAndRefresh(
+  refreshProfileQuiet: () => Promise<void>,
   userId?: string,
-  refreshProfile?: () => void
 ) {
   useEffect(() => {
     if (!userId) return;
@@ -32,7 +32,7 @@ export function useSyncAndRefresh(
 
       if (!error) {
         await AsyncStorage.removeItem(LOCAL_HS);
-        refreshProfile?.();              // ← call it if provided
+        await refreshProfileQuiet();
       } else {
         console.warn('[high-score sync] failed:', error.message);
       }
@@ -43,5 +43,5 @@ export function useSyncAndRefresh(
       if (s.isConnected) trySync();
     });
     return () => sub();
-  }, [userId, refreshProfile]);
+  }, [userId, refreshProfileQuiet]);
 }

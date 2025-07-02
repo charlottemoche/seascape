@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Linking,
   Image,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '@/lib/supabase';
 import { FadeImage } from '@/components/FadeImage';
 import { FishCustomizer } from '@/components/Fish/FishCustomizer';
@@ -18,6 +19,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Icon } from '@/components/Icon';
 import { usePendingRequests, useSetPendingRequests } from '@/context/PendingContext';
 import { registerForPushAsync } from '@/lib/pushService';
+import { useSyncAndRefresh } from '@/hooks/useHighScore';
 import { Loader } from '@/components/Loader';
 import Colors from '@/constants/Colors';
 import preyImg from '@/assets/images/prey.png';
@@ -48,7 +50,9 @@ export default function ProfileScreen() {
       ? whiteBubbles
       : bubbles;
 
-  const { user, profile, loading: userLoading, sessionChecked } = useSession();
+  const { user, profile, loading: userLoading, sessionChecked, refreshProfileQuiet } = useSession();
+
+  useSyncAndRefresh(refreshProfileQuiet, user?.id);
 
   const qTab = useLocalSearchParams().tab;
 
@@ -56,6 +60,7 @@ export default function ProfileScreen() {
   const [tab, setTab] = useState<'profile' | 'friends'>('profile');
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
   const [localHighScore, setLocalHighScore] = useState<number>(0);
+  const [hasLoadedLocalHS, setHasLoadedLocalHS] = useState(false);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
     hasPending ? 'requests' : 'list'
   );
@@ -75,7 +80,7 @@ export default function ProfileScreen() {
 
   const pushEnabled = profile?.expo_push_token !== null;
 
-  const highScore = profile?.high_score ?? localHighScore;
+  const highScore = profile?.high_score ?? (hasLoadedLocalHS ? localHighScore : 0);
 
   const profileStillLoading = userLoading || !sessionChecked || (user && !profile);
 
@@ -194,6 +199,7 @@ export default function ProfileScreen() {
     await supabase.auth.signOut();
     await AsyncStorage.clear();
     setLocalHighScore(0);
+    setHasLoadedLocalHS(false);
     router.replace('/welcome');
   };
 
@@ -211,17 +217,20 @@ export default function ProfileScreen() {
     }
   }, [qTab]);
 
-  useEffect(() => {
-    if (profile) return;
-    AsyncStorage.getItem('local_high_score')
-      .then(val => {
-        const parsed = parseInt(val ?? '0', 10);
-        if (!isNaN(parsed)) {
-          setLocalHighScore(parsed);
-        }
-      })
-      .catch(() => setLocalHighScore(0));
-  }, [profile]);
+  useFocusEffect(
+    useCallback(() => {
+      if (profile || !hasLoadedLocalHS) return;
+      AsyncStorage.getItem('local_high_score')
+        .then(val => {
+          const parsed = parseInt(val ?? '0', 10);
+          if (!isNaN(parsed)) {
+            setLocalHighScore(parsed);
+            setHasLoadedLocalHS(true);
+          }
+        })
+        .catch(() => setLocalHighScore(0));
+    }, [profile])
+  );
 
   if (profileStillLoading) return <Loader />;
 

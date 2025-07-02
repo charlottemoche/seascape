@@ -31,7 +31,6 @@ export function SwimGameOverlay({
   onResetPlayCount,
   onStartNewGame,
   playsLeft,
-  hasPlayed,
 }: SwimGameOverlayProps) {
   switch (overlayMode) {
     case 'loading':
