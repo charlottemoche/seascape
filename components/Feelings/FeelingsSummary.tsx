@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from 'react';
 import { Pressable, StyleSheet, Image, useColorScheme, ActivityIndicator } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
-import { Loader } from '@/components/Loader';
 import { useFocusEffect } from '@react-navigation/native';
 import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
 import Colors from '@/constants/Colors';
