@@ -134,7 +134,7 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      {icon && <View style={[styles.icon, { marginRight: title ? 4 : 0 }]}>{icon}</View>}
+      {icon && <View style={[styles.icon, { marginRight: title ? 8 : 0 }]}>{icon}</View>}
 
       {title &&
         <Text style={[styles.text, { color: text }]}>
