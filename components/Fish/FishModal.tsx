@@ -93,14 +93,14 @@ export default function FishModal({
                 }}
               />
 
-              <View style={styles.btnRow}>
-                <Button title="Cancel" onPress={onCancel} variant="secondary" />
+              <View>
                 <Button
                   title={saving ? 'Saving…' : 'Save'}
                   onPress={() => onSave(localName, localColor)}
                   loading={saving}
                   disabled={saving}
                 />
+                <Button title="Cancel" onPress={onCancel} variant="plain" style={{ marginTop: 18 }}/>
               </View>
             </View>
           </TouchableWithoutFeedback>
@@ -171,11 +171,5 @@ const styles = StyleSheet.create({
   selectedFish: {
     borderBottomColor: '#808080',
     borderBottomWidth: 2,
-  },
-  btnRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    backgroundColor: 'transparent',
   },
 });
