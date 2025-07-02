@@ -41,7 +41,7 @@
     <resources>
         <image name="SplashLogo" width="231" height="244"/>
         <namedColor name="SplashBackground">
-            <color red="0.99999994039535522" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.086274504661560059" green="0.21568629145622253" blue="0.32156863808631897" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

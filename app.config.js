@@ -11,6 +11,7 @@ export default {
     scheme: 'seascape',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
+    backgroundColor: '#163752',
     splash: {
       image: './assets/images/splashscreen.png',
       resizeMode: 'cover',

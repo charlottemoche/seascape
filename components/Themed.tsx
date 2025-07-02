@@ -5,7 +5,6 @@
 
 import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Icon } from './Icon';
 import Colors from '@/constants/Colors';
 
 type ThemeProps = {

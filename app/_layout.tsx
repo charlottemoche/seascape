@@ -16,7 +16,10 @@ import { useHandleRecovery } from '@/hooks/useHandleRecovery';
 import NudgeModal from '@/components/Modals/NudgeModal';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
+import * as SystemUI from "expo-system-ui";
 import 'react-native-reanimated';
+
+SystemUI.setBackgroundColorAsync("transparent");
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
