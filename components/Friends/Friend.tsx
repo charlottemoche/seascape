@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import { FishColor } from '@/constants/fishMap';
 import { sendNudge } from '@/lib/nudgeService';
+import { useImagesReady } from '@/hooks/useImagesReady';
 import Colors from '@/constants/Colors';
 import fishImages from '@/constants/fishMap';
 import bubbles from '@/assets/images/bubbles.png';
 import starfish from '@/assets/images/starfish.png';
 import preyImg from '@/assets/images/prey.png';
-import { useImagesReady } from '@/hooks/useImagesReady';
+import FriendModal from '@/components/Modals/FriendModal';
 
 export type Props = {
   fish_name?: string | null;
@@ -24,7 +25,8 @@ export type Props = {
   high_score?: number | null;
   showFullDetails?: boolean;
   smallText?: boolean;
-  receiverId?: string;
+  friendId?: string;
+  onRemoved?: (id: string) => void;
 };
 
 export default function Friend({
@@ -34,7 +36,8 @@ export default function Friend({
   high_score,
   showFullDetails,
   smallText,
-  receiverId,
+  friendId,
+  onRemoved,
 }: Props) {
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#eee' : '#222';
@@ -48,6 +51,8 @@ export default function Friend({
 
   const totalImgs = showFullDetails && high_score != null ? 2 : 1;
   const { done, onImgLoad } = useImagesReady(totalImgs);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const opacityRow = useRef(new Animated.Value(0)).current;
   const opacitySkel = useRef(new Animated.Value(1)).current;
@@ -67,61 +72,73 @@ export default function Friend({
       <Animated.View style={[styles.wrapper, styles.skeleton, { backgroundColor: 'rgba(204,204,204,0.2)', opacity: opacitySkel }]} />
 
       {/* Actual content */}
-      <Animated.View style={[styles.wrapper, { backgroundColor: cardColor, opacity: opacityRow }]}>
-        <View style={styles.friendWrapper}>
-          <View style={styles.friendInfo}>
-            <Image source={fishImage} style={styles.image} onLoadEnd={onImgLoad} />
-            <Text
-              style={[
-                styles.text,
-                smallText ? styles.smallText : styles.largeText,
-                { color: textColor },
-              ]}
-            >
-              {fish_name || friend_code}
-            </Text>
-          </View>
-
-          {showFullDetails && high_score != null && (
-            <View style={[styles.highScore, { backgroundColor: cardColor }]}>
-              <Image source={preyImg} style={styles.fishImage} onLoadEnd={onImgLoad} />
+      <Pressable onPress={showFullDetails ? () => setModalVisible(true) : undefined}>
+        <Animated.View style={[styles.wrapper, { backgroundColor: cardColor, opacity: opacityRow }]}>
+          <View style={styles.friendWrapper}>
+            <View style={styles.friendInfo}>
+              <Image source={fishImage} style={styles.image} onLoadEnd={onImgLoad} />
               <Text
                 style={[
                   styles.text,
                   smallText ? styles.smallText : styles.largeText,
-                  { color: greyText, marginLeft: 4 },
+                  { color: textColor },
                 ]}
               >
-                {high_score}
+                {fish_name || friend_code}
               </Text>
             </View>
-          )}
-        </View>
 
-        {showFullDetails && (
-          <View style={[styles.actions, { backgroundColor: cardColor }]}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                { backgroundColor: starBg, opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={() => receiverId && sendNudge(receiverId, 'hug')}
-            >
-              <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                { backgroundColor: bubbleBg, opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={() => receiverId && sendNudge(receiverId, 'breathe')}
-            >
-              <Image source={bubbles} style={[styles.actionImage, { width: 20 }]} />
-            </Pressable>
+            {showFullDetails && high_score != null && (
+              <View style={[styles.highScore, { backgroundColor: cardColor }]}>
+                <Image source={preyImg} style={styles.fishImage} onLoadEnd={onImgLoad} />
+                <Text
+                  style={[
+                    styles.text,
+                    smallText ? styles.smallText : styles.largeText,
+                    { color: greyText, marginLeft: 2 },
+                  ]}
+                >
+                  {high_score}
+                </Text>
+              </View>
+            )}
           </View>
-        )}
-      </Animated.View>
+
+          {showFullDetails && (
+            <View style={[styles.actions, { backgroundColor: cardColor }]}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  { backgroundColor: starBg, opacity: pressed ? 0.7 : 1 },
+                ]}
+                onPress={() => friendId && sendNudge(friendId, 'hug')}
+              >
+                <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  { backgroundColor: bubbleBg, opacity: pressed ? 0.7 : 1 },
+                ]}
+                onPress={() => friendId && sendNudge(friendId, 'breathe')}
+              >
+                <Image source={bubbles} style={[styles.actionImage, { width: 20 }]} />
+              </Pressable>
+            </View>
+          )}
+        </Animated.View>
+      </Pressable>
+
+      {friendId && (
+        <FriendModal
+          visible={modalVisible}
+          friendId={friendId}
+          onClose={() => setModalVisible(false)}
+          fishName={fish_name || friend_code}
+          onRemoved={onRemoved}
+        />
+      )}
     </View>
   );
 }
@@ -154,7 +171,7 @@ const styles = StyleSheet.create({
   image: {
     width: 20,
     height: 20,
-    marginRight: 8,
+    marginRight: 4,
   },
   text: {
     fontWeight: '500',

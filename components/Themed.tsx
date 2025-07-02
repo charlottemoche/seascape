@@ -18,7 +18,7 @@ export type InputProps = ThemeProps & DefaultView['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 
 export type ButtonProps = {
-  title: string;
+  title?: string;
   onPress: () => void;
   style?: any;
   disabled?: boolean;
@@ -76,13 +76,13 @@ export function Button({
     primaryText: useThemeColor({}, 'buttonText'),
 
     secondaryBg: useThemeColor({}, 'buttonSecondary'),
-    secondaryText: useThemeColor({light: '#000', dark: '#fff'}, 'buttonText'),
+    secondaryText: useThemeColor({ light: '#000', dark: '#fff' }, 'buttonText'),
 
     dangerBg: useThemeColor({}, 'danger'),
-    dangerText: useThemeColor({}, 'white'),
+    dangerText: useThemeColor({ light: '#000', dark: '#fff' }, 'white'),
 
-    tertiaryBg: useThemeColor({light: '#fff', dark: '#121212'}, 'transparent'),
-    tertiaryBorder: useThemeColor({light: '#ddd', dark: '#6a6a6a'}, 'transparent'),
+    tertiaryBg: useThemeColor({ light: '#fff', dark: '#121212' }, 'transparent'),
+    tertiaryBorder: useThemeColor({ light: '#ddd', dark: '#6a6a6a' }, 'transparent'),
     tertiaryText: useThemeColor({}, 'text'),
   };
 
@@ -100,7 +100,7 @@ export function Button({
     danger: {
       bg: c.dangerBg,
       text: c.dangerText,
-      border: '#dd0b0b',
+      border: 'rgba(221, 11, 11, 0.2)',
     },
     tertiary: {
       bg: c.tertiaryBg,
@@ -121,7 +121,7 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        width && { width, maxWidth: width },
+        width && title && { width, maxWidth: width },
         {
           backgroundColor: bg,
           opacity: pressed ? 0.7 : 1,
@@ -134,11 +134,13 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      {icon && <View style={styles.icon}>{icon}</View>}
+      {icon && <View style={[styles.icon, { marginRight: title ? 4 : 0 }]}>{icon}</View>}
 
-      <Text style={[styles.text, { color: text }]}>
-        {loading ? 'Loading…' : title}
-      </Text>
+      {title &&
+        <Text style={[styles.text, { color: text }]}>
+          {loading ? 'Loading…' : title}
+        </Text>
+      }
     </Pressable>
   );
 }
@@ -154,7 +156,7 @@ export function Input(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 9,
+    paddingVertical: 8,
     paddingHorizontal: 7,
     borderRadius: 8,
     flexDirection: 'row',
@@ -169,7 +171,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   icon: {
-    marginRight: 6,
+    backgroundColor: 'transparent',
   },
   input: {
     borderWidth: 1,

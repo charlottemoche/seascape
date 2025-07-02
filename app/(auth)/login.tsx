@@ -351,8 +351,6 @@ export default function LoginScreen() {
             onPress={handleGoogleLogin}
             icon={<Icon type="Google" name="google" color={greyColor} size={20} />}
             title="Continue with Google"
-            loading={loading}
-            disabled={loading}
             variant="tertiary"
             width={200}
           />

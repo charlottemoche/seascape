@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, useColorScheme } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
-import { listIncomingRequests, acceptFriendRequest, IncomingRequest } from '@/lib/friendService';
+import { listIncomingRequests, acceptFriendRequest, IncomingRequest, removeFriend } from '@/lib/friendService';
+import { Icon } from '@/components/Icon';
 import Friend from './Friend';
 import Colors from '@/constants/Colors';
 
@@ -44,6 +45,21 @@ export default function IncomingRequests({ onChange }: Props) {
     }
   }
 
+  async function handleDecline(requesterId: string) {
+    try {
+      await removeFriend(requesterId);
+      Alert.alert('Success', 'Request declined.');
+
+      setRows(prev => {
+        const next = prev.filter(r => r.requesterId !== requesterId);
+        onChange(next.length);
+        return next;
+      });
+    } catch (e: any) {
+      Alert.alert('Error', e.message);
+    }
+  }
+
   if (loading) return <ActivityIndicator style={{ padding: 4 }} />;
 
   if (!rows.length)
@@ -62,14 +78,23 @@ export default function IncomingRequests({ onChange }: Props) {
                 fish_name={item.fish_name}
                 friend_code={item.friend_code}
                 fish_color={item.fish_color}
+                friendId={item.requesterId}
               />
             </View>
-            <Button
-              title="Accept"
-              onPress={() => handleAccept(item.requesterId)}
-              variant="secondary"
-              margin={false}
-            />
+            <View style={styles.buttonRow}>
+              <Button
+                icon={<Icon type="Ionicons" name="close-outline" color={Colors.custom.red} size={20} />}
+                onPress={() => handleDecline(item.requesterId)}
+                variant="danger"
+                margin={false}
+              />
+              <Button
+                icon={<Icon type="Ionicons" name="checkmark-outline" color={Colors.custom.green} size={20} />}
+                onPress={() => handleAccept(item.requesterId)}
+                variant="secondary"
+                margin={false}
+              />
+            </View>
           </View>
 
         ))}
@@ -94,6 +119,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingVertical: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    backgroundColor: 'transparent',
   },
   sectionTitle: {
     fontSize: 18,

@@ -3,12 +3,12 @@ import { supabase } from '@/lib/supabase';
 
 export type NudgeType = 'hug' | 'breathe';
 
-export async function sendNudge(receiverId: string, type: NudgeType) {
+export async function sendNudge(friendId: string, type: NudgeType) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
   const { error } = await supabase.rpc('send_notification', {
-    _receiver: receiverId,
+    _receiver: friendId,
     _sender: user.id,
     _type: type,
   });

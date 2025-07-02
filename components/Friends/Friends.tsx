@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet, useColorScheme, Alert } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
 import { listFriends, FriendRow, clearFriendCache } from '@/lib/friendService';
 import Friend from './Friend';
@@ -34,6 +34,11 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
     setLoading(false);
   }, [endReached, loading, page]);
 
+  const handleRemoved = (id: string) => {
+    Alert.alert('Success', 'Friend removed.');
+    setRows(prev => prev.filter(r => r.friendId !== id));
+  };
+
   useEffect(() => { loadFirst(); }, []);
   useEffect(() => { loadFirst(); }, [refreshSignal]);
 
@@ -47,9 +52,9 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
 
   if (!rows.length)
     return (
-    <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-      <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>
-    </View>
+      <View style={[styles.profileSection, { backgroundColor: cardColor, paddingBottom: 16 }]}>
+        <Text style={[styles.empty, { color: textColor }]}>No friends yet</Text>
+      </View>
     )
 
   return (
@@ -76,7 +81,8 @@ export default function FriendsList({ refreshSignal }: { refreshSignal: number }
               friend_code={f.friend_code}
               fish_color={f.fish_color}
               high_score={f.high_score}
-              receiverId={f.friendId}
+              friendId={f.friendId}
+              onRemoved={handleRemoved}
               showFullDetails
               smallText
             />

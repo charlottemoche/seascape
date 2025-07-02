@@ -35,6 +35,22 @@ let fetchedAt = 0;
 let pageCache: Record<PageKey, FriendsCacheEntry> = {};
 const TTL = 5 * 60 * 1_000;
 
+export async function removeFriend(friendId: string) {
+  const { data, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+
+  const currentUser = data.user;
+  if (!currentUser) throw new Error('Not signed in');
+
+  const { error } = await supabase
+    .from('friendships')
+    .delete()
+    .or(`and(requester.eq.${currentUser.id},addressee.eq.${friendId}),` +
+      `and(requester.eq.${friendId},addressee.eq.${currentUser.id})`);
+
+  if (error) throw error;
+}
+
 export async function sendFriendRequest(addresseeId: string) {
   const { data, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;

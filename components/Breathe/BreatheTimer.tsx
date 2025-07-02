@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   durationBtn: {
     borderColor: Colors.custom.lightBlue,
     borderWidth: 1,
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
