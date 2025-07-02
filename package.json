@@ -57,7 +57,8 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "uri-scheme": "^1.4.7",
-    "expo-apple-authentication": "~7.2.4"
+    "expo-apple-authentication": "~7.2.4",
+    "expo-modules-core": "~2.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
