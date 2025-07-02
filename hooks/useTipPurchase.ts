@@ -6,7 +6,7 @@ import * as InAppPurchases from 'expo-in-app-purchases';
 const PRODUCT_IDS = ['tip_small_coffee'];
 
 export function useTipPurchase() {
-  const { user } = useSession();
+  const { user, refreshProfileQuiet } = useSession();
 
   const [loading, setLoading] = useState(true);
   const [processing, setProc] = useState(false);
@@ -24,7 +24,13 @@ export function useTipPurchase() {
         InAppPurchases.setPurchaseListener(({ responseCode, results }) => {
           if (responseCode === InAppPurchases.IAPResponseCode.OK) {
             if (isLoggedIn) {
-              supabase.from('profiles').update({ has_tipped: true }).eq('user_id', user.id);
+              supabase
+                .from('profiles')
+                .update({ has_tipped: true })
+                .eq('user_id', user.id)
+                .then(() => {
+                  refreshProfileQuiet();
+                });
             }
           }
           results?.forEach(r => InAppPurchases.finishTransactionAsync(r, false));

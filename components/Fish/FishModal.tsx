@@ -93,7 +93,7 @@ export default function FishModal({
                 }}
               />
 
-              <View>
+              <View style={{ backgroundColor: 'transparent'}}>
                 <Button
                   title={saving ? 'Saving…' : 'Save'}
                   onPress={() => onSave(localName, localColor)}
