@@ -62,6 +62,7 @@ export default function ProfileScreen() {
   const [friendRefreshTick, setFriendRefreshTick] = useState(0);
   const [localHighScore, setLocalHighScore] = useState<number>(0);
   const [hasLoadedLocalHS, setHasLoadedLocalHS] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState<boolean>(profile?.expo_push_token !== null);
   const [friendSubTab, setFriendSubTab] = useState<'list' | 'add' | 'requests'>(
     hasPending ? 'requests' : 'list'
   );
@@ -78,8 +79,6 @@ export default function ProfileScreen() {
   const code = profile?.friend_code ?? '';
 
   const isLoggedIn = !!user;
-
-  const pushEnabled = profile?.expo_push_token !== null;
 
   const highScore = Math.max(profile?.high_score ?? 0, hasLoadedLocalHS ? localHighScore : 0);
 
@@ -249,6 +248,10 @@ export default function ProfileScreen() {
     }, [profile, user])
   );
 
+  useEffect(() => {
+    setPushEnabled(profile?.expo_push_token !== null);
+  }, [profile?.expo_push_token]);
+
   if (profileStillLoading) return <Loader />;
 
   return (
@@ -331,6 +334,7 @@ export default function ProfileScreen() {
                   <Toggle
                     value={pushEnabled}
                     onChange={async (next) => {
+                      setPushEnabled(next);
                       if (next) {
                         await registerForPushAsync(user!.id);
                       } else {

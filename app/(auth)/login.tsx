@@ -210,6 +210,7 @@ export default function LoginScreen() {
 
       if (error) throw error;
 
+      await supabase.auth.getSession();
       router.replace('/');
     } catch (error: any) {
       if (error.code === 'ERR_CANCELED') return;
@@ -406,7 +407,7 @@ export default function LoginScreen() {
           {isAppleAvailable && Platform.OS === 'ios' && (
             <Button
               onPress={handleAppleLogin}
-              icon={<Icon type="Apple" name="apple" color={greyColor} size={20} />}
+              icon={<Icon type="Apple" name="apple" color={greyColor} size={24} />}
               title="Continue with Apple"
               variant="tertiary"
               width={200}

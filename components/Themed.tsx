@@ -121,7 +121,7 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        width && title && { width, maxWidth: width },
+        width && { width, maxWidth: width },
         {
           backgroundColor: bg,
           opacity: pressed ? 0.7 : 1,
@@ -134,13 +134,21 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      {icon && <View style={[styles.icon, { marginRight: title ? 8 : 0 }]}>{icon}</View>}
+      {icon && title && (
+        <View style={styles.iconLeft}>
+          {icon}
+        </View>
+      )}
 
-      {title &&
-        <Text style={[styles.text, { color: text }]}>
-          {loading ? 'Loading…' : title}
-        </Text>
-      }
+      {title && (
+        <View style={styles.labelWrap}>
+          <Text style={[styles.text, { color: text }]}>
+            {loading ? 'Loading…' : title}
+          </Text>
+        </View>
+      )}
+
+      {icon && !title && icon}
     </Pressable>
   );
 }
@@ -164,6 +172,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     maxWidth: 500,
+  },
+  iconLeft: {
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    backgroundColor: 'transparent',
+  },
+  labelWrap: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   text: {
     fontSize: 15,
