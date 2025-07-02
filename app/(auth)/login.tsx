@@ -8,6 +8,7 @@ import {
   useColorScheme,
   Image,
   Animated,
+  Platform,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
@@ -20,6 +21,8 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -30,6 +33,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
+  const [isAppleAvailable, setIsAppleAvailable] = useState(false);
 
   const shiftAnim = useKeyboardShift();
 
@@ -178,6 +182,42 @@ export default function LoginScreen() {
     }
   };
 
+  const handleAppleLogin = async () => {
+    try {
+      const rawNonce = Math.random().toString(36).substring(2, 10);
+      const hashedNonce = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        rawNonce
+      );
+
+      const appleCredential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        ],
+        nonce: hashedNonce,
+      });
+
+      if (!appleCredential.identityToken) {
+        throw new Error('No identity token from Apple');
+      }
+
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: 'apple',
+        token: appleCredential.identityToken,
+        nonce: rawNonce,
+      });
+
+      if (error) throw error;
+
+      router.replace('/');
+    } catch (error: any) {
+      if (error.code === 'ERR_CANCELED') return;
+      console.error('Apple sign-in error', error);
+      setError('Apple sign-in failed. Please try again.');
+    }
+  };
+
   function decodeNonce(idToken: string): string | undefined {
     const [, payload] = idToken.split('.');
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
@@ -207,6 +247,14 @@ export default function LoginScreen() {
     };
 
     bootstrap();
+  }, []);
+
+  useEffect(() => {
+    const checkApple = async () => {
+      const available = await AppleAuthentication.isAvailableAsync();
+      setIsAppleAvailable(available);
+    };
+    checkApple();
   }, []);
 
   return (
@@ -343,7 +391,7 @@ export default function LoginScreen() {
 
           <View style={styles.divider}>
             <View style={[styles.line, { backgroundColor: greyColor }]} />
-            <Text style={[styles.dividerText, { color: greyColor }]}>Or</Text>
+            <Text style={[styles.dividerText, { color: greyColor }]}>or</Text>
             <View style={[styles.line, { backgroundColor: greyColor }]} />
           </View>
 
@@ -355,6 +403,15 @@ export default function LoginScreen() {
             width={200}
           />
 
+          {isAppleAvailable && Platform.OS === 'ios' && (
+            <Button
+              onPress={handleAppleLogin}
+              icon={<Icon type="Apple" name="apple" color={greyColor} size={20} />}
+              title="Continue with Apple"
+              variant="tertiary"
+              width={200}
+            />
+          )}
 
         </View>
       </Animated.View>

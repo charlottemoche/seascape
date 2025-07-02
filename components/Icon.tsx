@@ -4,6 +4,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import googleIcon from '@/assets/images/google.png';
+import appleIcon from '@/assets/images/apple.png';
 import { Image } from 'react-native';
 
 type FontAwesomeIconProps = {
@@ -54,13 +55,22 @@ type GoogleIconProps = {
     style?: any;
 };
 
+type AppleIconProps = {
+    type: 'Apple';
+    name: 'apple';
+    color: string;
+    size?: number;
+    style?: any;
+};
+
 type IconProps =
     | FontAwesomeIconProps
     | EntypoIconProps
     | AntDesignIconProps
     | SimpleLineIconsIconProps
     | IoniconsIconProps
-    | GoogleIconProps;
+    | GoogleIconProps
+    | AppleIconProps;
 
 export function Icon(props: IconProps) {
     const { color, size = 20 } = props;
@@ -79,6 +89,8 @@ export function Icon(props: IconProps) {
             return <FontAwesome name={props.name} color={color} size={size} style={style} />;
         case 'Google':
             return <Image source={googleIcon} style={[{ width: size, height: size }, style]} />;
+        case 'Apple':
+            return <Image source={appleIcon} style={[{ width: size, height: size }, style]} />;
         default:
             return <FontAwesome name={props.name} color={color} size={size} style={style} />;
     }

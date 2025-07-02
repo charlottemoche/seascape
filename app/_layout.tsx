@@ -45,6 +45,10 @@ const imagesToCache = [
   require('@/assets/images/logo-light.png'),
   require('@/assets/images/logo-dark.png'),
   require('@/assets/images/splashscreen.png'),
+  require('@/assets/images/apple.png'),
+  require('@/assets/images/google.png'),
+  require('@/assets/images/colored-fish.png'),
+  require('@/assets/images/rainbow-fish.png'),
 ];
 
 export { ErrorBoundary } from 'expo-router';

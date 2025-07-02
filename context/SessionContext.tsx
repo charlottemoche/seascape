@@ -23,6 +23,7 @@ type Profile = {
   admin?: boolean;
   friend_code?: string;
   expo_push_token?: string | null;
+  has_tipped?: boolean;
 };
 
 type SessionContext = {
@@ -54,7 +55,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select(
-          'fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token'
+          'fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token, has_tipped'
         )
         .eq('user_id', user.id)
         .single();

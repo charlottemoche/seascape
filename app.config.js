@@ -23,6 +23,7 @@ export default {
         ITSAppUsesNonExemptEncryption: false,
         NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
       },
+      usesAppleSignIn: true,
       entitlements: {
         'aps-environment': 'production'
       },
@@ -46,6 +47,7 @@ export default {
       'expo-audio',
       'expo-notifications',
       'expo-web-browser',
+      'expo-in-app-purchases',
       [
         '@react-native-google-signin/google-signin',
         {

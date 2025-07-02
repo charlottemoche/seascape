@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import * as InAppPurchases from 'expo-in-app-purchases';
 
+console.log('[IAP] module test →', !!InAppPurchases.connectAsync);
+
 const PRODUCT_IDS = ['tip_small_coffee'];
 
 export function useTipPurchase() {
