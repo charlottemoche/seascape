@@ -70,7 +70,7 @@ export default function BreatheTimer({
     setSessionComplete(false);
     setIsRunning(false);
     setShowTime(true);
-    setTimeLeft(duration);
+    setTimeLeft(duration * 60);
   };
 
   const formatTime = (seconds: number) => {

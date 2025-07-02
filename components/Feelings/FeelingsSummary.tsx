@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
+import { Pressable, StyleSheet, Image, useColorScheme, ActivityIndicator } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
 import { Loader } from '@/components/Loader';
@@ -27,7 +27,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
   const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.card : '#fff';
-  const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)';
+  const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
   const greyTextColor = colorScheme === 'dark' ? '#fefefe' : '#444';
 
@@ -198,7 +198,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     <View>
       {loading && (
         <View style={[styles.loaderOverlay, { backgroundColor: loaderBackgroundColor }]}>
-          <Loader />
+          <ActivityIndicator size="large" color={Colors.custom.blue} />
         </View>
       )}
       <View style={styles.container}>
