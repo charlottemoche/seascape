@@ -13,8 +13,6 @@ const RAINBOW_FISH = rainbowFish;
 export default function TipCard() {
   const { loading, processing, error, buyTip, price } = useTipPurchase();
 
-  if (loading) return <Loader />;
-
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
@@ -32,6 +30,7 @@ export default function TipCard() {
         title={`Buy me a coffee (${price})`}
         onPress={buyTip}
         disabled={processing}
+        loading={loading || processing}
         variant="secondary"
       />
 
