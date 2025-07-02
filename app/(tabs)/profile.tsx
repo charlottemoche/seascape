@@ -80,7 +80,7 @@ export default function ProfileScreen() {
 
   const pushEnabled = profile?.expo_push_token !== null;
 
-  const highScore = profile?.high_score ?? (hasLoadedLocalHS ? localHighScore : 0);
+  const highScore = Math.max(profile?.high_score ?? 0, hasLoadedLocalHS ? localHighScore : 0);
 
   const profileStillLoading = userLoading || !sessionChecked || (user && !profile);
 
@@ -219,17 +219,33 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (profile || !hasLoadedLocalHS) return;
-      AsyncStorage.getItem('local_high_score')
-        .then(val => {
-          const parsed = parseInt(val ?? '0', 10);
-          if (!isNaN(parsed)) {
-            setLocalHighScore(parsed);
-            setHasLoadedLocalHS(true);
+      let cancel = false;
+
+      const checkHighScore = async () => {
+        const raw = await AsyncStorage.getItem('local_high_score');
+        const localScore = Number(raw || 0);
+
+        if (!cancel) {
+          setLocalHighScore(localScore);
+          setHasLoadedLocalHS(true);
+
+          if (user && localScore > (profile?.high_score ?? 0)) {
+            await supabase.rpc('upsert_high_score', {
+              p_user: user.id,
+              p_score: localScore,
+            });
+            await AsyncStorage.removeItem('local_high_score');
+            await refreshProfileQuiet();
           }
-        })
-        .catch(() => setLocalHighScore(0));
-    }, [profile])
+        }
+      };
+
+      checkHighScore();
+
+      return () => {
+        cancel = true;
+      };
+    }, [profile, user])
   );
 
   if (profileStillLoading) return <Loader />;

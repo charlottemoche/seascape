@@ -15,14 +15,16 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Text } from '@/components/Themed';
 import { SwimGameOverlay } from '@/components/SwimGameOverlay';
 import { getOverlayMode } from '@/lib/gameOverlay';
-import { bumpHighScore } from '@/hooks/useHighScore';
+import { bumpHighScore, useSyncAndRefresh } from '@/hooks/useHighScore';
 import { supabase } from '@/lib/supabase';
 import fishImages, { FishColor } from '@/constants/fishMap';
 import predatorImg from '@/assets/images/predator.png';
 import preyImg from '@/assets/images/prey.png';
 
 export default function SwimScreen() {
-  const { user, profile, loading, refreshProfile } = useSession();
+  const { user, profile, loading, refreshProfile, refreshProfileQuiet } = useSession();
+
+  useSyncAndRefresh(refreshProfileQuiet, user?.id);
 
   const [envMessage, setEnvMessage] = useState<string | null>(null);
   const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<number | null>(null);
@@ -166,23 +168,19 @@ export default function SwimScreen() {
 
   useEffect(() => {
     const maybeSaveProgress = async () => {
-      if (!user?.id) return;
-
-      if (preyEaten > (profile?.high_score ?? 0)) {
+      if (preyEaten > bestScore) {
         await bumpHighScore(preyEaten);
         setBestScore(preyEaten);
       }
 
-      if (!hasMarkedPlayed.current && !profile?.has_played) {
+      if (user?.id && !hasMarkedPlayed.current && !profile?.has_played) {
         await markHasPlayed();
         hasMarkedPlayed.current = true;
       }
     };
 
-    if (gameOver) {
-      maybeSaveProgress();
-    }
-  }, [gameOver, preyEaten, profile, user]);
+    if (gameOver) maybeSaveProgress();
+  }, [gameOver, preyEaten, bestScore, user, profile]);
 
   useEffect(() => {
     if (profile?.high_score && profile.high_score > bestScore) {
