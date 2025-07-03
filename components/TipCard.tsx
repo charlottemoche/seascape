@@ -29,7 +29,7 @@ export default function TipCard() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        This app was made by one person, slowly and with love. No subscriptions—just a tiny project from me to you. Tips help keep it alive!
+        This app was made by one person, slowly and with care. No subscriptions, no ads, just a tiny project from me to you. Tips help me keep it alive!
       </Text>
       <Text style={styles.text}>
         If you are logged in, your tip will unlock two new fish colors.
