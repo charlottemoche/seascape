@@ -76,12 +76,6 @@ export default function RootLayout() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (fontsLoaded && assetsLoaded) {
-      SplashScreen.hideAsync().catch(() => { });
-    }
-  }, [fontsLoaded, assetsLoaded]);
-
   if (fontError) throw fontError;
   if (!fontsLoaded || !assetsLoaded) {
     return null;

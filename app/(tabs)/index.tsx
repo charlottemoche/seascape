@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import { useSession } from '@/context/SessionContext';
 import { useGuestBreath } from '@/hooks/useGuestBreath';
 import { FadeImage } from '@/components/FadeImage';
+import { Loader } from '@/components/Loader';
 import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/Feelings/FeelingsSummary';
 import FeelingsPlaceholder from '@/components/Feelings/FeelingsPlaceholder';
@@ -18,7 +19,7 @@ const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export default function HomeScreen() {
   const { user, profile } = useSession();
-  const { breathStreak, journalStreak, refreshStreaks } = useStreaks();
+  const { breathStreak, journalStreak, refreshStreaks, streaksLoading } = useStreaks();
   const { totalMinutes } = useGuestBreath();
 
   const router = useRouter();
@@ -56,6 +57,8 @@ export default function HomeScreen() {
         : `${hours} hour${hours === 1 ? '' : 's'} ${minutes} minute${minutes === 1 ? '' : 's'}`;
     }
   }
+
+  if (streaksLoading) return <Loader />;
 
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>

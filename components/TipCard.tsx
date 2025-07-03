@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
 import { useTipPurchase } from '@/hooks/useTipPurchase';
-import { Loader } from '@/components/Loader';
 import rainbowFish from '@/assets/images/rainbow-fish.png';
 import coloredFish from '@/assets/images/colored-fish.png';
 
@@ -23,16 +22,16 @@ export default function TipCard() {
   };
 
   const label = loading
-    ? 'Loading…'
+    ? 'Loading...'
     : `Buy me a coffee (${price})`;
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        This app was made by one person, slowly and with care. No subscriptions, no ads, just a tiny project from me to you. Tips help me keep it alive!
+        This app was made by one person, slowly and with care. No subscriptions, no ads, just a tiny project from me to you. Tips help keep it alive!
       </Text>
       <Text style={styles.text}>
-        If you are logged in, your tip will unlock two new fish colors.
+        If you are logged in with an account, your tip unlocks two new fish colors.
       </Text>
 
       <View style={styles.imageContainer}>
@@ -40,12 +39,11 @@ export default function TipCard() {
         <Image source={RAINBOW_FISH} style={styles.image} />
       </View>
 
-      {processing && <Loader />}
-
       <Button
         title={label}
         onPress={handlePress}
         disabled={processing}
+        loading={processing}
         variant="secondary"
       />
 
