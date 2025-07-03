@@ -22,7 +22,8 @@ export default {
       buildNumber: '1',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
+        NSMicrophoneUsageDescription: 'This app requires microphone access to enable audio recording during breathing exercises.',
+        storeKitConfiguration: './LocalTipConfig.storekit'
       },
       usesAppleSignIn: true,
       entitlements: {
