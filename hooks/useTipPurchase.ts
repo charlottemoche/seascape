@@ -1,59 +1,82 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import * as InAppPurchases from 'expo-in-app-purchases';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/context/SessionContext';
-import * as InAppPurchases from 'expo-in-app-purchases';
 
 const PRODUCT_IDS = ['tip_small_coffee'];
+type IapReadyState = false | 'ok' | 'empty' | 'error';
 
 export function useTipPurchase() {
   const { user, refreshProfileQuiet } = useSession();
 
   const [loading, setLoading] = useState(true);
-  const [processing, setProc] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [products, setProducts] = useState<InAppPurchases.IAPItemDetails[]>([]);
   const [error, setError] = useState<null | string>(null);
+  const [iapReady, setIapReady] = useState<IapReadyState>(false);
 
   const isLoggedIn = !!user;
+  const price = useMemo(() => products[0]?.price ?? '$2.99', [products]);
 
   useEffect(() => {
-    async function init() {
+    InAppPurchases.setPurchaseListener(async ({ responseCode, results }) => {
+      if (responseCode === InAppPurchases.IAPResponseCode.OK && isLoggedIn) {
+        await supabase
+          .from('profiles')
+          .update({ has_tipped: true })
+          .eq('user_id', user.id);
+        refreshProfileQuiet();
+      }
+      results?.forEach(r => InAppPurchases.finishTransactionAsync(r, false));
+      setProcessing(false);
+    });
+
+    return () => { void InAppPurchases.disconnectAsync(); };
+  }, [isLoggedIn, user?.id, refreshProfileQuiet]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
       try {
         await InAppPurchases.connectAsync();
         const { results } = await InAppPurchases.getProductsAsync(PRODUCT_IDS);
-        setProducts(results || []);
-        InAppPurchases.setPurchaseListener(({ responseCode, results }) => {
-          if (responseCode === InAppPurchases.IAPResponseCode.OK) {
-            if (isLoggedIn) {
-              supabase
-                .from('profiles')
-                .update({ has_tipped: true })
-                .eq('user_id', user.id)
-                .then(() => {
-                  refreshProfileQuiet();
-                });
-            }
-          }
-          results?.forEach(r => InAppPurchases.finishTransactionAsync(r, false));
-          setProc(false);
-        });
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    }
+        if (cancelled) return;
 
-    init();
-    return () => {
-      InAppPurchases.disconnectAsync();
-    };
+        setProducts(results ?? []);
+        setIapReady(results?.length ? 'ok' : 'empty');
+      } catch (e: any) {
+        if (cancelled) return;
+        setError(e.message);
+        setIapReady('error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
-  const buyTip = useCallback(async () => {
-    if (!products[0]) return;
-    setProc(true);
-    await InAppPurchases.purchaseItemAsync(products[0].productId);
-  }, [products]);
+  const buyTip = useCallback(async (): Promise<string | undefined> => {
+    if (iapReady === 'empty') {
+      return 'Tipping unavailable until Apple approves the purchase.';
+    }
+    if (iapReady === 'error') {
+      return error ?? 'StoreKit returned an error.';
+    }
+    if (iapReady !== 'ok' || !products[0]) {
+      return 'Tipping not available in this build.';
+    }
 
-  return { loading, processing, error, buyTip, price: products[0]?.price ?? '$2.99' };
+    setProcessing(true);
+    try {
+      await InAppPurchases.purchaseItemAsync(products[0].productId);
+    } catch (e: any) {
+      setProcessing(false);
+      return e.message ?? 'Purchase could not start.';
+    }
+    return undefined;
+  }, [iapReady, products, error]);
+
+  return { loading, processing, error, iapReady, buyTip, price };
 }
