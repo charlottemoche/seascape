@@ -41,15 +41,6 @@ export default function FeelingsCalendar({ data }: Props) {
     weeks.push(allDays.slice(i, i + 7));
   }
 
-  const colorFor = (mood: MoodDay['mood']) => {
-    switch (mood) {
-      case 'positive': return Colors.custom.blue;
-      case 'neutral': return Colors.custom.green;
-      case 'negative': return Colors.custom.red;
-      default: return 'transparent';
-    }
-  };
-
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
