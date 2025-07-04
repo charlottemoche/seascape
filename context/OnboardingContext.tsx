@@ -1,5 +1,5 @@
+import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Context = {
   done: boolean | null;
@@ -12,13 +12,14 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   const [done, setDone] = useState<boolean | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem('onboarding_completed')
-      .then(v => setDone(v === 'true'))
-      .catch(() => setDone(false));
+    (async () => {
+      const raw = await SecureStore.getItemAsync('onboarding_completed');
+      setDone(raw === 'true');
+    })();
   }, []);
 
   const markDone = useCallback(async () => {
-    await AsyncStorage.setItem('onboarding_completed', 'true');
+    await SecureStore.setItemAsync('onboarding_completed', 'true');
     setDone(true);
   }, []);
 

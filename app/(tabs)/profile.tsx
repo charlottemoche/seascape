@@ -34,6 +34,7 @@ import whiteStarfish from '@/assets/images/white-starfish.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TipCard from '@/components/TipCard';
 import * as Clipboard from 'expo-clipboard';
+import * as SecureStore from 'expo-secure-store';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -198,6 +199,7 @@ export default function ProfileScreen() {
   const removeStorageAndSession = async () => {
     await supabase.auth.signOut();
     await AsyncStorage.clear();
+    await SecureStore.deleteItemAsync('onboarding_completed');
     setLocalHighScore(0);
     setHasLoadedLocalHS(false);
     router.replace('/welcome');
