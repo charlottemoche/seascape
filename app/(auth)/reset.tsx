@@ -46,7 +46,7 @@ export default function ResetRequestScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
-          <View>
+          <View style={styles.inner}>
             <Text style={styles.label}>Enter your email to reset your password</Text>
             <Input
               value={email}
@@ -77,6 +77,9 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  inner: {
+    maxWidth: 500,
   },
   label: {
     marginBottom: 20,

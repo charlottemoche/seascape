@@ -262,159 +262,161 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
-          <View style={styles.logoContainer}>
-            <Image source={logoImage} style={styles.logo} />
-          </View>
+          <View style={styles.inner}>
+            <View style={styles.logoContainer}>
+              <Image source={logoImage} style={styles.logo} />
+            </View>
 
-          {reset === 'true' && (
-            <Text style={[styles.message, { backgroundColor: messageColor }]}>
-              Password reset. Please log in.
-            </Text>
-          )}
+            {reset === 'true' && (
+              <Text style={[styles.message, { backgroundColor: messageColor }]}>
+                Password reset. Please log in.
+              </Text>
+            )}
 
-          <Input
-            placeholder='Email'
-            placeholderTextColor='#888'
-            autoComplete='email'
-            autoCapitalize='none'
-            autoCorrect={false}
-            spellCheck={false}
-            keyboardType='email-address'
-            onChangeText={setEmail}
-            value={email}
-          />
-
-          <View style={{ position: 'relative' }}>
-            {/* Secure Input */}
             <Input
-              placeholder='Password'
-              autoComplete='password'
+              placeholder='Email'
               placeholderTextColor='#888'
-              secureTextEntry={true}
-              onChangeText={setPassword}
-              value={password}
-              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
-            />
-            {/* Plain Text Input */}
-            <Input
-              placeholder='Password'
-              autoComplete='password'
-              placeholderTextColor='#888'
-              secureTextEntry={false}
+              autoComplete='email'
               autoCapitalize='none'
               autoCorrect={false}
               spellCheck={false}
-              onChangeText={setPassword}
-              value={password}
-              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+              keyboardType='email-address'
+              onChangeText={setEmail}
+              value={email}
             />
 
-            <Pressable
-              onPress={() => setShowPassword((prev) => !prev)}
-              style={styles.eye}
-            >
-              {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
-            </Pressable>
-          </View>
-
-          {isSignUp && (
             <View style={{ position: 'relative' }}>
+              {/* Secure Input */}
               <Input
-                placeholder='Confirm password'
+                placeholder='Password'
                 autoComplete='password'
                 placeholderTextColor='#888'
                 secureTextEntry={true}
-                onChangeText={setConfirmedPassword}
-                value={confirmedPassword}
-                style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+                onChangeText={setPassword}
+                value={password}
+                style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
               />
+              {/* Plain Text Input */}
               <Input
-                placeholder='Confirm password'
+                placeholder='Password'
                 autoComplete='password'
                 placeholderTextColor='#888'
                 secureTextEntry={false}
                 autoCapitalize='none'
                 autoCorrect={false}
                 spellCheck={false}
-                onChangeText={setConfirmedPassword}
-                value={confirmedPassword}
-                style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+                onChangeText={setPassword}
+                value={password}
+                style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
               />
+
               <Pressable
-                onPress={() => setShowConfirmedPassword((prev) => !prev)}
+                onPress={() => setShowPassword((prev) => !prev)}
                 style={styles.eye}
               >
-                {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+                {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
               </Pressable>
             </View>
-          )}
+
+            {isSignUp && (
+              <View style={{ position: 'relative' }}>
+                <Input
+                  placeholder='Confirm password'
+                  autoComplete='password'
+                  placeholderTextColor='#888'
+                  secureTextEntry={true}
+                  onChangeText={setConfirmedPassword}
+                  value={confirmedPassword}
+                  style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+                />
+                <Input
+                  placeholder='Confirm password'
+                  autoComplete='password'
+                  placeholderTextColor='#888'
+                  secureTextEntry={false}
+                  autoCapitalize='none'
+                  autoCorrect={false}
+                  spellCheck={false}
+                  onChangeText={setConfirmedPassword}
+                  value={confirmedPassword}
+                  style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+                />
+                <Pressable
+                  onPress={() => setShowConfirmedPassword((prev) => !prev)}
+                  style={styles.eye}
+                >
+                  {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+                </Pressable>
+              </View>
+            )}
 
 
-          {!isSignUp && (
-            <View style={styles.forgotPasswordContainer}>
-              <Pressable onPress={() => router.push('/reset')}>
-                <Text style={styles.forgotPasswordText}>
-                  Forgot password?
-                </Text>
-              </Pressable>
-            </View>
-          )}
+            {!isSignUp && (
+              <View style={styles.forgotPasswordContainer}>
+                <Pressable onPress={() => router.push('/reset')}>
+                  <Text style={styles.forgotPasswordText}>
+                    Forgot password?
+                  </Text>
+                </Pressable>
+              </View>
+            )}
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {isSignUp ? (
+            {isSignUp ? (
+              <Button
+                onPress={handleAuth}
+                title="Sign up"
+                loading={loading}
+                disabled={loading}
+                variant="primary"
+                style={{ marginTop: 20 }}
+                width={200}
+              />
+            ) : (
+              <Button
+                onPress={handleAuth}
+                title="Log in"
+                loading={loading}
+                disabled={loading}
+                width={200}
+              />
+            )}
+
             <Button
-              onPress={handleAuth}
-              title="Sign up"
-              loading={loading}
-              disabled={loading}
-              variant="primary"
+              title={isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
+              onPress={() => { setIsSignUp(!isSignUp); setError('') }}
+              variant="plain"
               style={{ marginTop: 20 }}
-              width={200}
+              width={300}
             />
-          ) : (
+
+            <View style={styles.divider}>
+              <View style={[styles.line, { backgroundColor: greyColor }]} />
+              <Text style={[styles.dividerText, { color: greyColor }]}>or</Text>
+              <View style={[styles.line, { backgroundColor: greyColor }]} />
+            </View>
+
             <Button
-              onPress={handleAuth}
-              title="Log in"
-              loading={loading}
-              disabled={loading}
-              width={200}
-            />
-          )}
-
-          <Button
-            title={isSignUp ? 'Already have an account? Log in' : 'No account? Sign up'}
-            onPress={() => { setIsSignUp(!isSignUp); setError('') }}
-            variant="plain"
-            style={{ marginTop: 20 }}
-            width={300}
-          />
-
-          <View style={styles.divider}>
-            <View style={[styles.line, { backgroundColor: greyColor }]} />
-            <Text style={[styles.dividerText, { color: greyColor }]}>or</Text>
-            <View style={[styles.line, { backgroundColor: greyColor }]} />
-          </View>
-
-          <Button
-            onPress={handleGoogleLogin}
-            icon={<Icon type="Google" name="google" color={greyColor} size={20} />}
-            title="Continue with Google"
-            variant="tertiary"
-            width={200}
-          />
-
-          {isAppleAvailable && Platform.OS === 'ios' && (
-            <Button
-              onPress={handleAppleLogin}
-              icon={<Icon type="Apple" name="apple" color={greyColor} size={24} />}
-              title="Continue with Apple"
+              onPress={handleGoogleLogin}
+              icon={<Icon type="Google" name="google" color={greyColor} size={20} />}
+              title="Continue with Google"
               variant="tertiary"
               width={200}
-              style={{ marginTop: 16 }}
             />
-          )}
 
+            {isAppleAvailable && Platform.OS === 'ios' && (
+              <Button
+                onPress={handleAppleLogin}
+                icon={<Icon type="Apple" name="apple" color={greyColor} size={24} />}
+                title="Continue with Apple"
+                variant="tertiary"
+                width={200}
+                style={{ marginTop: 16 }}
+              />
+            )}
+
+          </View>
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
@@ -427,6 +429,9 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  inner: {
+    maxWidth: 500,
   },
   switchText: {
     textAlign: 'center',
@@ -479,6 +484,7 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
     marginVertical: 20,
     width: '80%',
   },

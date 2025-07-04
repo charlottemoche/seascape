@@ -32,8 +32,6 @@ export default function VerifyEmailScreen() {
   const [resendLoading, setResendLoading] = useState(false);
   const [cooldown, setCooldown] = useState(MIN_INTERVAL);
 
-  const intervalRef = useRef<number | null>(null);
-
   const shiftAnim = useKeyboardShift();
 
   useEffect(() => {
@@ -117,7 +115,7 @@ export default function VerifyEmailScreen() {
               loading={resendLoading}
               onPress={handleResend}
               disabled={resendLoading || cooldown > 0}
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 20 }}
               title={cooldown > 0 ? `Send again in ${cooldown}s` : 'Send again'}
             />
           </View>
@@ -138,6 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
+    maxWidth: 500,
   },
   header: {
     fontSize: 15,

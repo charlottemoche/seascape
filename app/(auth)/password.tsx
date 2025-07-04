@@ -58,76 +58,78 @@ export default function PasswordScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Animated.View style={[styles.container, { transform: [{ translateY: shiftAnim }], backgroundColor: backgroundColor }]}>
         <View style={styles.container}>
-          <Text style={styles.label}>Enter your new password</Text>
-          <View style={{ position: 'relative' }}>
-            <Input
-              placeholder='Password'
-              autoComplete='password'
-              placeholderTextColor='#888'
-              secureTextEntry={true}
-              onChangeText={setPassword}
-              value={password}
-              style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
-            />
-            <Input
-              placeholder='Password'
-              autoComplete='password'
-              placeholderTextColor='#888'
-              secureTextEntry={false}
-              autoCapitalize='none'
-              autoCorrect={false}
-              spellCheck={false}
-              onChangeText={setPassword}
-              value={password}
-              style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
-            />
+          <View style={styles.inner}>
+            <Text style={styles.label}>Enter your new password</Text>
+            <View style={{ position: 'relative' }}>
+              <Input
+                placeholder='Password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={true}
+                onChangeText={setPassword}
+                value={password}
+                style={[{ paddingRight: 40 }, showPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+              />
+              <Input
+                placeholder='Password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={false}
+                autoCapitalize='none'
+                autoCorrect={false}
+                spellCheck={false}
+                onChangeText={setPassword}
+                value={password}
+                style={[{ paddingRight: 40 }, showPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+              />
 
-            <Pressable
-              onPress={() => setShowPassword((prev) => !prev)}
-              style={styles.eye}
-            >
-              {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={() => setShowPassword((prev) => !prev)}
+                style={styles.eye}
+              >
+                {showPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+              </Pressable>
+            </View>
 
-          <View style={{ position: 'relative' }}>
-            <Input
-              placeholder='Confirm password'
-              autoComplete='password'
-              placeholderTextColor='#888'
-              secureTextEntry={true}
-              onChangeText={setConfirm}
-              value={confirm}
-              style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
-            />
-            <Input
-              placeholder='Confirm password'
-              autoComplete='password'
-              placeholderTextColor='#888'
-              secureTextEntry={false}
-              autoCapitalize='none'
-              autoCorrect={false}
-              spellCheck={false}
-              onChangeText={setConfirm}
-              value={confirm}
-              style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
-            />
+            <View style={{ position: 'relative' }}>
+              <Input
+                placeholder='Confirm password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={true}
+                onChangeText={setConfirm}
+                value={confirm}
+                style={[{ paddingRight: 40 }, showConfirmedPassword ? { height: 0, opacity: 0, position: 'absolute', top: 0 } : {}]}
+              />
+              <Input
+                placeholder='Confirm password'
+                autoComplete='password'
+                placeholderTextColor='#888'
+                secureTextEntry={false}
+                autoCapitalize='none'
+                autoCorrect={false}
+                spellCheck={false}
+                onChangeText={setConfirm}
+                value={confirm}
+                style={[{ paddingRight: 40 }, showConfirmedPassword ? {} : { height: 0, opacity: 0, position: 'absolute', top: 0 }]}
+              />
 
-            <Pressable
-              onPress={() => setShowConfirmedPassword((prev) => !prev)}
-              style={styles.eye}
-            >
-              {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
-            </Pressable>
+              <Pressable
+                onPress={() => setShowConfirmedPassword((prev) => !prev)}
+                style={styles.eye}
+              >
+                {showConfirmedPassword ? <EyeOff size={20} color='#888' /> : <Eye size={20} color='#888' />}
+              </Pressable>
 
-            {error && <Text style={styles.error}>{error}</Text>}
+              {error && <Text style={styles.error}>{error}</Text>}
 
-            <Button
-              title="Reset Password"
-              onPress={handleReset}
-              disabled={loading}
-              loading={loading}
-            />
+              <Button
+                title="Reset Password"
+                onPress={handleReset}
+                disabled={loading}
+                loading={loading}
+              />
+            </View>
           </View>
         </View>
       </Animated.View>
@@ -141,6 +143,9 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  inner: {
+    maxWidth: 500,
   },
   label: {
     marginBottom: 20,

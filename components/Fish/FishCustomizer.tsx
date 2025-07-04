@@ -44,6 +44,12 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   }, [hasTipped]);
 
   useEffect(() => {
+    if (availableColors.length > 0) {
+      initializeFishState();
+    }
+  }, [availableColors]);
+
+  useEffect(() => {
     if (user?.id) {
       setHasTipped(!!profile?.has_tipped);
     } else {
@@ -54,12 +60,6 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   }, [user?.id, profile?.has_tipped]);
 
   useEffect(() => {
-    if (!availableColors.includes(fishColor)) {
-      setFishColor(availableColors[0]);
-    }
-  }, [availableColors, fishColor]);
-
-  useEffect(() => {
     const sub = DeviceEventEmitter.addListener('tipped', () => {
       setHasTipped(true);
     });
@@ -67,22 +67,15 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
     return () => sub.remove();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-
-    setFishName(profile?.fish_name ?? '');
-    setFishColor(
-      availableColors.includes(profile?.fish_color as FishColor)
-        ? (profile?.fish_color as FishColor)
-        : 'blue'
-    );
-  }, [user, profile?.fish_name, profile?.fish_color, availableColors]);
-
-  useEffect(() => {
-    if (user) return;
-    if (!availableColors.length) return;
-
-    (async () => {
+  const initializeFishState = async () => {
+    if (user) {
+      setFishName(profile?.fish_name ?? '');
+      setFishColor(
+        availableColors.includes(profile?.fish_color as FishColor)
+          ? (profile?.fish_color as FishColor)
+          : 'blue'
+      );
+    } else {
       const [storedName, storedColor] = await AsyncStorage.multiGet([
         'fish_name',
         'fish_color',
@@ -94,8 +87,8 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
       } else {
         setFishColor('blue');
       }
-    })();
-  }, [user, availableColors]);
+    }
+  };
 
   const handleSave = async (newName: string, newColor: FishColor) => {
     const trimmedName = newName.trim();
