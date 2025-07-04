@@ -49,7 +49,7 @@ export default {
       'expo-notifications',
       'expo-web-browser',
       'expo-apple-authentication',
-      'expo-iap'
+      'expo-iap',
       [
         '@react-native-google-signin/google-signin',
         {
