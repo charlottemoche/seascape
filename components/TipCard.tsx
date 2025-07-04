@@ -10,15 +10,11 @@ const RAINBOW_FISH = rainbowFish;
 
 export default function TipCard() {
   const {
-    loading, processing, error, buyTip, price, iapReady,
+    loading, error, buyTip, price, iapReady,
   } = useTipPurchase();
-
-  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const handlePress = async () => {
     const reason = await buyTip();
-    if (reason) setInlineError(reason);
-    else setInlineError(null);
   };
 
   const label = loading
@@ -42,14 +38,13 @@ export default function TipCard() {
       <Button
         title={label}
         onPress={handlePress}
-        disabled={processing}
-        loading={processing}
+        disabled={loading}
+        loading={loading}
         variant="secondary"
       />
 
-      {inlineError && <Text style={styles.error}>{inlineError}</Text>}
-      {error && !inlineError && <Text style={styles.error}>{error}</Text>}
-      {iapReady === 'empty' && !inlineError && (
+      {error && <Text style={styles.error}>{error}</Text>}
+      {iapReady === 'empty' && (
         <Text style={styles.error}>Tip unavailable (Apple review)</Text>
       )}
     </View>

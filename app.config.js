@@ -22,8 +22,7 @@ export default {
       buildNumber: '1',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSMicrophoneUsageDescription: 'This app requires microphone access to enable audio recording during breathing exercises.',
-        storeKitConfiguration: './LocalTipConfig.storekit'
+        NSMicrophoneUsageDescription: "This app requires microphone access to enable audio recording during breathing exercises.",
       },
       usesAppleSignIn: true,
       entitlements: {
@@ -50,6 +49,7 @@ export default {
       'expo-notifications',
       'expo-web-browser',
       'expo-apple-authentication',
+      'expo-iap'
       [
         '@react-native-google-signin/google-signin',
         {
