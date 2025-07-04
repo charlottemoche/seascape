@@ -7,6 +7,7 @@ import {
 } from 'expo-iap';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/context/SessionContext';
+import { Alert, DeviceEventEmitter } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PRODUCT_IDS = ['tip_001'];
@@ -27,7 +28,6 @@ export function useTipPurchase() {
     requestPurchase,
   } = useIAP({
     onPurchaseSuccess: async (purchase: Purchase) => {
-      console.log('[IAP] success, tx:', purchase.transactionId);
       await finishTransaction({ purchase, isConsumable: true });
 
       if (user?.id) {
@@ -40,6 +40,8 @@ export function useTipPurchase() {
         await AsyncStorage.setItem(HAS_TIPPED_KEY, 'true');
       }
 
+      Alert.alert('Success', 'Thank you for your support!');
+      DeviceEventEmitter.emit('tipped');
       setHasTipped(true);
       setProcessing(false);
       return true;

@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import { FishColor } from '@/constants/fishMap';
 import { Button } from '@/components/Themed';
 import { View, Text } from '@/components/Themed';
+import { DeviceEventEmitter } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import fishImages from '@/constants/fishMap';
 import FishModal from './FishModal';
@@ -26,13 +27,6 @@ const BASE_COLORS: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
 export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const { user, profile } = useSession();
 
-  const availableColors: FishColor[] = useMemo(() => {
-    if (profile?.has_tipped) {
-      return [...BASE_COLORS, 'rainbow', 'colored'];
-    }
-    return BASE_COLORS;
-  }, [profile?.has_tipped]);
-
   const colorScheme = useColorScheme();
   const textColor = transparent || colorScheme === 'dark' ? '#fff' : '#000';
 
@@ -40,31 +34,68 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const [fishColor, setFishColor] = useState<FishColor>('blue');
   const [saving, setSaving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [hasTipped, setHasTipped] = useState(false);
+
+  const availableColors: FishColor[] = useMemo(() => {
+    if (hasTipped) {
+      return [...BASE_COLORS, 'rainbow', 'colored'];
+    }
+    return BASE_COLORS;
+  }, [hasTipped]);
 
   useEffect(() => {
-    if (user) {
-      setFishName(profile?.fish_name ?? '');
-      setFishColor(
-        availableColors.includes(profile?.fish_color as FishColor)
-          ? (profile?.fish_color as FishColor)
-          : 'blue'
-      );
+    if (user?.id) {
+      setHasTipped(!!profile?.has_tipped);
     } else {
-      (async () => {
-        const [storedName, storedColor] = await AsyncStorage.multiGet([
-          'fish_name',
-          'fish_color',
-        ]).then(entries => entries.map(([, v]) => v));
-
-        setFishName(storedName ?? '');
-        if (storedColor && availableColors.includes(storedColor as FishColor)) {
-          setFishColor(storedColor as FishColor);
-        } else {
-          setFishColor('blue');
-        }
-      })();
+      AsyncStorage.getItem('has_tipped').then(tipped => {
+        if (tipped === 'true') setHasTipped(true);
+      });
     }
-  }, [user, profile, availableColors]);
+  }, [user?.id, profile?.has_tipped]);
+
+  useEffect(() => {
+    if (!availableColors.includes(fishColor)) {
+      setFishColor(availableColors[0]);
+    }
+  }, [availableColors, fishColor]);
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('tipped', () => {
+      setHasTipped(true);
+    });
+
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setFishName(profile?.fish_name ?? '');
+    setFishColor(
+      availableColors.includes(profile?.fish_color as FishColor)
+        ? (profile?.fish_color as FishColor)
+        : 'blue'
+    );
+  }, [user, profile?.fish_name, profile?.fish_color, availableColors]);
+
+  useEffect(() => {
+    if (user) return;
+    if (!availableColors.length) return;
+
+    (async () => {
+      const [storedName, storedColor] = await AsyncStorage.multiGet([
+        'fish_name',
+        'fish_color',
+      ]).then(entries => entries.map(([, v]) => v));
+
+      setFishName(storedName ?? '');
+      if (storedColor && availableColors.includes(storedColor as FishColor)) {
+        setFishColor(storedColor as FishColor);
+      } else {
+        setFishColor('blue');
+      }
+    })();
+  }, [user, availableColors]);
 
   const handleSave = async (newName: string, newColor: FishColor) => {
     const trimmedName = newName.trim();

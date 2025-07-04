@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
 import { useTipPurchase } from '@/hooks/useTipPurchase';
 import rainbowFish from '@/assets/images/rainbow-fish.png';
 import coloredFish from '@/assets/images/colored-fish.png';
+import Colors from '@/constants/Colors';
 
 export default function TipCard() {
   const { loading, processing, error, buyTip, price, hasTipped } = useTipPurchase();
   const [inlineError, setInlineError] = useState<string | null>(null);
+
+  const colorScheme = useColorScheme();
+
+  const messageText = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.green;
 
   const handlePress = async () => {
     const reason = await buyTip();
@@ -17,7 +22,7 @@ export default function TipCard() {
   const label = loading ? 'Loading...' : `Buy me a coffee (${price})`;
   const message = hasTipped
     ? 'Thank you for the coffee! Enjoy your new fish colors.'
-    : 'If you are logged in with an account, your tip unlocks two new fish colors.';
+    : 'Your tip unlocks two new fish colors.';
 
   return (
     <View style={styles.container}>
@@ -29,7 +34,13 @@ export default function TipCard() {
         </Text>
       )}
 
-      <Text style={styles.text}>{message}</Text>
+      {hasTipped ? (
+        <Text style={[styles.text, { color: messageText }]}>
+          {message}
+        </Text>
+      ) : (
+        <Text style={styles.text}>{message}</Text>
+      )}
 
       <View style={styles.imageContainer}>
         <Image source={coloredFish} style={styles.image} />

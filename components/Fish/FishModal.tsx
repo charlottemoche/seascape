@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   colorRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 16,
+    gap: 8,
     marginBottom: 24,
     backgroundColor: 'transparent',
   },

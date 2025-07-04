@@ -14,6 +14,7 @@ import fishImages from '@/constants/fishMap';
 import FeelingsSummary from '@/components/Feelings/FeelingsSummary';
 import FeelingsPlaceholder from '@/components/Feelings/FeelingsPlaceholder';
 import Colors from '@/constants/Colors';
+import DebugTools from '@/components/DebugTools';
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
@@ -63,6 +64,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.wrapper, { backgroundColor: backgroundColor }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
+        <DebugTools />
         <View style={styles.container}>
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Your personal stats</Text>
