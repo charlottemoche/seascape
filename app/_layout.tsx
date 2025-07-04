@@ -2,7 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SessionProvider } from '@/context/SessionContext';
 import { StreakProvider } from '@/context/StreakContext';
 import { NudgeProvider } from '@/context/NudgeContext';
@@ -57,14 +57,17 @@ const imagesToCache = [
 export { ErrorBoundary } from 'expo-router';
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
+const MIN_SPLASH_MS = 2000;
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const splashStart = useRef(Date.now());
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -75,6 +78,23 @@ export default function RootLayout() {
       setAssetsLoaded(true);
     })();
   }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && assetsLoaded) setReady(true);
+  }, [fontsLoaded, assetsLoaded]);
+
+  useEffect(() => {
+    if (!ready) return;
+
+    const elapsed = Date.now() - splashStart.current;
+    const remaining = Math.max(MIN_SPLASH_MS - elapsed, 0);
+
+    const t = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, remaining);
+
+    return () => clearTimeout(t);
+  }, [ready]);
 
   if (fontError) throw fontError;
   if (!fontsLoaded || !assetsLoaded) {

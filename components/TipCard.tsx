@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text, Button } from '@/components/Themed';
 import { useTipPurchase } from '@/hooks/useTipPurchase';
@@ -7,16 +6,14 @@ import coloredFish from '@/assets/images/colored-fish.png';
 import Colors from '@/constants/Colors';
 
 export default function TipCard() {
-  const { loading, processing, error, buyTip, price, hasTipped } = useTipPurchase();
-  const [inlineError, setInlineError] = useState<string | null>(null);
+  const { loading, processing, buyTip, price, hasTipped } = useTipPurchase();
 
   const colorScheme = useColorScheme();
 
   const messageText = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.green;
 
   const handlePress = async () => {
-    const reason = await buyTip();
-    reason ? setInlineError(reason) : setInlineError(null);
+    buyTip();
   };
 
   const label = loading ? 'Loading...' : `Buy me a coffee (${price})`;
@@ -51,11 +48,14 @@ export default function TipCard() {
         title={label}
         onPress={handlePress}
         disabled={loading || processing}
+        loading={processing}
         variant="secondary"
       />
 
-      {inlineError && <Text style={styles.error}>{inlineError}</Text>}
-      {error && !inlineError && <Text style={styles.error}>{error}</Text>}
+      <Text style={[styles.text, { marginTop: 20 }]}>
+        Please note that if you are not logged in, your tip status and new
+        fish colors will only be accessible on this device.
+      </Text>
     </View>
   );
 }
