@@ -61,7 +61,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../LocalTipConfig.storekit">
+         identifier = "../Tip.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction

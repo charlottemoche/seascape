@@ -9,7 +9,7 @@
       }
     ]
   },
-  "identifier" : "A6376E57",
+  "identifier" : "57C704FC",
   "nonRenewingSubscriptions" : [
 
   ],
@@ -17,7 +17,7 @@
     {
       "displayPrice" : "2.99",
       "familyShareable" : false,
-      "internalID" : "6748081651",
+      "internalID" : "6748177151",
       "localizations" : [
         {
           "description" : "Send a small tip to support the app",
@@ -25,8 +25,8 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "tip_small_coffee",
-      "referenceName" : "Tip Small Coffee",
+      "productID" : "tip_001",
+      "referenceName" : "Tip",
       "type" : "Consumable"
     }
   ],
@@ -34,7 +34,7 @@
     "_applicationInternalID" : "6747291196",
     "_developerTeamID" : "5KVWX3N5G4",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 773257509.45716095,
+    "_lastSynchronizedDate" : 773284543.61866701,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [

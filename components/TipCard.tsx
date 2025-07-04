@@ -5,48 +5,46 @@ import { useTipPurchase } from '@/hooks/useTipPurchase';
 import rainbowFish from '@/assets/images/rainbow-fish.png';
 import coloredFish from '@/assets/images/colored-fish.png';
 
-const COLORED_FISH = coloredFish;
-const RAINBOW_FISH = rainbowFish;
-
 export default function TipCard() {
-  const {
-    loading, error, buyTip, price, iapReady,
-  } = useTipPurchase();
+  const { loading, processing, error, buyTip, price, hasTipped } = useTipPurchase();
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const handlePress = async () => {
     const reason = await buyTip();
+    reason ? setInlineError(reason) : setInlineError(null);
   };
 
-  const label = loading
-    ? 'Loading...'
-    : `Buy me a coffee (${price})`;
+  const label = loading ? 'Loading...' : `Buy me a coffee (${price})`;
+  const message = hasTipped
+    ? 'Thank you for the coffee! Enjoy your new fish colors.'
+    : 'If you are logged in with an account, your tip unlocks two new fish colors.';
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
-        This app was made by one person, slowly and with care. No subscriptions, no ads, just a tiny project from me to you. Tips help keep it alive!
-      </Text>
-      <Text style={styles.text}>
-        If you are logged in with an account, your tip unlocks two new fish colors.
-      </Text>
+      <Text style={styles.title}>Support the app</Text>
+      {!hasTipped && (
+        <Text style={styles.text}>
+          This app was made by one person, slowly and with care. No subscriptions,
+          no ads, just a tiny project from me to you. Tips help me keep it alive!
+        </Text>
+      )}
+
+      <Text style={styles.text}>{message}</Text>
 
       <View style={styles.imageContainer}>
-        <Image source={COLORED_FISH} style={styles.image} />
-        <Image source={RAINBOW_FISH} style={styles.image} />
+        <Image source={coloredFish} style={styles.image} />
+        <Image source={rainbowFish} style={styles.image} />
       </View>
 
       <Button
         title={label}
         onPress={handlePress}
-        disabled={loading}
-        loading={loading}
+        disabled={loading || processing}
         variant="secondary"
       />
 
-      {error && <Text style={styles.error}>{error}</Text>}
-      {iapReady === 'empty' && (
-        <Text style={styles.error}>Tip unavailable (Apple review)</Text>
-      )}
+      {inlineError && <Text style={styles.error}>{inlineError}</Text>}
+      {error && !inlineError && <Text style={styles.error}>{error}</Text>}
     </View>
   );
 }
@@ -57,6 +55,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
+  },
+  title: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'center',
+    fontWeight: 500,
   },
   text: {
     fontSize: 15,
