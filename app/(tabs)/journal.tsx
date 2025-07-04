@@ -113,6 +113,12 @@ export default function JournalScreen() {
       Alert.alert('You must be logged in to save your entry.');
       return;
     }
+
+    if (!selectedFeelings.length) {
+      Alert.alert('Error', 'Please select at least one feeling.');
+      return;
+    }
+
     if (submitLoading) return;
 
     setSubmitLoading(true);
@@ -303,7 +309,7 @@ export default function JournalScreen() {
                               } else if (prev.length < 3) {
                                 return [...prev, feeling];
                               } else {
-                                Alert.alert('Limit Reached', 'You can only select up to 3 feelings.');
+                                Alert.alert('Limit Reached', 'Select up to 3 feelings.');
                                 return prev;
                               }
                             });
@@ -328,7 +334,7 @@ export default function JournalScreen() {
                 ))}
               </View>
 
-              <Text style={styles.subtitle}>Want to write something?</Text>
+              <Text style={styles.subtitle}>Want to write something? (optional)</Text>
 
               <>
                 <Pressable
@@ -353,7 +359,6 @@ export default function JournalScreen() {
 
                 <Button
                   onPress={handleSubmit}
-                  disabled={!selectedFeelings.length && !entry.trim()}
                   title={'Save entry'}
                   style={{ marginTop: 20 }}
                 />
@@ -517,7 +522,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     overflow: 'hidden',
-    minHeight: 100,
+    minHeight: 80,
     textAlignVertical: 'top',
     marginBottom: 16,
     borderColor: 'rgba(123, 182, 212, 0.4)',
