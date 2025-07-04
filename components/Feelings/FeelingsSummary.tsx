@@ -1,9 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
-import { Pressable, StyleSheet, Image, useColorScheme, ActivityIndicator } from 'react-native';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { fetchFeelings } from '@/lib/feelingsService';
 import { useFocusEffect } from '@react-navigation/native';
+import { getMoodByDay, MoodDay } from '@/lib/aggregateFeelings';
 import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
+import FeelingsCalendar from '@/components/Feelings/FeelingsCalendar';
 import Colors from '@/constants/Colors';
 import CryptoJS from 'crypto-js';
 
@@ -14,30 +16,29 @@ const feelingCategories = {
 };
 
 export default function FeelingsSummary({ userId }: { userId: string }) {
-  const [range, setRange] = useState<'1W' | '1M' | '3M' | '6M'>('1W');
+  const [range, setRange] = useState<'1W' | '1M'>('1W');
   const [entries, setEntries] = useState<JournalEntryDecrypted[]>([]);
   const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [mostCommonFeeling, setMostCommonFeeling] = useState('');
   const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [moodDays, setMoodDays] = useState<MoodDay[]>([]);
 
   const colorScheme = useColorScheme();
 
   const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.card : '#fff';
-  const loaderBackgroundColor = colorScheme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)';
   const textColor = colorScheme === 'dark' ? '#fff' : '#444';
-  const greyTextColor = colorScheme === 'dark' ? '#fefefe' : '#444';
+
+  const showCalendar = ['1M'].includes(range);
 
   const cacheRef = useRef<Record<string, {
     entries: JournalEntryDecrypted[],
     totals: typeof totals,
     mostCommonFeeling: string,
-    dominantMood: 'positive' | 'neutral' | 'negative'
+    dominantMood: 'positive' | 'neutral' | 'negative',
+    moodDays: MoodDay[]
   }>>({});
-
-  const percent = (value: number) => Math.round((value / (totals.positive + totals.neutral + totals.negative)) * 100);
 
   function getEncryptionKey(userId: string): string {
     return CryptoJS.SHA256(userId).toString();
@@ -68,15 +69,14 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     if (cacheRef.current[key]) {
       const cached = cacheRef.current[key];
       setEntries(cached.entries);
+      setMoodDays(cached.moodDays);
       setTotals(cached.totals);
       setMostCommonFeeling(cached.mostCommonFeeling);
       setDominantMood(cached.dominantMood);
-      setLoading(false);
       setError(null);
       return;
     }
 
-    setLoading(true);
     setError(null);
 
     try {
@@ -98,22 +98,13 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         };
       });
 
-      const grouped = decryptedData.reduce((acc, entry) => {
-        const day = { positive: 0, neutral: 0, negative: 0 };
-        for (const f of entry.feeling) {
-          if (feelingCategories.positive.includes(f)) day.positive++;
-          else if (feelingCategories.neutral.includes(f)) day.neutral++;
-          else if (feelingCategories.negative.includes(f)) day.negative++;
-        }
-        acc[entry.created_at] = day;
-        return acc;
-      }, {} as Record<string, { positive: number; neutral: number; negative: number }>);
+      const moodDays = getMoodByDay(decryptedData);
 
-      const totalCounts = Object.values(grouped).reduce(
-        (acc, day) => {
-          acc.positive += day.positive;
-          acc.neutral += day.neutral;
-          acc.negative += day.negative;
+      const totals = moodDays.reduce(
+        (acc, d) => {
+          acc.positive += d.counts.positive;
+          acc.neutral += d.counts.neutral;
+          acc.negative += d.counts.negative;
           return acc;
         },
         { positive: 0, neutral: 0, negative: 0 }
@@ -129,7 +120,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
       let dominant: 'positive' | 'neutral' | 'negative' = 'neutral';
 
-      const { positive, neutral, negative } = totalCounts;
+      const { positive, neutral, negative } = totals;
       const maxCount = Math.max(positive, neutral, negative);
 
       const maxCategories = [
@@ -141,7 +132,6 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
       if (maxCategories.length === 1) {
         dominant = maxCategories[0];
       } else if (maxCategories.length > 1) {
-        // Tie-break priority: positive > neutral > negative
         if (maxCategories.includes('positive')) {
           dominant = 'positive';
         } else if (maxCategories.includes('neutral')) {
@@ -164,21 +154,21 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
       cacheRef.current[key] = {
         entries: decryptedData,
-        totals: totalCounts,
+        totals: totals,
         mostCommonFeeling: topFeeling,
         dominantMood: dominant,
+        moodDays: moodDays,
       };
 
       setEntries(decryptedData);
-      setTotals(totalCounts);
+      setMoodDays(moodDays);
+      setTotals(totals);
       setMostCommonFeeling(topFeeling);
       setDominantMood(dominant);
-      setLoading(false);
       setError(null);
     } catch (err) {
       console.error('[FeelingsSummary] fetch error:', err);
       setError('Failed to load feelings data.');
-      setLoading(false);
     }
   }, [userId, range]);
 
@@ -195,14 +185,9 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
   return (
     <View>
-      {loading && (
-        <View style={[styles.loaderOverlay, { backgroundColor: loaderBackgroundColor }]}>
-          <ActivityIndicator size="large" color={Colors.custom.blue} />
-        </View>
-      )}
       <View style={styles.container}>
         <View style={[styles.ranges, { backgroundColor: backgroundColor }]}>
-          {(['1W', '1M', '3M', '6M'] as const).map((r) => (
+          {(['1W', '1M'] as const).map((r) => (
             <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
               <Text style={{
                 fontWeight: range === r ? 'bold' : 'normal',
@@ -212,6 +197,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           ))}
         </View>
 
+        
         <View style={styles.wrapper}>
           <View style={styles.imageContainer}>
             <Image
@@ -229,10 +215,10 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
             ) : (
               <>
                 <Text style={styles.label}>
-                  This {range === '1W' ? 'week' : 'period'}, your overall mood was
+                  Your overall mood for the past {range === '1W' ? 'week' : 'month'} was
                 </Text>
                 <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
-                <Text style={[styles.common, { color: greyTextColor }]}>
+                <Text style={styles.common}>
                   Most frequent feeling: {mostCommonFeeling}
                 </Text>
               </>
@@ -241,36 +227,11 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
       </View>
 
-      {entries.length > 0 && (
-        <View style={[styles.container, { marginTop: 16, backgroundColor: backgroundColor }]}>
-          <View style={styles.bar}>
-            <View style={{ flex: totals.positive, backgroundColor: Colors.custom.blue }} />
-            <View style={{ flex: totals.neutral, backgroundColor: Colors.custom.green }} />
-            <View style={{ flex: totals.negative, backgroundColor: Colors.custom.red }} />
-          </View>
-
-          <View style={[styles.keysContainer, { backgroundColor: backgroundColor }]}>
-            <View style={styles.keyContainer}>
-              <View style={[styles.keyDot, { backgroundColor: Colors.custom.blue }]} />
-              <Text style={styles.common}>
-                Positive ({percent(totals.positive)}%)
-              </Text>
-            </View>
-            <View style={styles.keyContainer}>
-              <View style={[styles.keyDot, { backgroundColor: Colors.custom.green }]} />
-              <Text style={styles.common}>
-                Neutral ({percent(totals.neutral)}%)
-              </Text>
-            </View>
-            <View style={styles.keyContainer}>
-              <View style={[styles.keyDot, { backgroundColor: Colors.custom.red }]} />
-              <Text style={styles.common}>
-                Negative ({percent(totals.negative)}%)
-              </Text>
-            </View>
-          </View>
+      {/* {showCalendar && (
+        <View style={[styles.container, { marginTop: 16, padding: 16, backgroundColor: backgroundColor }]}>
+          <FeelingsCalendar data={moodDays} />
         </View>
-      )}
+      )} */}
     </View>
   );
 }
@@ -280,13 +241,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderColor: 'rgba(123, 182, 212, 0.4)',
     borderWidth: 1,
-  },
-  loaderOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-    borderRadius: 16,
   },
   ranges: {
     flexDirection: 'row',

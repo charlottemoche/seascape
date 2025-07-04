@@ -431,6 +431,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inner: {
+    justifyContent: 'center',
+    alignItems: 'center',
     maxWidth: 500,
   },
   switchText: {

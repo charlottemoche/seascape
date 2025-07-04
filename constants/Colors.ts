@@ -35,6 +35,8 @@ export default {
   custom: {
     transparent: 'transparent',
     grey: '#e4e3e3',
+    mediumGrey: '#ccc',
+    darkGrey: '#808080',
     lightBlue: '#cfe9f1',
     red: '#ce6548',
     green: '#4b9032',
@@ -44,6 +46,5 @@ export default {
     darkBlue: '#023c69',
     white: '#fff',
     dark: '#111111',
-    darkGrey: '#808080'
   }
 };

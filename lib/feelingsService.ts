@@ -1,12 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import type { JournalEntryRaw } from '@/types/Journal';
 
-export async function fetchFeelings(userId: string, range: '1W' | '1M' | '3M' | '6M' = '1W'): Promise<JournalEntryRaw[]> {
+export async function fetchFeelings(userId: string, range: '1W' | '1M' = '1W'): Promise<JournalEntryRaw[]> {
   const timeRanges = {
     '1W': 7,
-    '1M': 30,
-    '3M': 90,
-    '6M': 180,
+    '1M': 30
   };
 
   const fromDate = new Date(Date.now() - timeRanges[range] * 24 * 60 * 60 * 1000).toISOString();
