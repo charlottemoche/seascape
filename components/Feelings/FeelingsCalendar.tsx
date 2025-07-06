@@ -27,6 +27,7 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? Colors.custom.white : Colors.custom.darkGrey;
+  const headerColor = colorScheme === 'dark' ? Colors.custom.white : Colors.custom.dark;
   const backgroundColor = colorScheme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
   const todayColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
   const todayText = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.dark;
@@ -49,7 +50,7 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
-        <Text style={[styles.headerText, { paddingBottom: 10 }]}>Past 30 days</Text>
+        <Text style={[styles.headerText, { paddingBottom: 10, color: headerColor }]}>Past 30 days</Text>
       </View>
       <View style={[styles.headerRow, { borderBottomColor: textColor, borderBottomWidth: 0.5, paddingBottom: 6 }]}>
         {DAY_LABELS.map((d, i) => (
@@ -177,8 +178,8 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: 5,
   },
   legend: {
@@ -194,12 +195,12 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   legendLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 500,
     marginLeft: 4,
   },
   legendPercent: {
-    fontSize: 12,
+    fontSize: 13,
     marginLeft: 4,
   },
 });

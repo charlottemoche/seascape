@@ -208,7 +208,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         </View>
 
         {range === '1M' ? (
-          <View style={[styles.wrapper, { backgroundColor: backgroundColor, paddingHorizontal: 16, paddingBottom: 16 }]}>
+          <View style={[styles.wrapper, { backgroundColor: backgroundColor, paddingHorizontal: 12, paddingBottom: 12 }]}>
             <FeelingsCalendar data={moodDays} percentages={percentages} />
           </View>
         ) : (
