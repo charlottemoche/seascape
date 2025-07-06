@@ -51,23 +51,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(
-          'fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token, has_tipped'
-        )
-        .eq('user_id', user.id)
-        .single();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(
+        'fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token, has_tipped'
+      )
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
-    } catch (err) {
-      console.warn('[SessionProvider] profile fetch failed', err);
-      setProfile(null);
+    if (error) {
+      console.warn('[SessionProvider] profile fetch failed', error);
     }
+    setProfile(data);
   }
-
   async function refreshProfile() {
     setLoading(true);
     try {

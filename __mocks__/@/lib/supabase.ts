@@ -1,66 +1,39 @@
 let entryIdCounter = 1;
 
 export const supabase = {
-  from: jest.fn((table) => {
+  from: jest.fn((table: string) => {
     const base = {
       insert: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
-      range: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      limit: jest.fn().mockReturnThis(),
+      range: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: null }),
       then: jest.fn(),
     };
 
-    if (table === 'streaks') {
+    if (table === 'user_streaks') {
       return {
         ...base,
-        select: jest.fn((columns) => {
-          if (columns.includes('did_journal') || columns.includes('did_breathe')) {
-            return {
-              eq: jest.fn().mockReturnThis(),
-              order: jest.fn().mockReturnThis(),
-              then: (resolve: (value: { data: { date: string; did_journal: boolean; did_breathe: boolean; }[]; error: null }) => void) => {
-                resolve({
-                  data: [
-                    { date: '2025-06-16', did_journal: true, did_breathe: false },
-                    { date: '2025-06-15', did_journal: true, did_breathe: false },
-                  ],
-                  error: null,
-                });
-              },
-            };
-          }
-          return {
-            eq: jest.fn(() => ({
-              eq: jest.fn(() => ({
-                single: jest.fn(() =>
-                  Promise.resolve({
-                    data: {
-                      date: '2025-06-16',
-                      did_journal: true,
-                      did_breathe: false,
-                      journal_streak: 2,
-                      breath_streak: 0,
-                      last_active: '2025-06-16',
-                    },
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        }),
-      };
-    }
-
-    if (table === 'breaths') {
-      return {
-        ...base,
-        insert: jest.fn(() => Promise.resolve({ data: { id: 123 }, error: null })),
+        select: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            single: jest.fn(() =>
+              Promise.resolve({
+                data: {
+                  last_journal: '2025-06-16',
+                  journal_streak: 2,
+                  last_breathe: '2025-06-14',
+                  breath_streak: 1,
+                },
+                error: null,
+              })
+            ),
+          })),
+        })),
       };
     }
 
@@ -77,45 +50,15 @@ export const supabase = {
             ),
           })),
         })),
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            limit: jest.fn(() => ({
-              then: jest.fn(() =>
-                Promise.resolve({
-                  data: [
-                    { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
-                    { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
-                  ],
-                  error: null,
-                })
-              ),
-            })),
-            gte: jest.fn(() => ({
-              order: jest.fn(() => ({
-                range: jest.fn(() =>
-                  Promise.resolve({
-                    data: [
-                      { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
-                      { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
-                    ],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-            order: jest.fn(() => ({
-              range: jest.fn(() =>
-                Promise.resolve({
-                  data: [
-                    { id: 1, created_at: '2025-06-01', feeling: JSON.stringify(['Happy', 'Calm']), entry: 'entry 1' },
-                    { id: 2, created_at: '2025-06-02', feeling: JSON.stringify(['Sad']), entry: 'entry 2' },
-                  ],
-                  error: null,
-                })
-              ),
-            })),
-          })),
-        })),
+      };
+    }
+
+    if (table === 'breaths') {
+      return {
+        ...base,
+        insert: jest.fn(() =>
+          Promise.resolve({ data: { id: 123 }, error: null })
+        ),
       };
     }
 
@@ -123,7 +66,7 @@ export const supabase = {
   }),
 
   rpc: jest.fn((fn, _params) => {
-    if (fn === 'update_streak') {
+    if (fn === 'bump_streak') {
       return Promise.resolve({
         data: [
           {

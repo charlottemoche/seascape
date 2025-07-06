@@ -87,12 +87,14 @@ export default function IncomingRequests({ onChange }: Props) {
                 onPress={() => handleDecline(item.requesterId)}
                 variant="danger"
                 margin={false}
+                width={40}
               />
               <Button
                 icon={<Icon type="Ionicons" name="checkmark-outline" color={Colors.custom.green} size={20} />}
                 onPress={() => handleAccept(item.requesterId)}
                 variant="secondary"
                 margin={false}
+                width={40}
               />
             </View>
           </View>

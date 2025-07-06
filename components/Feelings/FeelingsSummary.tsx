@@ -23,6 +23,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
   const [error, setError] = useState<string | null>(null);
   const [moodDays, setMoodDays] = useState<MoodDay[]>([]);
+  const [percentages, setPercentages] = useState({ positive: 0, neutral: 0, negative: 0 });
 
   const colorScheme = useColorScheme();
 
@@ -152,6 +153,15 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         }
       }
 
+      if (range === '1M') {
+        const totalFeelings = Object.values(totals).reduce((acc, val) => acc + val, 0);
+        const percentages = Object.entries(totals).reduce((acc, [category, count]) => {
+          acc[category as keyof typeof totals] = (count / totalFeelings) * 100;
+          return acc;
+        }, {} as typeof totals);
+        setPercentages(percentages);
+      }
+
       cacheRef.current[key] = {
         entries: decryptedData,
         totals: totals,
@@ -197,41 +207,40 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
           ))}
         </View>
 
-        
-        <View style={styles.wrapper}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={imageForMood(showNeutralImage ? 'neutral' : dominantMood)}
-              style={styles.image}
-              resizeMode="cover"
-            />
+        {range === '1M' ? (
+          <View style={[styles.wrapper, { backgroundColor: backgroundColor, paddingHorizontal: 16, paddingBottom: 16 }]}>
+            <FeelingsCalendar data={moodDays} percentages={percentages} />
           </View>
+        ) : (
+          <View style={styles.wrapper}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={imageForMood(showNeutralImage ? 'neutral' : dominantMood)}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </View>
 
-          <View style={[styles.summaryBox, { backgroundColor: backgroundColorBox }]}>
-            {showNeutralImage ? (
-              <Text style={[styles.noEntries, { color: textColor }]}>
-                {summaryText}
-              </Text>
-            ) : (
-              <>
-                <Text style={styles.label}>
-                  Your overall mood for the past {range === '1W' ? 'week' : 'month'} was
+            <View style={[styles.summaryBox, { backgroundColor: backgroundColorBox }]}>
+              {showNeutralImage ? (
+                <Text style={[styles.noEntries, { color: textColor }]}>
+                  {summaryText}
                 </Text>
-                <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
-                <Text style={styles.common}>
-                  Most frequent feeling: {mostCommonFeeling}
-                </Text>
-              </>
-            )}
+              ) : (
+                <>
+                  <Text style={styles.label}>
+                    Your overall mood for the past {range === '1W' ? 'week' : 'month'} was
+                  </Text>
+                  <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
+                  <Text style={styles.common}>
+                    Most frequent feeling: {mostCommonFeeling}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
-        </View>
+        )}
       </View>
-
-      {/* {showCalendar && (
-        <View style={[styles.container, { marginTop: 16, padding: 16, backgroundColor: backgroundColor }]}>
-          <FeelingsCalendar data={moodDays} />
-        </View>
-      )} */}
     </View>
   );
 }

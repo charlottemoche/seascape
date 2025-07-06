@@ -14,11 +14,16 @@ import Colors from '@/constants/Colors';
 
 type Props = {
   data: MoodDay[];
+  percentages: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
 };
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-export default function FeelingsCalendar({ data }: Props) {
+export default function FeelingsCalendar({ data, percentages }: Props) {
   const colorScheme = useColorScheme();
 
   const textColor = colorScheme === 'dark' ? Colors.custom.white : Colors.custom.darkGrey;
@@ -44,9 +49,9 @@ export default function FeelingsCalendar({ data }: Props) {
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
-        <Text style={[styles.headerText, { paddingBottom: 10, color: textColor }]}>Past 30 days</Text>
+        <Text style={[styles.headerText, { paddingBottom: 10 }]}>Past 30 days</Text>
       </View>
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, { borderBottomColor: textColor, borderBottomWidth: 0.5, paddingBottom: 6 }]}>
         {DAY_LABELS.map((d, i) => (
           <Text key={i} style={[styles.headerText, { color: textColor }]}>{d}</Text>
         ))}
@@ -97,9 +102,31 @@ export default function FeelingsCalendar({ data }: Props) {
               </View>
             );
           })}
-
         </View>
       ))}
+      <View style={styles.legend}>
+        <View style={styles.legendItem}>
+          <View style={[styles.dot, { backgroundColor: Colors.custom.blue }]} />
+          <Text style={[styles.legendLabel, { color: textColor }]}>Positive</Text>
+          <Text style={[styles.legendPercent, { color: textColor }]}>
+            {percentages.positive.toFixed(1)}%
+          </Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.dot, { backgroundColor: Colors.custom.green }]} />
+          <Text style={[styles.legendLabel, { color: textColor }]}>Neutral</Text>
+          <Text style={[styles.legendPercent, { color: textColor }]}>
+            {percentages.neutral.toFixed(1)}%
+          </Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.dot, { backgroundColor: Colors.custom.red }]} />
+          <Text style={[styles.legendLabel, { color: textColor }]}>Negative</Text>
+          <Text style={[styles.legendPercent, { color: textColor }]}>
+            {percentages.negative.toFixed(1)}%
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -150,8 +177,29 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   dot: {
-    width: 6,
-    height: 6,
+    width: 8,
+    height: 8,
     borderRadius: 5,
+  },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: 16,
+    flexWrap: 'nowrap',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  legendLabel: {
+    fontSize: 12,
+    fontWeight: 500,
+    marginLeft: 4,
+  },
+  legendPercent: {
+    fontSize: 12,
+    marginLeft: 4,
   },
 });

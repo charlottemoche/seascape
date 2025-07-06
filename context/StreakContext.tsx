@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import { fetchStreaks } from '@/lib/streakService';
 import { useSession } from './SessionContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type StreakContextType = {
   lastActive?: string | null;
@@ -27,7 +26,7 @@ const StreakContext = createContext<StreakContextType>({
   didBreathe: false,
   journalStreak: 0,
   breathStreak: 0,
-  refreshStreaks: async () => { },
+  refreshStreaks: async () => {},
   streaksLoading: true,
 });
 
@@ -41,31 +40,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
 
   const { user } = useSession();
   const userId = user?.id;
-
-  useEffect(() => {
-    if (!userId) {
-      setStreaksLoading(false);
-      return;
-    }
-
-    (async () => {
-      const cached = await AsyncStorage.getItem(`streaks:${userId}`);
-      if (!cached) return;
-
-      try {
-        const parsed = JSON.parse(cached);
-
-        setLastActive(parsed.lastActive);
-        setDidJournal(parsed.didJournal);
-        setDidBreathe(parsed.didBreathe);
-        setJournalStreak(parsed.journalStreak);
-        setBreathStreak(parsed.breathStreak);
-        setStreaksLoading(false);
-      } catch {
-        await AsyncStorage.removeItem(`streaks:${userId}`);
-      }
-    })();
-  }, [userId]);
 
   const refreshStreaks = useCallback(async () => {
     if (!userId) return;
@@ -82,11 +56,6 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
       setDidBreathe(r.didBreathe);
       setJournalStreak(r.journalStreak);
       setBreathStreak(r.breathStreak);
-
-      await AsyncStorage.setItem(
-        `streaks:${userId}`,
-        JSON.stringify({ ...r, updated: new Date().toISOString() })
-      );
     } finally {
       setStreaksLoading(false);
     }
@@ -94,15 +63,29 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (userId) refreshStreaks();
+    else setStreaksLoading(false);
   }, [userId, refreshStreaks]);
 
-  const value = useMemo(() => ({
-    lastActive, didJournal, didBreathe,
-    journalStreak, breathStreak,
-    refreshStreaks, streaksLoading,
-  }), [lastActive, didJournal, didBreathe,
-    journalStreak, breathStreak,
-    refreshStreaks, streaksLoading]);
+  const value = useMemo(
+    () => ({
+      lastActive,
+      didJournal,
+      didBreathe,
+      journalStreak,
+      breathStreak,
+      refreshStreaks,
+      streaksLoading,
+    }),
+    [
+      lastActive,
+      didJournal,
+      didBreathe,
+      journalStreak,
+      breathStreak,
+      refreshStreaks,
+      streaksLoading,
+    ]
+  );
 
   return (
     <StreakContext.Provider value={value}>
@@ -113,6 +96,7 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
 
 export const useStreaks = () => {
   const context = useContext(StreakContext);
-  if (!context) throw new Error('useStreaks must be used within a StreakProvider');
+  if (!context)
+    throw new Error('useStreaks must be used within a StreakProvider');
   return context;
 };

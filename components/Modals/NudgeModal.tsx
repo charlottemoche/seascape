@@ -36,7 +36,7 @@ export default function NudgeModal() {
   const text = colorScheme === 'dark' ? '#fff' : '#000';
   const icon = nudge.type === 'hug' ? starfishImage : bubblesImage;
   const hug = nudge.type === 'hug'
-  const verb = hug ? 'a starfish hug' : 'a breathe reminder';
+  const verb = hug ? 'a starfish hug' : 'a reminder to breathe';
 
   return (
     <Modal transparent animationType="fade" visible>

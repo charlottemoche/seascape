@@ -57,13 +57,14 @@ const imagesToCache = [
 export { ErrorBoundary } from 'expo-router';
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
-const MIN_SPLASH_MS = 2000;
+const MIN_SPLASH_MS = 1500;
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const splashStart = useRef(Date.now());
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [ready, setReady] = useState(false);
+  const [appReady, setAppReady] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -91,13 +92,14 @@ export default function RootLayout() {
 
     const t = setTimeout(() => {
       SplashScreen.hideAsync();
+      setAppReady(true);
     }, remaining);
 
     return () => clearTimeout(t);
   }, [ready]);
 
   if (fontError) throw fontError;
-  if (!fontsLoaded || !assetsLoaded) {
+  if (!fontsLoaded || !assetsLoaded || !appReady) {
     return null;
   }
 

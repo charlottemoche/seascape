@@ -1,6 +1,9 @@
 import { supabase } from '@/lib/supabase';
 
-export async function fetchStreaks(userId: string, userTimezone: string) {
+export async function fetchStreaks(
+  userId: string,
+  userTimezone: string
+) {
   if (!userId) {
     return {
       success: false,
@@ -12,19 +15,19 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
     };
   }
 
-  const localDate = new Date().toLocaleDateString('en-CA', {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: userTimezone });
+  const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString('en-CA', {
     timeZone: userTimezone,
   });
 
-  const { data: todayRow, error: todayError } = await supabase
-    .from('streaks')
-    .select('last_active, did_journal, did_breathe, journal_streak, breath_streak')
+  const { data: row, error } = await supabase
+    .from('user_streaks')
+    .select('last_journal, journal_streak, last_breathe, breath_streak')
     .eq('user_id', userId)
-    .eq('date', localDate)
     .single();
 
-  if (todayError && todayError.code !== 'PGRST116') {
-    console.error('[fetchStreaks] error:', todayError);
+  if (error && error.code !== 'PGRST116') {
+    console.error('[fetchStreaks] error:', error);
     return {
       success: false,
       lastActive: null,
@@ -35,13 +38,24 @@ export async function fetchStreaks(userId: string, userTimezone: string) {
     };
   }
 
+  const lastJournal = row?.last_journal ?? null;
+  const lastBreathe = row?.last_breathe ?? null;
+
+  const didJournal = lastJournal === today;
+  const didBreathe = lastBreathe === today;
+
+  const journalActive = lastJournal === today || lastJournal === yesterday;
+  const breathActive  = lastBreathe === today || lastBreathe === yesterday;
+
   return {
     success: true,
-    lastActive: todayRow?.last_active ?? null,
-    didJournal: todayRow?.did_journal ?? false,
-    didBreathe: todayRow?.did_breathe ?? false,
-    journalStreak: todayRow?.journal_streak ?? 0,
-    breathStreak: todayRow?.breath_streak ?? 0,
+    lastActive: lastJournal && lastBreathe
+      ? (lastJournal > lastBreathe ? lastJournal : lastBreathe)
+      : (lastJournal ?? lastBreathe),
+    didJournal,
+    didBreathe,
+    journalStreak: journalActive ? row?.journal_streak ?? 0 : 0,
+    breathStreak:  breathActive  ? row?.breath_streak  ?? 0 : 0,
   };
 }
 
@@ -49,9 +63,9 @@ export async function updateStreak(
   userId: string,
   type: 'journal' | 'breath',
   userTimezone: string,
-  newMinutes: number = 0
+  newMinutes = 0
 ) {
-  const { data, error } = await supabase.rpc('update_streak', {
+  const { data, error } = await supabase.rpc('bump_streak', {
     uid: userId,
     type,
     user_timezone: userTimezone,
@@ -65,6 +79,7 @@ export async function updateStreak(
 
   return {
     success: true,
-    lastActive: data?.[0]?.last_active ?? null,
+    journalStreak: data?.[0]?.journal_streak ?? 0,
+    breathStreak:  data?.[0]?.breath_streak  ?? 0,
   };
 }

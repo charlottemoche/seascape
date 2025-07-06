@@ -113,7 +113,7 @@ export default function HomeScreen() {
             </View>
             {!isLoggedIn && (
               <View style={[styles.streakItem, { backgroundColor: cardColor }]}>
-                <Button title="Log in to track" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
+                <Button title="Log in" onPress={() => router.push('/login')} style={{ marginTop: 20 }} />
               </View>
             )}
           </View>
@@ -139,9 +139,7 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.feelingsWrapper}>
-            <View style={{ maxWidth: 500 }}>
-              {user ? <FeelingsSummary userId={user.id} /> : <FeelingsPlaceholder />}
-            </View>
+            {user ? <FeelingsSummary userId={user.id} /> : <FeelingsPlaceholder />}
           </View>
         </View>
       </ScrollView>
@@ -241,8 +239,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'
   },
   feelingsWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    marginBottom: 30,
+    maxWidth: 500,
+    alignSelf: 'center',
   },
 });
