@@ -91,7 +91,7 @@ export function SwimGameOverlay({
 
           <Text style={styles.gameSubtext}>before you run out of plays.</Text>
           
-          <Text style={styles.gameSubtext}>Tap or hold to swim up.</Text>
+          <Text style={[styles.gameSubtext, { paddingTop: 20 }]}>Tap or hold to swim up.</Text>
 
           <Text style={[styles.gameSubtext, { paddingTop: 20 }]}>Plays left: {playsLeft}</Text>
 
