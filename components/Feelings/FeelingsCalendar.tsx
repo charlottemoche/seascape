@@ -48,6 +48,7 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
   const overlayBackground = colorScheme === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.5)';
   const todayColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
   const todayText = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.dark;
+  const greyColor = colorScheme === 'dark' ? Colors.custom.mediumGrey : Colors.custom.grey;
 
   const { weeks, countsMap, hasPercentageData } = useMemo(() => {
     const calendarStart = startOfWeek(windowStart, { weekStartsOn: 0 });
@@ -72,7 +73,7 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
       <View style={styles.headerRow}>
         <Text style={[styles.headerText, { paddingBottom: 10, color: headerColor }]}>Past 30 days</Text>
       </View>
-      <View style={[styles.headerRow, { borderBottomColor: textColor, borderBottomWidth: 0.5, paddingBottom: 6 }]}>
+      <View style={[styles.headerRow, { borderBottomColor: greyColor, borderBottomWidth: 1, paddingBottom: 6 }]}>
         {DAY_LABELS.map((d, i) => (
           <Text key={i} style={[styles.headerText, { color: textColor }]}>{d}</Text>
         ))}
@@ -132,7 +133,7 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
         </View>
       ))}
       {hasPercentageData && (
-        <View style={styles.legend}>
+        <View style={[styles.legend, { borderColor: greyColor }]}>
           <View style={styles.legendItem}>
             <View style={[styles.dot, { backgroundColor: Colors.custom.blue }]} />
             <Text style={[styles.legendLabel, { color: textColor }]}>Positive</Text>
@@ -225,6 +226,9 @@ const styles = StyleSheet.create({
   legend: {
     marginTop: 16,
     flexWrap: 'nowrap',
+    paddingHorizontal: 8,
+    borderTopWidth: 1,
+    paddingTop: 8,
   },
   legendItem: {
     flexDirection: 'row',
