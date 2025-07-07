@@ -1,13 +1,15 @@
 import React from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, useColorScheme } from 'react-native';
 import {
   format,
   eachDayOfInterval,
   startOfWeek,
   endOfWeek,
-  endOfToday,
   subDays,
   isSameDay,
+  startOfToday,
+  startOfTomorrow,
 } from 'date-fns';
 import type { MoodDay } from '@/lib/aggregateFeelings';
 import Colors from '@/constants/Colors';
@@ -23,30 +25,48 @@ type Props = {
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
+function useToday() {
+  const [today, setToday] = useState(() => startOfToday());
+
+  useEffect(() => {
+    const msUntilMidnight = startOfTomorrow().getTime() - Date.now() + 1000;
+    const id = setTimeout(() => setToday(startOfToday()), msUntilMidnight);
+    return () => clearTimeout(id);
+  }, [today]);
+
+  return today;
+}
+
 export default function FeelingsCalendar({ data, percentages }: Props) {
   const colorScheme = useColorScheme();
+  const today = useToday();
+  const windowStart = useMemo(() => subDays(today, 29), [today]);
 
   const textColor = colorScheme === 'dark' ? Colors.custom.white : Colors.custom.darkGrey;
   const headerColor = colorScheme === 'dark' ? Colors.custom.white : Colors.custom.dark;
   const backgroundColor = colorScheme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+  const overlayBackground = colorScheme === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.5)';
   const todayColor = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.lightBlue;
   const todayText = colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.dark;
 
-  const countsMap = new Map(data.map(d => [d.date, d.counts]));
+  const { weeks, countsMap, hasPercentageData } = useMemo(() => {
+    const calendarStart = startOfWeek(windowStart, { weekStartsOn: 0 });
+    const calendarEnd = endOfWeek(today, { weekStartsOn: 0 });
+    const days = eachDayOfInterval({
+      start: calendarStart,
+      end: calendarEnd,
+    });
 
-  const today = endOfToday();
-  const windowStart = subDays(today, 29);
-  const calendarStart = startOfWeek(windowStart, { weekStartsOn: 0 });
-  const calendarEnd = endOfWeek(today, { weekStartsOn: 0 });
+    const w: Date[][] = [];
+    for (let i = 0; i < days.length; i += 7) w.push(days.slice(i, i + 7));
 
-
-  const allDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-
-  const weeks: Date[][] = [];
-  for (let i = 0; i < allDays.length; i += 7) {
-    weeks.push(allDays.slice(i, i + 7));
-  }
-
+    return {
+      weeks: w,
+      countsMap: new Map(data.map(d => [d.date, d.counts])),
+      hasPercentageData: Object.values(percentages).some(p => p > 0),
+    };
+  }, [data, percentages, windowStart, today]);
+  
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
@@ -57,6 +77,12 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
           <Text key={i} style={[styles.headerText, { color: textColor }]}>{d}</Text>
         ))}
       </View>
+
+      {!hasPercentageData && (
+        <View style={[styles.noDataOverlay, { backgroundColor: overlayBackground }]}>
+          <Text style={[styles.noDataText, { color: headerColor }]}>No data for the past 30 days</Text>
+        </View>
+      )}
 
       {weeks.map((week, idx) => (
         <View key={idx} style={styles.weekRow}>
@@ -105,29 +131,31 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
           })}
         </View>
       ))}
-      <View style={styles.legend}>
-        <View style={styles.legendItem}>
-          <View style={[styles.dot, { backgroundColor: Colors.custom.blue }]} />
-          <Text style={[styles.legendLabel, { color: textColor }]}>Positive</Text>
-          <Text style={[styles.legendPercent, { color: textColor }]}>
-            {percentages.positive.toFixed(1)}%
-          </Text>
+      {hasPercentageData && (
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.dot, { backgroundColor: Colors.custom.blue }]} />
+            <Text style={[styles.legendLabel, { color: textColor }]}>Positive</Text>
+            <Text style={[styles.legendPercent, { color: textColor }]}>
+              {percentages.positive.toFixed(1)}%
+            </Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.dot, { backgroundColor: Colors.custom.green }]} />
+            <Text style={[styles.legendLabel, { color: textColor }]}>Neutral</Text>
+            <Text style={[styles.legendPercent, { color: textColor }]}>
+              {percentages.neutral.toFixed(1)}%
+            </Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.dot, { backgroundColor: Colors.custom.red }]} />
+            <Text style={[styles.legendLabel, { color: textColor }]}>Negative</Text>
+            <Text style={[styles.legendPercent, { color: textColor }]}>
+              {percentages.negative.toFixed(1)}%
+            </Text>
+          </View>
         </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.dot, { backgroundColor: Colors.custom.green }]} />
-          <Text style={[styles.legendLabel, { color: textColor }]}>Neutral</Text>
-          <Text style={[styles.legendPercent, { color: textColor }]}>
-            {percentages.neutral.toFixed(1)}%
-          </Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.dot, { backgroundColor: Colors.custom.red }]} />
-          <Text style={[styles.legendLabel, { color: textColor }]}>Negative</Text>
-          <Text style={[styles.legendPercent, { color: textColor }]}>
-            {percentages.negative.toFixed(1)}%
-          </Text>
-        </View>
-      </View>
+      )}
     </View>
   );
 }
@@ -135,6 +163,18 @@ export default function FeelingsCalendar({ data, percentages }: Props) {
 const styles = StyleSheet.create({
   wrapper: {
     paddingTop: 4,
+  },
+  noDataOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    borderRadius: 8,
+  },
+  noDataText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 600,
   },
   headerRow: {
     flexDirection: 'row',
@@ -183,9 +223,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   legend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
     marginTop: 16,
     flexWrap: 'nowrap',
   },

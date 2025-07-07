@@ -363,6 +363,10 @@ export default function ProfileScreen() {
               <FishCustomizer />
             </View>
 
+            <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
+              <TipCard />
+            </View>
+
             {isLoggedIn ? (
               <View style={styles.logoutWrapper}>
                 <Button title="Log out" onPress={handleLogout} variant="tertiary" />
@@ -373,10 +377,6 @@ export default function ProfileScreen() {
                 <Button title="Log in" onPress={() => router.push('/login')} />
               </View>
             )}
-
-            <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-              <TipCard />
-            </View>
 
           </View>
           <View style={{ display: tab === 'friends' ? 'flex' : 'none' }}>
@@ -456,7 +456,9 @@ export default function ProfileScreen() {
                 </>
               ) : (
                 <View style={[styles.profileSection, { backgroundColor: cardColor }]}>
-                  <Text style={{ textAlign: 'center', fontSize: 15, color: textColor }}>Log in to manage friends.</Text>
+                  <Pressable onPress={() => router.push('/login')}>
+                    <Text style={{ textAlign: 'center', fontSize: 15, color: textColor }}>Log in to manage friends.</Text>
+                  </Pressable>
                 </View>
               )}
             </View>
