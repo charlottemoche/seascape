@@ -33,7 +33,7 @@ export default function SwimScreen() {
 
   const hasMarkedPlayed = useRef(false);
 
-  const predatorSize = 90;
+  const predatorSize = 70;
   const preySize = 50;
 
   const {
