@@ -29,9 +29,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
   const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
   const backgroundColor = colorScheme === 'dark' ? Colors.dark.card : '#fff';
-  const textColor = colorScheme === 'dark' ? '#fff' : '#444';
-
-  const showCalendar = ['1M'].includes(range);
+  const textColor = colorScheme === 'dark' ? '#ccc' : '#444';
 
   const cacheRef = useRef<Record<string, {
     entries: JournalEntryDecrypted[],
@@ -209,7 +207,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 
         {range === '1M' ? (
           <View style={[styles.wrapper, { backgroundColor: backgroundColor, paddingHorizontal: 12, paddingBottom: 12 }]}>
-            <FeelingsCalendar data={moodDays} percentages={percentages} />
+            <FeelingsCalendar data={moodDays} percentages={percentages} mostCommon={mostCommonFeeling} />
           </View>
         ) : (
           <View style={styles.wrapper}>
@@ -229,12 +227,14 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
               ) : (
                 <>
                   <Text style={styles.label}>
-                    Your overall mood for the past {range === '1W' ? 'week' : 'month'} was
+                    Your overall mood for the past week was
                   </Text>
                   <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
-                  <Text style={styles.common}>
-                    Most frequent feeling: {mostCommonFeeling}
-                  </Text>
+                  {dominantMood === 'negative' && (
+                    <Text style={[styles.common, { color: textColor, fontSize: 12 }]}>
+                      Having a tough week? Try a breathing exercise.
+                    </Text>
+                  )}
                 </>
               )}
             </View>
