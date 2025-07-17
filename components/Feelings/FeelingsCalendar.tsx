@@ -337,6 +337,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flexShrink: 0,
+    marginBottom: 4,
   },
   legendLabel: {
     fontSize: 13,

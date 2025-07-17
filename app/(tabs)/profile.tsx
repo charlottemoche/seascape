@@ -38,6 +38,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import TipCard from "@/components/TipCard";
 import * as Clipboard from "expo-clipboard";
 import * as SecureStore from "expo-secure-store";
+import * as Notifications from "expo-notifications";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -215,6 +216,31 @@ export default function ProfileScreen() {
     setHasLoadedLocalHS(false);
     router.replace("/welcome");
   };
+
+  async function handleTogglePush(next: boolean, userId: string) {
+    setPushEnabled(next);
+
+    if (next) {
+      const { status } = await Notifications.getPermissionsAsync();
+
+      if (status !== "granted") {
+        const { status: newStatus } =
+          await Notifications.requestPermissionsAsync();
+
+        if (newStatus !== "granted") {
+          await Linking.openSettings();
+          return;
+        }
+      }
+
+      await registerForPushAsync(userId);
+    } else {
+      await supabase
+        .from("profiles")
+        .update({ expo_push_token: null })
+        .eq("user_id", userId);
+    }
+  }
 
   useEffect(() => {
     if (tab === "friends" && hasPending && friendSubTab !== "requests") {
@@ -406,15 +432,7 @@ export default function ProfileScreen() {
                   <Toggle
                     value={pushEnabled}
                     onChange={async (next) => {
-                      setPushEnabled(next);
-                      if (next) {
-                        await registerForPushAsync(user!.id);
-                      } else {
-                        await supabase
-                          .from("profiles")
-                          .update({ expo_push_token: null })
-                          .eq("user_id", user!.id);
-                      }
+                      await handleTogglePush(next, user!.id);
                     }}
                   />
                 )}
