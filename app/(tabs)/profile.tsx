@@ -633,7 +633,7 @@ export default function ProfileScreen() {
             </Text>
           </Pressable>
           <Text style={[styles.footerText, { color: textColor }]}>
-            Version 1.6.2
+            Version 1.6.3
           </Text>
         </View>
       </View>

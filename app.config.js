@@ -5,7 +5,7 @@ export default {
     name: 'Seascape',
     slug: 'seascape',
     owner: 'charlottebmoche',
-    version: '1.6.2',
+    version: '1.6.3',
     orientation: 'portrait',
     icon: './assets/images/fish.png',
     scheme: 'seascape',
