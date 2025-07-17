@@ -1,48 +1,46 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   StyleSheet,
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
   useColorScheme,
-} from 'react-native';
-import { FadeImage } from '../FadeImage';
-import { useSession } from '@/context/SessionContext';
-import { supabase } from '@/lib/supabase';
-import { FishColor } from '@/constants/fishMap';
-import { Button } from '@/components/Themed';
-import { View, Text } from '@/components/Themed';
-import { DeviceEventEmitter } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import fishImages from '@/constants/fishMap';
-import FishModal from './FishModal';
+} from "react-native";
+import { FadeImage } from "../FadeImage";
+import { useSession } from "@/context/SessionContext";
+import { supabase } from "@/lib/supabase";
+import { FishColor } from "@/constants/fishMap";
+import { Button } from "@/components/Themed";
+import { View, Text } from "@/components/Themed";
+import { DeviceEventEmitter } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import fishImages from "@/constants/fishMap";
+import FishModal from "./FishModal";
 
 type FishCustomizerProps = {
   transparent?: boolean;
   onSaved?: () => void;
 };
 
-const HAS_TIPPED_KEY = 'has_tipped';
+const HAS_TIPPED_KEY = "has_tipped";
 
-const BASE_COLORS: FishColor[] = ['blue', 'red', 'green', 'purple', 'yellow'];
+const BASE_COLORS: FishColor[] = ["blue", "red", "green", "purple", "yellow"];
 
 export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const { user, profile } = useSession();
 
   const colorScheme = useColorScheme();
-  const textColor = transparent || colorScheme === 'dark' ? '#fff' : '#000';
+  const textColor = transparent || colorScheme === "dark" ? "#fff" : "#000";
   const hasInitialized = useRef(false);
 
-  const [fishName, setFishName] = useState('');
-  const [fishColor, setFishColor] = useState<FishColor>('blue');
+  const [fishName, setFishName] = useState("");
+  const [fishColor, setFishColor] = useState<FishColor>("blue");
   const [saving, setSaving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [hasTipped, setHasTipped] = useState(false);
 
   const availableColors = useMemo<FishColor[]>(() => {
-    return hasTipped
-      ? [...BASE_COLORS, 'rainbow', 'colored']
-      : BASE_COLORS;
+    return hasTipped ? [...BASE_COLORS, "rainbow", "colored"] : BASE_COLORS;
   }, [hasTipped]);
 
   useEffect(() => {
@@ -59,14 +57,14 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
     if (user?.id) {
       setHasTipped(!!profile?.has_tipped);
     } else {
-      AsyncStorage.getItem(HAS_TIPPED_KEY).then(tipped => {
-        if (tipped === 'true') setHasTipped(true);
+      AsyncStorage.getItem(HAS_TIPPED_KEY).then((tipped) => {
+        if (tipped === "true") setHasTipped(true);
       });
     }
   }, [user?.id, profile?.has_tipped]);
 
   useEffect(() => {
-    const sub = DeviceEventEmitter.addListener('tipped', () => {
+    const sub = DeviceEventEmitter.addListener("tipped", () => {
       setHasTipped(true);
     });
 
@@ -75,23 +73,23 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
 
   const initializeFishState = async () => {
     if (user) {
-      setFishName(profile?.fish_name ?? '');
+      setFishName(profile?.fish_name ?? "");
       setFishColor(
         availableColors.includes(profile?.fish_color as FishColor)
           ? (profile?.fish_color as FishColor)
-          : 'blue'
+          : "blue"
       );
     } else {
       const [storedName, storedColor] = await AsyncStorage.multiGet([
-        'fish_name',
-        'fish_color',
-      ]).then(entries => entries.map(([, v]) => v));
+        "fish_name",
+        "fish_color",
+      ]).then((entries) => entries.map(([, v]) => v));
 
-      setFishName(storedName ?? '');
+      setFishName(storedName ?? "");
       if (storedColor && availableColors.includes(storedColor as FishColor)) {
         setFishColor(storedColor as FishColor);
       } else {
-        setFishColor('blue');
+        setFishColor("blue");
       }
     }
   };
@@ -99,7 +97,7 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
   const handleSave = async (newName: string, newColor: FishColor) => {
     const trimmedName = newName.trim();
     if (trimmedName.length > 12) {
-      Alert.alert('Name too long', 'Please use 12 characters or less.');
+      Alert.alert("Name too long", "Please use 12 characters or less.");
       return;
     }
 
@@ -107,20 +105,20 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
 
     if (user) {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ fish_color: newColor, fish_name: trimmedName })
-        .eq('user_id', user.id);
+        .eq("user_id", user.id);
 
       setSaving(false);
 
       if (error) {
-        Alert.alert('Error', 'Failed to save profile. Please try again.');
+        Alert.alert("Error", "Failed to save profile. Please try again.");
         return;
       }
     } else {
       await AsyncStorage.multiSet([
-        ['fish_name', trimmedName],
-        ['fish_color', newColor],
+        ["fish_name", trimmedName],
+        ["fish_color", newColor],
       ]);
       setSaving(false);
     }
@@ -145,24 +143,27 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
           </Text>
         ) : (
           <Text style={[styles.fishNameText, { color: textColor }]}>
-            {fishName || 'Name me!'}
+            {fishName || "Name me!"}
           </Text>
         )}
 
         <FadeImage source={fishImages[fishColor]} style={styles.bigFish} />
 
-        <Button title="Edit" onPress={() => setModalVisible(true)} variant={transparent ? 'primary' : 'secondary'} />
+        <Button
+          title="Edit"
+          onPress={() => setModalVisible(true)}
+          variant={transparent ? "primary" : "secondary"}
+        />
 
-          <FishModal
-            visible={modalVisible}
-            initialText={fishName}
-            initialColor={fishColor}
-            onSave={handleSave}
-            onCancel={() => setModalVisible(false)}
-            saving={saving}
-            availableColors={availableColors}
-          />
-
+        <FishModal
+          visible={modalVisible}
+          initialText={fishName}
+          initialColor={fishColor}
+          onSave={handleSave}
+          onCancel={() => setModalVisible(false)}
+          saving={saving}
+          availableColors={availableColors}
+        />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -171,22 +172,22 @@ export function FishCustomizer({ transparent, onSaved }: FishCustomizerProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent'
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
   title: {
     fontWeight: 500,
-    marginBottom: 12
+    marginBottom: 12,
   },
   bigFish: {
     width: 100,
     height: 100,
-    marginBottom: 24
+    marginBottom: 24,
   },
   fishNameText: {
     height: 36,
     fontSize: 18,
-    fontWeight: 500
+    fontWeight: 500,
   },
 });

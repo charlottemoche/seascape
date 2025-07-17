@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
-import Colors from '@/constants/Colors';
-import { Text, Button } from '@/components/Themed';
+import { useEffect, useState } from "react";
+import { View, Pressable, StyleSheet } from "react-native";
+import Colors from "@/constants/Colors";
+import { Text, Button } from "@/components/Themed";
 
 type BreatheTimerProps = {
   isRunning: boolean;
@@ -76,7 +76,7 @@ export default function BreatheTimer({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
   return (
@@ -89,13 +89,19 @@ export default function BreatheTimer({
               onPress={() => setDuration(min)}
               style={[
                 styles.durationBtn,
-                duration === min && { backgroundColor: Colors.custom.blue, opacity: 0.5 },
+                duration === min && {
+                  backgroundColor: Colors.custom.blue,
+                  opacity: 0.5,
+                },
               ]}
             >
               <Text
                 style={[
                   styles.durationText,
-                  duration === min && { color: Colors.custom.dark, fontWeight: 'bold' },
+                  duration === min && {
+                    color: Colors.custom.dark,
+                    fontWeight: "bold",
+                  },
                 ]}
               >
                 {min} min
@@ -114,26 +120,25 @@ export default function BreatheTimer({
       >
         <View style={styles.timerWrapper}>
           <View style={styles.timerWrapper}>
-            <Text style={sessionComplete || showTime ? styles.timer : styles.noTimer}>
+            <Text
+              style={
+                sessionComplete || showTime ? styles.timer : styles.noTimer
+              }
+            >
               {sessionComplete
-                ? '00:00'
+                ? "00:00"
                 : showTime
-                  ? formatTime(timeLeft)
-                  : 'Tap to reveal time remaining'}
+                ? formatTime(timeLeft)
+                : "Tap to reveal time remaining"}
             </Text>
           </View>
         </View>
       </Pressable>
 
       {!isRunning && !sessionComplete && (
-        <Button
-          onPress={handleStart}
-          title="Start"
-        />
+        <Button onPress={handleStart} title="Start" />
       )}
-      {isRunning && (
-        <Button onPress={handleStop} title="Stop" />
-      )}
+      {isRunning && <Button onPress={handleStop} title="Stop" />}
 
       {sessionComplete && (
         <Button onPress={handleSessionEnd} title="End Session" />
@@ -145,36 +150,36 @@ export default function BreatheTimer({
 const styles = StyleSheet.create({
   timer: {
     fontSize: 48,
-    color: 'white',
+    color: "white",
     opacity: 0.8,
     marginVertical: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   noTimer: {
     fontSize: 18,
     color: Colors.custom.lightBlue,
     marginVertical: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   timerWrapper: {
     height: 120,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   startBtn: {
     backgroundColor: Colors.custom.lightBlue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   startText: {
     fontSize: 18,
     color: Colors.custom.transparent,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 16,
   },
   durationBtn: {

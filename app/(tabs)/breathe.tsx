@@ -1,19 +1,19 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, ImageBackground, Alert } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { useSession } from '@/context/SessionContext';
-import { useStreaks } from '@/context/StreakContext';
-import { useAudioPlayer } from 'expo-audio';
-import { updateStreak } from '@/lib/streakService';
-import { Text } from '@/components/Themed';
-import { Loader } from '@/components/Loader';
-import { supabase } from '@/lib/supabase';
-import { Vibration } from 'react-native';
-import { useGuestBreath } from '@/hooks/useGuestBreath';
-import BreatheCircle from '@/components/Breathe/BreatheCircle';
-import BreatheTimer from '@/components/Breathe/BreatheTimer';
-import Colors from '@/constants/Colors';
-import wave from '@/assets/images/wave.png';
+import React, { useState, useRef, useCallback } from "react";
+import { View, StyleSheet, ImageBackground, Alert } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useSession } from "@/context/SessionContext";
+import { useStreaks } from "@/context/StreakContext";
+import { useAudioPlayer } from "expo-audio";
+import { updateStreak } from "@/lib/streakService";
+import { Text } from "@/components/Themed";
+import { Loader } from "@/components/Loader";
+import { supabase } from "@/lib/supabase";
+import { Vibration } from "react-native";
+import { useGuestBreath } from "@/hooks/useGuestBreath";
+import BreatheCircle from "@/components/Breathe/BreatheCircle";
+import BreatheTimer from "@/components/Breathe/BreatheTimer";
+import Colors from "@/constants/Colors";
+import wave from "@/assets/images/wave.png";
 
 const WAVE = wave;
 
@@ -25,7 +25,7 @@ export default function BreatheScreen() {
   const [isRunning, setIsRunning] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
 
-  const player = useAudioPlayer(require('@/assets/sounds/bowl.mp3'));
+  const player = useAudioPlayer(require("@/assets/sounds/bowl.mp3"));
   const isLoggedIn = !!user;
   const shownRef = useRef(false);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -34,7 +34,10 @@ export default function BreatheScreen() {
     useCallback(() => {
       if (shownRef.current) return;
       shownRef.current = true;
-      Alert.alert('Check mute switch', 'Make sure your phone is not on silent to hear the session end.');
+      Alert.alert(
+        "Check mute switch",
+        "Make sure your phone is not on silent to hear the session end."
+      );
     }, [])
   );
 
@@ -54,27 +57,32 @@ export default function BreatheScreen() {
 
     if (isLoggedIn) {
       const { error } = await supabase
-        .from('breaths')
+        .from("breaths")
         .insert({ user_id: user!.id, duration });
 
       if (error) {
-        Alert.alert('Error', 'Failed to save session');
+        Alert.alert("Error", "Failed to save session");
         console.error(error);
         return;
       }
 
       try {
-        const result = await updateStreak(user!.id, 'breath', userTimezone, duration);
+        const result = await updateStreak(
+          user!.id,
+          "breath",
+          userTimezone,
+          duration
+        );
         if (result.success) {
-          Alert.alert('Success', 'Breathing session saved.');
+          Alert.alert("Success", "Breathing session saved.");
           await Promise.all([refreshStreaks(), refreshProfileQuiet()]);
         }
       } catch (e) {
-        console.error('Unexpected error updating breath streak:', e);
+        console.error("Unexpected error updating breath streak:", e);
       }
     } else {
       await recordSession(duration);
-      Alert.alert('Success', 'Breathing session saved.');
+      Alert.alert("Success", "Breathing session saved.");
     }
 
     setSessionComplete(false);
@@ -84,14 +92,15 @@ export default function BreatheScreen() {
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={WAVE}
-        style={{ flex: 1 }}
-        resizeMode="cover"
-      >
+      <ImageBackground source={WAVE} style={{ flex: 1 }} resizeMode="cover">
         <View style={styles.overlay} />
 
-        <View style={[styles.top, !isRunning && !sessionComplete && styles.centerInstruction]}>
+        <View
+          style={[
+            styles.top,
+            !isRunning && !sessionComplete && styles.centerInstruction,
+          ]}
+        >
           {isRunning || sessionComplete ? (
             <BreatheCircle sessionComplete={sessionComplete} />
           ) : (
@@ -120,30 +129,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.custom.transparent,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   overlay: {
     flex: 1,
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 31, 51, 0.7)',
+    backgroundColor: "rgba(0, 31, 51, 0.7)",
   },
   bottom: {
     paddingBottom: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
   top: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   centerInstruction: {
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingTop: 0,
   },
   instruction: {
     color: Colors.custom.lightBlue,
     fontSize: 20,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 28,
     paddingHorizontal: 40,
   },

@@ -1,14 +1,14 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   StyleSheet,
   useColorScheme,
   TouchableWithoutFeedback,
   Alert,
-} from 'react-native';
-import { removeFriend } from '@/lib/friendService';
-import { View, Text, Button } from '@/components/Themed';
-import Colors from '@/constants/Colors';
+} from "react-native";
+import { removeFriend } from "@/lib/friendService";
+import { View, Text, Button } from "@/components/Themed";
+import Colors from "@/constants/Colors";
 
 type Props = {
   visible: boolean;
@@ -18,12 +18,19 @@ type Props = {
   onRemoved?: (id: string) => void;
 };
 
-export default function FriendModal({ visible, friendId, onClose, fishName, onRemoved }: Props) {
+export default function FriendModal({
+  visible,
+  friendId,
+  onClose,
+  fishName,
+  onRemoved,
+}: Props) {
   const colorScheme = useColorScheme();
 
-  const bg = colorScheme === 'dark' ? Colors.custom.dark : Colors.light.background;
-  const fog = colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)';
-  const text = colorScheme === 'dark' ? '#fff' : '#000';
+  const bg =
+    colorScheme === "dark" ? Colors.custom.dark : Colors.light.background;
+  const fog = colorScheme === "dark" ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.3)";
+  const text = colorScheme === "dark" ? "#fff" : "#000";
 
   return (
     <Modal transparent animationType="fade" visible={visible}>
@@ -40,13 +47,13 @@ export default function FriendModal({ visible, friendId, onClose, fishName, onRe
           title="Remove friend"
           onPress={() =>
             Alert.alert(
-              'Confirm Remove',
-              'Are you sure you want to remove this friend?',
+              "Confirm Remove",
+              "Are you sure you want to remove this friend?",
               [
-                { text: 'Cancel', style: 'cancel' },
+                { text: "Cancel", style: "cancel" },
                 {
-                  text: 'Remove',
-                  style: 'destructive',
+                  text: "Remove",
+                  style: "destructive",
                   onPress: async () => {
                     await removeFriend(friendId);
                     onRemoved?.(friendId);
@@ -61,11 +68,7 @@ export default function FriendModal({ visible, friendId, onClose, fishName, onRe
         />
 
         <View>
-          <Button
-            title="Close"
-            onPress={() => onClose()}
-            variant="plain"
-          />
+          <Button title="Close" onPress={() => onClose()} variant="plain" />
         </View>
       </View>
     </Modal>
@@ -74,19 +77,18 @@ export default function FriendModal({ visible, friendId, onClose, fishName, onRe
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1
+    flex: 1,
   },
   card: {
-    position: 'absolute',
-    top: '35%',
-    left: '10%',
-    right: '10%',
+    position: "absolute",
+    top: "35%",
+    left: "10%",
+    right: "10%",
     borderRadius: 20,
     padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset:
-      { width: 0, height: 2 },
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     elevation: 6,
   },
@@ -94,14 +96,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     marginBottom: 16,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   title: {
     fontSize: 18,
     lineHeight: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   replyText: {
-    fontWeight: '500'
+    fontWeight: "500",
   },
 });

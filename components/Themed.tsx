@@ -3,18 +3,25 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import Colors from '@/constants/Colors';
+import {
+  Text as DefaultText,
+  View as DefaultView,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+} from "react-native";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import Colors from "@/constants/Colors";
 
 type ThemeProps = {
   lightColor?: string;
   darkColor?: string;
 };
 
-export type TextProps = ThemeProps & DefaultText['props'];
-export type InputProps = ThemeProps & DefaultView['props'];
-export type ViewProps = ThemeProps & DefaultView['props'];
+export type TextProps = ThemeProps & DefaultText["props"];
+export type InputProps = ThemeProps & DefaultView["props"];
+export type ViewProps = ThemeProps & DefaultView["props"];
 
 export type ButtonProps = {
   title?: string;
@@ -24,7 +31,7 @@ export type ButtonProps = {
   loading?: boolean;
   testID?: string;
   margin?: boolean;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'plain' | 'danger';
+  variant?: "primary" | "secondary" | "tertiary" | "plain" | "danger";
   width?: number;
   icon?: React.ReactNode;
 };
@@ -33,7 +40,7 @@ export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorScheme() ?? "light";
   const colorFromProps = props[theme];
 
   if (colorFromProps) {
@@ -45,14 +52,14 @@ export function useThemeColor(
 
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
 
   return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({}, 'background');
+  const backgroundColor = useThemeColor({}, "background");
 
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
@@ -65,41 +72,46 @@ export function Button({
   loading,
   textColor,
   margin = true,
-  variant = 'primary',
+  variant = "primary",
   width = 150,
   icon = null,
 }: ButtonProps & { textColor?: string }) {
-
   const c = {
-    primaryBg: useThemeColor({}, 'button'),
-    primaryText: useThemeColor({}, 'buttonText'),
+    primaryBg: useThemeColor({}, "button"),
+    primaryText: useThemeColor({}, "buttonText"),
 
-    secondaryBg: useThemeColor({}, 'buttonSecondary'),
-    secondaryText: useThemeColor({ light: '#000', dark: '#fff' }, 'buttonText'),
+    secondaryBg: useThemeColor({}, "buttonSecondary"),
+    secondaryText: useThemeColor({ light: "#000", dark: "#fff" }, "buttonText"),
 
-    dangerBg: useThemeColor({}, 'danger'),
-    dangerText: useThemeColor({ light: '#000', dark: '#fff' }, 'white'),
+    dangerBg: useThemeColor({}, "danger"),
+    dangerText: useThemeColor({ light: "#000", dark: "#fff" }, "white"),
 
-    tertiaryBg: useThemeColor({ light: '#fff', dark: '#545454' }, 'transparent'),
-    tertiaryBorder: useThemeColor({ light: '#ddd', dark: '#2a2a2a' }, 'transparent'),
-    tertiaryText: useThemeColor({ light: '#000', dark: '#000' }, 'text'),
+    tertiaryBg: useThemeColor(
+      { light: "#fff", dark: "#545454" },
+      "transparent"
+    ),
+    tertiaryBorder: useThemeColor(
+      { light: "#ddd", dark: "#2a2a2a" },
+      "transparent"
+    ),
+    tertiaryText: useThemeColor({ light: "#000", dark: "#000" }, "text"),
   };
 
   const variants = {
     primary: {
       bg: c.primaryBg,
       text: c.primaryText,
-      border: 'rgba(123,182,212,0.1)',
+      border: "rgba(123,182,212,0.1)",
     },
     secondary: {
-      bg: 'rgba(123,182,212,0.1)',
+      bg: "rgba(123,182,212,0.1)",
       text: textColor ?? c.secondaryText,
-      border: 'rgba(123,182,212,0.4)',
+      border: "rgba(123,182,212,0.4)",
     },
     danger: {
       bg: c.dangerBg,
       text: c.dangerText,
-      border: 'rgba(221, 11, 11, 0.2)',
+      border: "rgba(221, 11, 11, 0.2)",
     },
     tertiary: {
       bg: c.tertiaryBg,
@@ -107,9 +119,9 @@ export function Button({
       border: c.tertiaryBorder,
     },
     plain: {
-      bg: 'transparent',
+      bg: "transparent",
       text: textColor ?? c.secondaryText,
-      border: 'transparent',
+      border: "transparent",
     },
   } as const;
 
@@ -133,16 +145,12 @@ export function Button({
       ]}
       disabled={disabled || loading}
     >
-      {icon && title && (
-        <View style={styles.iconLeft}>
-          {icon}
-        </View>
-      )}
+      {icon && title && <View style={styles.iconLeft}>{icon}</View>}
 
       {title && (
         <View style={styles.labelWrap}>
           <Text style={[styles.text, { color: text }]}>
-            {loading ? 'Loading…' : title}
+            {loading ? "Loading…" : title}
           </Text>
         </View>
       )}
@@ -154,11 +162,16 @@ export function Button({
 
 export function Input(props: TextInputProps) {
   const { style, ...otherProps } = props;
-  const borderColor = useThemeColor({}, 'tint');
-  const color = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'input');
+  const borderColor = useThemeColor({}, "tint");
+  const color = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "input");
 
-  return <TextInput style={[styles.input, { borderColor, color, backgroundColor }, style]} {...otherProps} />;
+  return (
+    <TextInput
+      style={[styles.input, { borderColor, color, backgroundColor }, style]}
+      {...otherProps}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -166,37 +179,37 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 7,
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
     maxWidth: 500,
   },
   iconLeft: {
     width: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
   },
   labelWrap: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
   text: {
     fontSize: 15,
-    fontWeight: '400',
-    textAlign: 'center',
+    fontWeight: "400",
+    textAlign: "center",
   },
   icon: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   input: {
     borderWidth: 1,
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
-    minWidth: '90%',
+    minWidth: "90%",
     height: 40,
   },
   card: {

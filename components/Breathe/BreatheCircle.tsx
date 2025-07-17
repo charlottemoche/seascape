@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, Animated, Easing, StyleSheet } from 'react-native';
-import Colors from '@/constants/Colors';
-import { Text } from '@/components/Themed';
+import { useEffect, useRef, useState } from "react";
+import { View, Animated, Easing, StyleSheet } from "react-native";
+import Colors from "@/constants/Colors";
+import { Text } from "@/components/Themed";
 
-export default function BreatheCircle({ sessionComplete }: { sessionComplete: boolean }) {
-  const [phase, setPhase] = useState<'Inhale' | 'Exhale'>('Inhale');
+export default function BreatheCircle({
+  sessionComplete,
+}: {
+  sessionComplete: boolean;
+}) {
+  const [phase, setPhase] = useState<"Inhale" | "Exhale">("Inhale");
   const scale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -35,7 +39,7 @@ export default function BreatheCircle({ sessionComplete }: { sessionComplete: bo
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPhase((prev) => (prev === 'Inhale' ? 'Exhale' : 'Inhale'));
+      setPhase((prev) => (prev === "Inhale" ? "Exhale" : "Inhale"));
     }, 4000);
 
     return () => clearInterval(interval);
@@ -51,27 +55,27 @@ export default function BreatheCircle({ sessionComplete }: { sessionComplete: bo
           },
         ]}
       />
-      <Text style={styles.phase}>{sessionComplete ? 'Completed' : phase}</Text>
+      <Text style={styles.phase}>{sessionComplete ? "Completed" : phase}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   circle: {
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     marginBottom: 40,
   },
   phase: {
     fontSize: 28,
     color: Colors.custom.lightBlue,
-    textAlign: 'center',
+    textAlign: "center",
     paddingTop: 40,
   },
 });

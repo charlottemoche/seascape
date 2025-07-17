@@ -6,9 +6,9 @@ import React, {
   useContext,
   useCallback,
   useMemo,
-} from 'react';
-import { fetchStreaks } from '@/lib/streakService';
-import { useSession } from './SessionContext';
+} from "react";
+import { fetchStreaks } from "@/lib/streakService";
+import { useSession } from "./SessionContext";
 
 type StreakContextType = {
   lastActive?: string | null;
@@ -88,15 +88,13 @@ export const StreakProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <StreakContext.Provider value={value}>
-      {children}
-    </StreakContext.Provider>
+    <StreakContext.Provider value={value}>{children}</StreakContext.Provider>
   );
 };
 
 export const useStreaks = () => {
   const context = useContext(StreakContext);
   if (!context)
-    throw new Error('useStreaks must be used within a StreakProvider');
+    throw new Error("useStreaks must be used within a StreakProvider");
   return context;
 };

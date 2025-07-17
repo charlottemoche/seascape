@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,16 @@ import {
   Animated,
   StyleSheet,
   useColorScheme,
-} from 'react-native';
-import { FishColor } from '@/constants/fishMap';
-import { sendNudge } from '@/lib/nudgeService';
-import { useImagesReady } from '@/hooks/useImagesReady';
-import Colors from '@/constants/Colors';
-import fishImages from '@/constants/fishMap';
-import bubbles from '@/assets/images/bubbles.png';
-import starfish from '@/assets/images/starfish.png';
-import preyImg from '@/assets/images/prey.png';
-import FriendModal from '@/components/Modals/FriendModal';
+} from "react-native";
+import { FishColor } from "@/constants/fishMap";
+import { sendNudge } from "@/lib/nudgeService";
+import { useImagesReady } from "@/hooks/useImagesReady";
+import Colors from "@/constants/Colors";
+import fishImages from "@/constants/fishMap";
+import bubbles from "@/assets/images/bubbles.png";
+import starfish from "@/assets/images/starfish.png";
+import preyImg from "@/assets/images/prey.png";
+import FriendModal from "@/components/Modals/FriendModal";
 
 export type Props = {
   fish_name?: string | null;
@@ -40,13 +40,18 @@ export default function Friend({
   onRemoved,
 }: Props) {
   const colorScheme = useColorScheme();
-  const textColor = colorScheme === 'dark' ? '#eee' : '#222';
-  const greyText = colorScheme === 'dark' ? '#aaa' : '#888';
-  const cardColor = colorScheme === 'dark' ? Colors.dark.card : Colors.light.card;
-  const bubbleBg = colorScheme === 'dark' ? 'rgba(207,233,241,0.7)' : 'rgba(123,182,212,0.4)';
-  const starBg = colorScheme === 'dark' ? 'rgba(198,250,178,0.6)' : 'rgba(75,144,50,0.3)';
+  const textColor = colorScheme === "dark" ? "#eee" : "#222";
+  const greyText = colorScheme === "dark" ? "#aaa" : "#888";
+  const cardColor =
+    colorScheme === "dark" ? Colors.dark.card : Colors.light.card;
+  const bubbleBg =
+    colorScheme === "dark" ? "rgba(207,233,241,0.7)" : "rgba(123,182,212,0.4)";
+  const starBg =
+    colorScheme === "dark" ? "rgba(198,250,178,0.6)" : "rgba(75,144,50,0.3)";
 
-  const fallbackColor = (fish_color && fish_color in fishImages ? fish_color : 'blue') as FishColor;
+  const fallbackColor = (
+    fish_color && fish_color in fishImages ? fish_color : "blue"
+  ) as FishColor;
   const fishImage = fishImages[fallbackColor];
 
   const totalImgs = showFullDetails && high_score != null ? 2 : 1;
@@ -60,23 +65,48 @@ export default function Friend({
   useEffect(() => {
     if (done) {
       Animated.parallel([
-        Animated.timing(opacityRow, { toValue: 1, duration: 150, useNativeDriver: true }),
-        Animated.timing(opacitySkel, { toValue: 0, duration: 150, useNativeDriver: true }),
+        Animated.timing(opacityRow, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacitySkel, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
       ]).start();
     }
   }, [done]);
 
   return (
-    <View style={{ position: 'relative' }}>
+    <View style={{ position: "relative" }}>
       {/* Skeleton overlay */}
-      <Animated.View style={[styles.wrapper, styles.skeleton, { backgroundColor: 'rgba(204,204,204,0.2)', opacity: opacitySkel }]} />
+      <Animated.View
+        style={[
+          styles.wrapper,
+          styles.skeleton,
+          { backgroundColor: "rgba(204,204,204,0.2)", opacity: opacitySkel },
+        ]}
+      />
 
       {/* Actual content */}
-      <Pressable onPress={showFullDetails ? () => setModalVisible(true) : undefined}>
-        <Animated.View style={[styles.wrapper, { backgroundColor: cardColor, opacity: opacityRow }]}>
+      <Pressable
+        onPress={showFullDetails ? () => setModalVisible(true) : undefined}
+      >
+        <Animated.View
+          style={[
+            styles.wrapper,
+            { backgroundColor: cardColor, opacity: opacityRow },
+          ]}
+        >
           <View style={styles.friendWrapper}>
             <View style={styles.friendInfo}>
-              <Image source={fishImage} style={styles.image} onLoadEnd={onImgLoad} />
+              <Image
+                source={fishImage}
+                style={styles.image}
+                onLoadEnd={onImgLoad}
+              />
               <Text
                 style={[
                   styles.text,
@@ -90,7 +120,11 @@ export default function Friend({
 
             {showFullDetails && high_score != null && (
               <View style={[styles.highScore, { backgroundColor: cardColor }]}>
-                <Image source={preyImg} style={styles.fishImage} onLoadEnd={onImgLoad} />
+                <Image
+                  source={preyImg}
+                  style={styles.fishImage}
+                  onLoadEnd={onImgLoad}
+                />
                 <Text
                   style={[
                     styles.text,
@@ -111,9 +145,12 @@ export default function Friend({
                   styles.actionButton,
                   { backgroundColor: starBg, opacity: pressed ? 0.7 : 1 },
                 ]}
-                onPress={() => friendId && sendNudge(friendId, 'hug')}
+                onPress={() => friendId && sendNudge(friendId, "hug")}
               >
-                <Image source={starfish} style={[styles.actionImage, { width: 22 }]} />
+                <Image
+                  source={starfish}
+                  style={[styles.actionImage, { width: 22 }]}
+                />
               </Pressable>
 
               <Pressable
@@ -121,9 +158,12 @@ export default function Friend({
                   styles.actionButton,
                   { backgroundColor: bubbleBg, opacity: pressed ? 0.7 : 1 },
                 ]}
-                onPress={() => friendId && sendNudge(friendId, 'breathe')}
+                onPress={() => friendId && sendNudge(friendId, "breathe")}
               >
-                <Image source={bubbles} style={[styles.actionImage, { width: 20 }]} />
+                <Image
+                  source={bubbles}
+                  style={[styles.actionImage, { width: 20 }]}
+                />
               </Pressable>
             </View>
           )}
@@ -145,11 +185,11 @@ export default function Friend({
 
 const styles = StyleSheet.create({
   wrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'transparent',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
     gap: 12,
-    width: '100%',
+    width: "100%",
     paddingVertical: 18,
     paddingHorizontal: 8,
     borderRadius: 8,
@@ -159,14 +199,14 @@ const styles = StyleSheet.create({
     marginVertical: 18,
   },
   friendWrapper: {
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
+    backgroundColor: "transparent",
+    flexDirection: "row",
   },
   friendInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingRight: 10,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   image: {
     width: 20,
@@ -174,7 +214,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   text: {
-    fontWeight: '500',
+    fontWeight: "500",
   },
   largeText: {
     fontSize: 18,
@@ -183,10 +223,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
   actionButton: {
     paddingVertical: 4,
@@ -195,14 +235,14 @@ const styles = StyleSheet.create({
   },
   actionImage: {
     height: 22,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   fishImage: {
     width: 14,
     height: 14,
   },
   highScore: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

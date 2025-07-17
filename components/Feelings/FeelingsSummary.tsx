@@ -1,43 +1,67 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet, Image, useColorScheme } from 'react-native';
-import { View, Text } from '@/components/Themed';
-import { fetchFeelings } from '@/lib/feelingsService';
-import { useFocusEffect } from '@react-navigation/native';
-import { getMoodByDay, MoodDay } from '@/lib/aggregateFeelings';
-import type { JournalEntryRaw, JournalEntryDecrypted } from '@/types/Journal';
-import FeelingsCalendar from '@/components/Feelings/FeelingsCalendar';
-import Colors from '@/constants/Colors';
-import CryptoJS from 'crypto-js';
+import { useState, useRef, useCallback, useMemo } from "react";
+import { Pressable, StyleSheet, Image, useColorScheme } from "react-native";
+import { View, Text } from "@/components/Themed";
+import { fetchFeelings } from "@/lib/feelingsService";
+import { useFocusEffect } from "@react-navigation/native";
+import { getMoodByDay, MoodDay } from "@/lib/aggregateFeelings";
+import type { JournalEntryRaw, JournalEntryDecrypted } from "@/types/Journal";
+import FeelingsCalendar from "@/components/Feelings/FeelingsCalendar";
+import Colors from "@/constants/Colors";
+import CryptoJS from "crypto-js";
 
 const feelingCategories = {
-  positive: ['Happy', 'Pleasant', 'Joyful', 'Excited', 'Grateful', 'Hopeful', 'Content'],
-  neutral: ['Calm', 'Indifferent', 'Tired'],
-  negative: ['Sad', 'Frustrated', 'Anxious', 'Angry', 'Stressed', 'Lonely'],
+  positive: [
+    "Happy",
+    "Pleasant",
+    "Joyful",
+    "Excited",
+    "Grateful",
+    "Hopeful",
+    "Content",
+  ],
+  neutral: ["Calm", "Indifferent", "Tired"],
+  negative: ["Sad", "Frustrated", "Anxious", "Angry", "Stressed", "Lonely"],
 };
 
 export default function FeelingsSummary({ userId }: { userId: string }) {
-  const [range, setRange] = useState<'1W' | '1M'>('1W');
+  const [range, setRange] = useState<"1W" | "1M">("1W");
   const [entries, setEntries] = useState<JournalEntryDecrypted[]>([]);
-  const [totals, setTotals] = useState({ positive: 0, neutral: 0, negative: 0 });
-  const [mostCommonFeeling, setMostCommonFeeling] = useState('');
-  const [dominantMood, setDominantMood] = useState<'positive' | 'neutral' | 'negative'>('neutral');
+  const [totals, setTotals] = useState({
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+  });
+  const [mostCommonFeeling, setMostCommonFeeling] = useState("");
+  const [dominantMood, setDominantMood] = useState<
+    "positive" | "neutral" | "negative"
+  >("neutral");
   const [error, setError] = useState<string | null>(null);
   const [moodDays, setMoodDays] = useState<MoodDay[]>([]);
-  const [percentages, setPercentages] = useState({ positive: 0, neutral: 0, negative: 0 });
+  const [percentages, setPercentages] = useState({
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+  });
 
   const colorScheme = useColorScheme();
 
-  const backgroundColorBox = colorScheme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
-  const backgroundColor = colorScheme === 'dark' ? Colors.dark.card : '#fff';
-  const textColor = colorScheme === 'dark' ? '#ccc' : '#444';
+  const backgroundColorBox =
+    colorScheme === "dark" ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)";
+  const backgroundColor = colorScheme === "dark" ? Colors.dark.card : "#fff";
+  const textColor = colorScheme === "dark" ? "#ccc" : "#444";
 
-  const cacheRef = useRef<Record<string, {
-    entries: JournalEntryDecrypted[],
-    totals: typeof totals,
-    mostCommonFeeling: string,
-    dominantMood: 'positive' | 'neutral' | 'negative',
-    moodDays: MoodDay[]
-  }>>({});
+  const cacheRef = useRef<
+    Record<
+      string,
+      {
+        entries: JournalEntryDecrypted[];
+        totals: typeof totals;
+        mostCommonFeeling: string;
+        dominantMood: "positive" | "neutral" | "negative";
+        moodDays: MoodDay[];
+      }
+    >
+  >({});
 
   function getEncryptionKey(userId: string): string {
     return CryptoJS.SHA256(userId).toString();
@@ -49,7 +73,7 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
       const bytes = CryptoJS.AES.decrypt(ciphertext, key);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch {
-      return '';
+      return "";
     }
   }
 
@@ -58,9 +82,9 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
   }
 
   function imageForMood(category: string) {
-    if (category === 'positive') return require('@/assets/images/sun.png');
-    if (category === 'neutral') return require('@/assets/images/moon.png');
-    return require('@/assets/images/rain.png');
+    if (category === "positive") return require("@/assets/images/sun.png");
+    if (category === "neutral") return require("@/assets/images/moon.png");
+    return require("@/assets/images/rain.png");
   }
 
   const load = useCallback(async () => {
@@ -115,48 +139,64 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
         return acc;
       }, {} as Record<string, number>);
 
-      const topFeeling = Object.entries(frequency).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+      const topFeeling =
+        Object.entries(frequency).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
 
-      let dominant: 'positive' | 'neutral' | 'negative' = 'neutral';
+      let dominant: "positive" | "neutral" | "negative" = "neutral";
 
       const { positive, neutral, negative } = totals;
       const maxCount = Math.max(positive, neutral, negative);
 
       const maxCategories = [
-        positive === maxCount ? 'positive' : null,
-        neutral === maxCount ? 'neutral' : null,
-        negative === maxCount ? 'negative' : null,
-      ].filter(Boolean) as ('positive' | 'neutral' | 'negative')[];
+        positive === maxCount ? "positive" : null,
+        neutral === maxCount ? "neutral" : null,
+        negative === maxCount ? "negative" : null,
+      ].filter(Boolean) as ("positive" | "neutral" | "negative")[];
 
       if (maxCategories.length === 1) {
         dominant = maxCategories[0];
       } else if (maxCategories.length > 1) {
-        if (maxCategories.includes('positive')) {
-          dominant = 'positive';
-        } else if (maxCategories.includes('neutral')) {
-          dominant = 'neutral';
+        if (maxCategories.includes("positive")) {
+          dominant = "positive";
+        } else if (maxCategories.includes("neutral")) {
+          dominant = "neutral";
         } else {
-          dominant = 'negative';
+          dominant = "negative";
         }
       }
 
       if (topFeeling) {
         for (const category in feelingCategories) {
-          if (feelingCategories[category as keyof typeof feelingCategories].includes(topFeeling)) {
-            if (maxCategories.includes(category as 'positive' | 'neutral' | 'negative')) {
-              dominant = category as 'positive' | 'neutral' | 'negative';
+          if (
+            feelingCategories[
+              category as keyof typeof feelingCategories
+            ].includes(topFeeling)
+          ) {
+            if (
+              maxCategories.includes(
+                category as "positive" | "neutral" | "negative"
+              )
+            ) {
+              dominant = category as "positive" | "neutral" | "negative";
             }
             break;
           }
         }
       }
 
-      if (range === '1M') {
-        const totalFeelings = Object.values(totals).reduce((acc, val) => acc + val, 0);
-        const percentages = Object.entries(totals).reduce((acc, [category, count]) => {
-          acc[category as keyof typeof totals] = (count / totalFeelings) * 100;
-          return acc;
-        }, {} as typeof totals);
+      if (range === "1M") {
+        const totalFeelings = Object.values(totals).reduce(
+          (acc, val) => acc + val,
+          0
+        );
+        const percentages = Object.entries(totals).reduce(
+          (acc, [category, count]) => {
+            acc[category as keyof typeof totals] =
+              (count / totalFeelings) * 100;
+            return acc;
+          },
+          {} as typeof totals
+        );
         setPercentages(percentages);
       }
 
@@ -175,15 +215,15 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
       setDominantMood(dominant);
       setError(null);
     } catch (err) {
-      console.error('[FeelingsSummary] fetch error:', err);
-      setError('Failed to load feelings data.');
+      console.error("[FeelingsSummary] fetch error:", err);
+      setError("Failed to load feelings data.");
     }
   }, [userId, range]);
 
   const showNeutralImage = error || entries.length === 0;
   const summaryText = error
     ? error
-    : 'Log some journal entries to track your mood.';
+    : "Log some journal entries to track your mood.";
 
   useFocusEffect(
     useCallback(() => {
@@ -195,31 +235,64 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
     <View>
       <View style={styles.container}>
         <View style={[styles.ranges, { backgroundColor: backgroundColor }]}>
-          {(['1W', '1M'] as const).map((r) => (
-            <Pressable key={r} onPress={() => setRange(r)} style={[styles.range, range === r && styles.selectedRange]}>
-              <Text style={{
-                fontWeight: range === r ? 'bold' : 'normal',
-                color: range === r ? '#000' : colorScheme === 'dark' ? '#fff' : '#000',
-              }}>{r}</Text>
+          {(["1W", "1M"] as const).map((r) => (
+            <Pressable
+              key={r}
+              onPress={() => setRange(r)}
+              style={[styles.range, range === r && styles.selectedRange]}
+            >
+              <Text
+                style={{
+                  fontWeight: range === r ? "bold" : "normal",
+                  color:
+                    range === r
+                      ? "#000"
+                      : colorScheme === "dark"
+                      ? "#fff"
+                      : "#000",
+                }}
+              >
+                {r}
+              </Text>
             </Pressable>
           ))}
         </View>
 
-        {range === '1M' ? (
-          <View style={[styles.wrapper, { backgroundColor: backgroundColor, paddingHorizontal: 12, paddingBottom: 12 }]}>
-            <FeelingsCalendar data={moodDays} percentages={percentages} mostCommon={mostCommonFeeling} />
+        {range === "1M" ? (
+          <View
+            style={[
+              styles.wrapper,
+              {
+                backgroundColor: backgroundColor,
+                paddingHorizontal: 12,
+                paddingBottom: 12,
+              },
+            ]}
+          >
+            <FeelingsCalendar
+              data={moodDays}
+              percentages={percentages}
+              mostCommon={mostCommonFeeling}
+            />
           </View>
         ) : (
           <View style={styles.wrapper}>
             <View style={styles.imageContainer}>
               <Image
-                source={imageForMood(showNeutralImage ? 'neutral' : dominantMood)}
+                source={imageForMood(
+                  showNeutralImage ? "neutral" : dominantMood
+                )}
                 style={styles.image}
                 resizeMode="cover"
               />
             </View>
 
-            <View style={[styles.summaryBox, { backgroundColor: backgroundColorBox }]}>
+            <View
+              style={[
+                styles.summaryBox,
+                { backgroundColor: backgroundColorBox },
+              ]}
+            >
               {showNeutralImage ? (
                 <Text style={[styles.noEntries, { color: textColor }]}>
                   {summaryText}
@@ -230,8 +303,13 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
                     Your overall mood for the past week was
                   </Text>
                   <Text style={styles.mood}>{capitalize(dominantMood)}</Text>
-                  {dominantMood === 'negative' && (
-                    <Text style={[styles.common, { color: textColor, fontSize: 12 }]}>
+                  {dominantMood === "negative" && (
+                    <Text
+                      style={[
+                        styles.common,
+                        { color: textColor, fontSize: 12 },
+                      ]}
+                    >
                       Having a tough week? Try a breathing exercise.
                     </Text>
                   )}
@@ -248,14 +326,14 @@ export default function FeelingsSummary({ userId }: { userId: string }) {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    borderColor: 'rgba(123, 182, 212, 0.4)',
+    borderColor: "rgba(123, 182, 212, 0.4)",
     borderWidth: 1,
   },
   ranges: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderTopRightRadius: 16,
     borderTopLeftRadius: 16,
-    justifyContent: 'center',
+    justifyContent: "center",
     gap: 10,
     padding: 20,
   },
@@ -263,67 +341,67 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
   },
   selectedRange: {
-    backgroundColor: '#7bb6d4',
-    borderColor: '#7bb6d4',
+    backgroundColor: "#7bb6d4",
+    borderColor: "#7bb6d4",
   },
   wrapper: {
-    width: '100%',
-    position: 'relative',
+    width: "100%",
+    position: "relative",
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   imageContainer: {
     flex: 1,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     aspectRatio: 6 / 5,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   summaryBox: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 16,
-    width: '90%',
+    width: "90%",
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 16,
-    marginHorizontal: '5%',
-    alignItems: 'center',
+    marginHorizontal: "5%",
+    alignItems: "center",
   },
   label: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 4,
   },
   mood: {
     fontSize: 22,
     fontWeight: 500,
-    textAlign: 'center',
+    textAlign: "center",
   },
   common: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 6,
   },
   noEntries: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   bar: {
     height: 8,
-    width: '90%',
+    width: "90%",
     borderRadius: 4,
-    overflow: 'hidden',
-    flexDirection: 'row',
-    alignSelf: 'center',
+    overflow: "hidden",
+    flexDirection: "row",
+    alignSelf: "center",
     marginTop: 12,
   },
   keyDot: {
@@ -333,12 +411,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   keysContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginVertical: 16,
   },
   keyContainer: {
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
 });

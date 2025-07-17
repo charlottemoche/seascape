@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Animated, View, StyleSheet, ImageProps } from 'react-native';
+import React, { useRef } from "react";
+import { Animated, View, StyleSheet, ImageProps } from "react-native";
 
 type Props = ImageProps & {
   placeholderColor?: string;
@@ -8,7 +8,7 @@ type Props = ImageProps & {
 };
 
 export function FadeImage({
-  placeholderColor = 'rgba(204,204,204,0.2)',
+  placeholderColor = "rgba(204,204,204,0.2)",
   durationMs = 250,
   rounded = true,
   style,

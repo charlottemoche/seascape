@@ -1,15 +1,21 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AppState } from 'react-native';
-import { useSession } from '@/context/SessionContext';
-import { listenForIncomingRequests, listIncomingRequests } from '@/lib/friendService';
-import * as Notifications from 'expo-notifications';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { AppState } from "react-native";
+import { useSession } from "@/context/SessionContext";
+import {
+  listenForIncomingRequests,
+  listIncomingRequests,
+} from "@/lib/friendService";
+import * as Notifications from "expo-notifications";
 
 type Context = {
   hasPending: boolean;
   setPending: (b: boolean) => void;
 };
 
-const PendingContext = createContext<Context>({ hasPending: false, setPending: () => { } });
+const PendingContext = createContext<Context>({
+  hasPending: false,
+  setPending: () => {},
+});
 
 export function PendingProvider({ children }: { children: React.ReactNode }) {
   const { user } = useSession();
@@ -17,7 +23,7 @@ export function PendingProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setPending(false);
-    
+
     if (!user) return;
 
     const stop = listenForIncomingRequests(user.id, async () => {
@@ -25,27 +31,31 @@ export function PendingProvider({ children }: { children: React.ReactNode }) {
       setPending(reqs.length > 0);
     });
 
-    const receivedSub = Notifications.addNotificationReceivedListener(async (n) => {
-      if (n.request.content.data?.type === 'friend_request') {
-        setPending(true);
+    const receivedSub = Notifications.addNotificationReceivedListener(
+      async (n) => {
+        if (n.request.content.data?.type === "friend_request") {
+          setPending(true);
+        }
       }
-    });
+    );
 
-    const responseSub = Notifications.addNotificationResponseReceivedListener(async (resp) => {
-      if (resp.notification.request.content.data?.type === 'friend_request') {
-        setPending(true);
+    const responseSub = Notifications.addNotificationResponseReceivedListener(
+      async (resp) => {
+        if (resp.notification.request.content.data?.type === "friend_request") {
+          setPending(true);
+        }
       }
-    });
+    );
 
-    const sub = AppState.addEventListener('change', state => {
-      if (state === 'active') {
-        listIncomingRequests().then(r => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        listIncomingRequests().then((r) => {
           if (r.length === 0) setPending(false);
         });
       }
     });
 
-    listIncomingRequests().then(r => setPending(r.length > 0));
+    listIncomingRequests().then((r) => setPending(r.length > 0));
 
     return () => {
       stop();

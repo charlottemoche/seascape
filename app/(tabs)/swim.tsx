@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
   View,
   TouchableWithoutFeedback,
@@ -7,27 +7,30 @@ import {
   ImageBackground,
   Image,
   Alert,
-} from 'react-native';
-import { useSwimGame, environments } from '@/hooks/useSwimGame';
-import { useCanPlay } from '@/hooks/user/useCanPlayToday';
-import { useSession } from '@/context/SessionContext';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Text } from '@/components/Themed';
-import { SwimGameOverlay } from '@/components/SwimGameOverlay';
-import { getOverlayMode } from '@/lib/gameOverlay';
-import { bumpHighScore, useSyncAndRefresh } from '@/hooks/useHighScore';
-import { supabase } from '@/lib/supabase';
-import fishImages, { FishColor } from '@/constants/fishMap';
-import predatorImg from '@/assets/images/predator.png';
-import preyImg from '@/assets/images/prey.png';
+} from "react-native";
+import { useSwimGame, environments } from "@/hooks/useSwimGame";
+import { useCanPlay } from "@/hooks/user/useCanPlayToday";
+import { useSession } from "@/context/SessionContext";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Text } from "@/components/Themed";
+import { SwimGameOverlay } from "@/components/SwimGameOverlay";
+import { getOverlayMode } from "@/lib/gameOverlay";
+import { bumpHighScore, useSyncAndRefresh } from "@/hooks/useHighScore";
+import { supabase } from "@/lib/supabase";
+import fishImages, { FishColor } from "@/constants/fishMap";
+import predatorImg from "@/assets/images/predator.png";
+import preyImg from "@/assets/images/prey.png";
 
 export default function SwimScreen() {
-  const { user, profile, loading, refreshProfile, refreshProfileQuiet } = useSession();
+  const { user, profile, loading, refreshProfile, refreshProfileQuiet } =
+    useSession();
 
   useSyncAndRefresh(refreshProfileQuiet, user?.id);
 
   const [envMessage, setEnvMessage] = useState<string | null>(null);
-  const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<number | null>(null);
+  const [invincibleSecondsLeft, setInvincibleSecondsLeft] = useState<
+    number | null
+  >(null);
   const [resetting, setResetting] = useState(false);
   const [bestScore, setBestScore] = useState<number>(profile?.high_score ?? 0);
 
@@ -51,9 +54,9 @@ export default function SwimScreen() {
 
   const swimIntervalRef = useRef<number | null>(null);
 
-  const rawColor = profile?.fish_color ?? 'blue';
+  const rawColor = profile?.fish_color ?? "blue";
   const fishColor = useMemo(() => {
-    return (rawColor in fishImages ? rawColor : 'blue') as FishColor;
+    return (rawColor in fishImages ? rawColor : "blue") as FishColor;
   }, [rawColor]);
   const fishImage = useMemo(() => fishImages[fishColor], [fishColor]);
   const tabBarHeight = useBottomTabBarHeight();
@@ -61,11 +64,11 @@ export default function SwimScreen() {
   const markHasPlayed = async () => {
     if (user && !profile?.has_played) {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ has_played: true })
-        .eq('user_id', user.id);
+        .eq("user_id", user.id);
 
-      if (error) console.error('Failed to mark has_played:', error);
+      if (error) console.error("Failed to mark has_played:", error);
       else await refreshProfile();
     }
   };
@@ -101,7 +104,15 @@ export default function SwimScreen() {
       gameOver,
       hasPlayed: profile?.has_played,
     });
-  }, [canPlayLoading, loading, canPlay, playCount, gameStarted, gameOver, profile?.has_played]);
+  }, [
+    canPlayLoading,
+    loading,
+    canPlay,
+    playCount,
+    gameStarted,
+    gameOver,
+    profile?.has_played,
+  ]);
 
   const handlePressIn = () => {
     if (!canPlay || !gameStarted) return;
@@ -125,8 +136,8 @@ export default function SwimScreen() {
       setGameStarted(false);
       setGameOver(false);
     } catch (err) {
-      console.error('Reset play count failed:', err);
-      Alert.alert('Error', 'Failed to reset play count.');
+      console.error("Reset play count failed:", err);
+      Alert.alert("Error", "Failed to reset play count.");
     } finally {
       setResetting(false);
     }
@@ -189,20 +200,22 @@ export default function SwimScreen() {
   }, [profile, bestScore]);
 
   useEffect(() => {
-    if (typeof playCount === 'number') {
+    if (typeof playCount === "number") {
       setPlaysUsed(playCount);
     }
   }, [playCount]);
 
   return (
-    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+    <TouchableWithoutFeedback
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+    >
       <View style={styles.container}>
         <ImageBackground
           source={environments[environmentIndex].backgroundImage}
           style={styles.background}
           resizeMode="cover"
         >
-
           {envMessage && (
             <View style={styles.envMessageOverlay}>
               <Text style={styles.envMessageText}>{envMessage}</Text>
@@ -212,13 +225,15 @@ export default function SwimScreen() {
           {invincible && (
             <View style={styles.invincibleIndicator}>
               <Text style={styles.invincibleText}>
-                Invincible{invincibleSecondsLeft !== null ? `: ${invincibleSecondsLeft}s` : '!'}
+                Invincible
+                {invincibleSecondsLeft !== null
+                  ? `: ${invincibleSecondsLeft}s`
+                  : "!"}
               </Text>
             </View>
           )}
 
           <View style={styles.overlay}>
-
             <SwimGameOverlay
               overlayMode={overlayMode}
               highScore={bestScore}
@@ -250,14 +265,14 @@ export default function SwimScreen() {
             />
 
             {obstacles.map(({ id, xValue, y, type }) => {
-              const size = type === 'predator' ? predatorSize : preySize;
-              const source = type === 'predator' ? predatorImg : preyImg;
+              const size = type === "predator" ? predatorSize : preySize;
+              const source = type === "predator" ? predatorImg : preyImg;
 
               return (
                 <View
                   key={id}
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     left: xValue,
                     top: y,
                     width: size,
@@ -267,9 +282,9 @@ export default function SwimScreen() {
                   <Animated.Image
                     source={source}
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      resizeMode: 'contain',
+                      width: "100%",
+                      height: "100%",
+                      resizeMode: "contain",
                     }}
                   />
                 </View>
@@ -288,37 +303,37 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 31, 51, 0.5)',
+    backgroundColor: "rgba(0, 31, 51, 0.5)",
   },
   fish: {
-    position: 'absolute',
+    position: "absolute",
     left: 50,
     width: 90,
     height: 90,
     zIndex: 10,
   },
   counter: {
-    position: 'absolute',
+    position: "absolute",
     top: 20,
     right: 20,
-    backgroundColor: 'rgba(0, 31, 51, 0.6)',
+    backgroundColor: "rgba(0, 31, 51, 0.6)",
     padding: 10,
     borderRadius: 8,
     zIndex: 20,
   },
   counterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
     marginBottom: 4,
   },
   counterLabel: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
     marginRight: 6,
   },
@@ -328,45 +343,45 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   counterText: {
-    color: 'white',
+    color: "white",
     fontSize: 15,
     fontWeight: 500,
   },
   invincibleIndicator: {
-    position: 'absolute',
+    position: "absolute",
     top: 20,
     left: 20,
-    backgroundColor: 'rgba(255, 215, 0, 0.85)',
+    backgroundColor: "rgba(255, 215, 0, 0.85)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     zIndex: 30,
-    shadowColor: 'gold',
+    shadowColor: "gold",
     shadowRadius: 10,
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0 },
   },
   invincibleText: {
-    color: '#000',
-    fontWeight: '700',
+    color: "#000",
+    fontWeight: "700",
     fontSize: 15,
   },
   envMessageOverlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 90,
     right: 0,
     left: 0,
-    alignItems: 'center',
+    alignItems: "center",
     zIndex: 25,
-    backgroundColor: 'rgba(0, 31, 51, 0.6)',
+    backgroundColor: "rgba(0, 31, 51, 0.6)",
     paddingVertical: 6,
     marginHorizontal: 20,
     borderRadius: 10,
   },
   envMessageText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
     fontWeight: 500,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

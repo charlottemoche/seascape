@@ -1,8 +1,8 @@
-import { Redirect } from 'expo-router';
-import { TabLayout } from '@/components/Tabs/TabLayout';
-import { useSession } from '@/context/SessionContext';
-import { useOnboarding } from '@/context/OnboardingContext';
-import { Loader } from '@/components/Loader';
+import { Redirect } from "expo-router";
+import { TabLayout } from "@/components/Tabs/TabLayout";
+import { useSession } from "@/context/SessionContext";
+import { useOnboarding } from "@/context/OnboardingContext";
+import { Loader } from "@/components/Loader";
 
 export default function HomeLayout() {
   const { user, loading: userLoading, sessionChecked, profile } = useSession();

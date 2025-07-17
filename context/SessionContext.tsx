@@ -1,16 +1,23 @@
-import React, { createContext, useState, useEffect, useMemo, ReactNode, useRef } from 'react';
-import { AppState } from 'react-native';
-import { supabase } from '@/lib/supabase';
-import { syncGuestDataToProfile } from '@/lib/syncGuestData';
-import type { User } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useMemo,
+  ReactNode,
+  useRef,
+} from "react";
+import { AppState } from "react-native";
+import { supabase } from "@/lib/supabase";
+import { syncGuestDataToProfile } from "@/lib/syncGuestData";
+import type { User } from "@supabase/supabase-js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GUEST_KEYS = [
-  'onboarding_completed',
-  'fish_name',
-  'fish_color',
-  'local_high_score',
-  'total_minutes',
+  "onboarding_completed",
+  "fish_name",
+  "fish_color",
+  "local_high_score",
+  "total_minutes",
 ] as const;
 
 type Profile = {
@@ -52,15 +59,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
 
     const { data, error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .select(
-        'fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token, has_tipped'
+        "fish_color, fish_name, onboarding_completed, high_score, total_minutes, admin, has_played, friend_code, expo_push_token, has_tipped"
       )
-      .eq('user_id', user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (error) {
-      console.warn('[SessionProvider] profile fetch failed', error);
+      console.warn("[SessionProvider] profile fetch failed", error);
     }
     setProfile(data);
   }
@@ -79,8 +86,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     supabase.auth.startAutoRefresh();
-    const appSub = AppState.addEventListener('change', state => {
-      if (state === 'active') {
+    const appSub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
         supabase.auth.startAutoRefresh();
       } else {
         supabase.auth.stopAutoRefresh();
@@ -92,9 +99,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setChecked(true);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();
@@ -116,7 +125,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) {
-      AsyncStorage.multiRemove(GUEST_KEYS).catch(() => { });
+      AsyncStorage.multiRemove(GUEST_KEYS).catch(() => {});
       hasSyncedRef.current = false;
       return;
     }
@@ -128,7 +137,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await syncGuestDataToProfile(user.id);
         await refreshProfileQuiet();
       } catch (err) {
-        console.warn('[SessionProvider] guest→profile sync failed', err);
+        console.warn("[SessionProvider] guest→profile sync failed", err);
       } finally {
         hasSyncedRef.current = true;
       }
@@ -137,7 +146,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (profile?.onboarding_completed) {
-      AsyncStorage.setItem('onboarding_completed', 'true');
+      AsyncStorage.setItem("onboarding_completed", "true");
     }
   }, [profile?.onboarding_completed]);
 
@@ -154,14 +163,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <SessionContext.Provider value={value}>
-      {children}
-    </SessionContext.Provider>
+    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
   );
 }
 
 export function useSession() {
   const context = React.useContext(SessionContext);
-  if (!context) throw new Error('useSession must be inside <SessionProvider>');
+  if (!context) throw new Error("useSession must be inside <SessionProvider>");
   return context;
 }

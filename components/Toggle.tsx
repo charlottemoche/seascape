@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useEffect } from 'react';
-import { Pressable, Animated, StyleSheet, useColorScheme } from 'react-native';
-import Colors from '@/constants/Colors';
+import React, { useCallback, useRef, useEffect } from "react";
+import { Pressable, Animated, StyleSheet, useColorScheme } from "react-native";
+import Colors from "@/constants/Colors";
 
 export default function Toggle({
   value,
@@ -11,13 +11,13 @@ export default function Toggle({
   onChange: (next: boolean) => void;
   size?: number;
 }) {
-
   const colorScheme = useColorScheme();
   const knob = useRef(new Animated.Value(value ? 1 : 0)).current;
 
-  const trackOn = colorScheme === 'dark' ? Colors.custom.blue : Colors.custom.blue;
-  const trackOff = colorScheme === 'dark' ? '#444' : '#ccc';
-  const knobColor = colorScheme === 'dark' ? '#fafafa' : '#fff';
+  const trackOn =
+    colorScheme === "dark" ? Colors.custom.blue : Colors.custom.blue;
+  const trackOff = colorScheme === "dark" ? "#444" : "#ccc";
+  const knobColor = colorScheme === "dark" ? "#fafafa" : "#fff";
 
   useEffect(() => {
     Animated.timing(knob, {
@@ -68,11 +68,11 @@ export default function Toggle({
 
 const styles = StyleSheet.create({
   track: {
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 2,
   },
   knob: {
-    position: 'absolute',
+    position: "absolute",
     top: 2,
     elevation: 2,
   },

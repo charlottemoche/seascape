@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   View,
@@ -11,21 +11,30 @@ import {
   Platform,
   Keyboard,
   useColorScheme,
-} from 'react-native';
-import { Button } from '../Themed';
-import { JournalModalProps } from '@/types/Journal';
-import Colors from '@/constants/Colors';
+} from "react-native";
+import { Button } from "../Themed";
+import { JournalModalProps } from "@/types/Journal";
+import Colors from "@/constants/Colors";
 
-const { height: screenHeight } = Dimensions.get('window');
+const { height: screenHeight } = Dimensions.get("window");
 
-export default function JournalModal({ visible, onClose, text, onChangeText }: JournalModalProps) {
+export default function JournalModal({
+  visible,
+  onClose,
+  text,
+  onChangeText,
+}: JournalModalProps) {
   const colorScheme = useColorScheme();
-  
-  const containerColor = colorScheme === 'dark' ? Colors.custom.dark : Colors.light.background;
-  const inputColor = colorScheme === 'dark' ? Colors.dark.input : Colors.light.input;
-  const modalOverlayColor = colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)';
-  const greyBorder = colorScheme === 'dark' ? Colors.custom.darkGrey : Colors.custom.grey;
-  const textColor = colorScheme === 'dark' ? '#fff' : '#000';
+
+  const containerColor =
+    colorScheme === "dark" ? Colors.custom.dark : Colors.light.background;
+  const inputColor =
+    colorScheme === "dark" ? Colors.dark.input : Colors.light.input;
+  const modalOverlayColor =
+    colorScheme === "dark" ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.3)";
+  const greyBorder =
+    colorScheme === "dark" ? Colors.custom.darkGrey : Colors.custom.grey;
+  const textColor = colorScheme === "dark" ? "#fff" : "#000";
 
   return (
     <Modal
@@ -34,23 +43,38 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
       visible={visible}
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={() => {
-        Keyboard.dismiss();
-        onClose();
-      }}>
-        <View style={[styles.modalOverlay, { backgroundColor: modalOverlayColor }]} />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+          onClose();
+        }}
+      >
+        <View
+          style={[styles.modalOverlay, { backgroundColor: modalOverlayColor }]}
+        />
       </TouchableWithoutFeedback>
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         style={styles.keyboardAvoidingView}
       >
-        <View style={[styles.modalContent, { backgroundColor: containerColor }]}>
-          <Text style={[styles.title, { color: textColor }]}>Write Your Journal Entry</Text>
+        <View
+          style={[styles.modalContent, { backgroundColor: containerColor }]}
+        >
+          <Text style={[styles.title, { color: textColor }]}>
+            Write Your Journal Entry
+          </Text>
           <TextInput
             testID="journal-modal-input"
-            style={[styles.textInput, { backgroundColor: inputColor, borderColor: greyBorder, color: textColor }]}
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: inputColor,
+                borderColor: greyBorder,
+                color: textColor,
+              },
+            ]}
             multiline
             placeholder="Write your thoughts here..."
             placeholderTextColor="#888"
@@ -67,24 +91,24 @@ export default function JournalModal({ visible, onClose, text, onChangeText }: J
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalOverlay: {
     flex: 1,
   },
   keyboardAvoidingView: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    width: '100%',
+    width: "100%",
   },
   modalContent: {
     height: screenHeight / 3,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     margin: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -94,17 +118,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 500,
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   textInput: {
     flex: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     fontSize: 15,
     minHeight: 100,
-    width: '100%',
+    width: "100%",
   },
 });

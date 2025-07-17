@@ -1,11 +1,11 @@
-import { View, StyleSheet } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { Tabs, usePathname } from 'expo-router';
-import { usePendingRequests } from '@/context/PendingContext';
-import { Icon } from '@/components/Icon';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Logo } from '@/components/Nav/Logo';
-import Colors from '@/constants/Colors';
+import { View, StyleSheet } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Tabs, usePathname } from "expo-router";
+import { usePendingRequests } from "@/context/PendingContext";
+import { Icon } from "@/components/Icon";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Logo } from "@/components/Nav/Logo";
+import Colors from "@/constants/Colors";
 
 export function TabLayout() {
   const pathname = usePathname();
@@ -14,60 +14,60 @@ export function TabLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar
-        style={colorScheme === 'dark' ? 'light' : 'dark'}
-      />
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Logo />
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
           tabBarStyle: {
             backgroundColor:
-              colorScheme === 'dark' ? Colors.custom.dark : Colors.custom.lightBlue,
+              colorScheme === "dark"
+                ? Colors.custom.dark
+                : Colors.custom.lightBlue,
           },
-          headerShown: false
+          headerShown: false,
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Home',
+            title: "Home",
             tabBarIcon: ({ color }) =>
-              Icon({ name: 'home', color, type: 'AntDesign' }),
+              Icon({ name: "home", color, type: "AntDesign" }),
           }}
         />
         <Tabs.Screen
           name="swim"
           options={{
-            title: 'Play',
+            title: "Play",
             tabBarIcon: ({ color }) =>
-              Icon({ name: 'water-outline', color, type: 'Ionicons' }),
+              Icon({ name: "water-outline", color, type: "Ionicons" }),
           }}
         />
         <Tabs.Screen
           name="breathe"
           options={{
-            title: 'Breathe',
+            title: "Breathe",
             tabBarIcon: ({ color }) =>
-              Icon({ name: 'leaf-outline', color, type: 'Ionicons' }),
+              Icon({ name: "leaf-outline", color, type: "Ionicons" }),
           }}
         />
         <Tabs.Screen
           name="journal"
           options={{
-            title: 'Journal',
+            title: "Journal",
             tabBarIcon: ({ color }) =>
-              Icon({ name: 'pencil', color, type: 'SimpleLineIcons' }),
+              Icon({ name: "pencil", color, type: "SimpleLineIcons" }),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Profile',
+            title: "Profile",
             tabBarIcon: ({ color }) => (
-              <View style={{ position: 'relative' }}>
-                {Icon({ name: 'user', color, type: 'AntDesign' })}
-                {indicator && !pathname.includes('/profile') && (
+              <View style={{ position: "relative" }}>
+                {Icon({ name: "user", color, type: "AntDesign" })}
+                {indicator && !pathname.includes("/profile") && (
                   <View style={styles.indicator} />
                 )}
               </View>
@@ -81,12 +81,12 @@ export function TabLayout() {
 
 const styles = StyleSheet.create({
   indicator: {
-    position: 'absolute',
+    position: "absolute",
     top: -2,
     right: -6,
     width: 8,
     height: 8,
-    backgroundColor: 'red',
+    backgroundColor: "red",
     borderRadius: 4,
   },
 });

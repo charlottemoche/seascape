@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, ImageSourcePropType, Image } from 'react-native';
-import { Text } from '@/components/Themed';
-import Colors from '@/constants/Colors';
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, ImageSourcePropType, Image } from "react-native";
+import { Text } from "@/components/Themed";
+import Colors from "@/constants/Colors";
 
 type SlideProps = {
   title?: string;
@@ -30,9 +30,22 @@ export default function Slide({ title, body, icon }: SlideProps) {
     Animated.sequence([
       Animated.delay(100),
       Animated.parallel([
-        Animated.spring(translateY, { toValue: 0, friction: 7, tension: 60, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 350, useNativeDriver: true }),
-        Animated.spring(scale, { toValue: 1, friction: 5, useNativeDriver: true }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          friction: 7,
+          tension: 60,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }),
       ]),
     ]).start();
   }, [ready, body]);
@@ -40,13 +53,18 @@ export default function Slide({ title, body, icon }: SlideProps) {
   if (!ready) return null;
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ translateY }], opacity }]}>
+    <Animated.View
+      style={[styles.card, { transform: [{ translateY }], opacity }]}
+    >
       {icon && (
         <Animated.View style={[styles.icon, { transform: [{ scale }] }]}>
           {React.isValidElement(icon) ? (
             icon
           ) : (
-            <Image source={icon as ImageSourcePropType} style={styles.imageIcon} />
+            <Image
+              source={icon as ImageSourcePropType}
+              style={styles.imageIcon}
+            />
           )}
         </Animated.View>
       )}
@@ -60,40 +78,40 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(123,182,212,0.4)',
+    borderColor: "rgba(123,182,212,0.4)",
     paddingHorizontal: 24,
     paddingBottom: 24,
     paddingTop: 18,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    alignSelf: 'center',
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignSelf: "center",
     maxWidth: 320,
   },
   title: {
     fontSize: 20,
     fontWeight: 500,
     color: Colors.custom.white,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
   },
   body: {
     fontSize: 15,
     lineHeight: 22,
     color: Colors.custom.white,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 20,
   },
   icon: {
     width: 50,
     height: 50,
     marginBottom: 4,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
   },
   imageIcon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+    alignSelf: "center",
   },
 });
